@@ -6,7 +6,6 @@
 omni-research/
 ├── docs/                  # Project documentation (this skill set only)
 │   ├── design/            # Design documents (topic-centric)
-│   ├── features.md        # Master features document (reference)
 │   └── brainstorming/     # Brainstorming session outputs
 ├── skills/                # Agentic skills source
 │   ├── omr-*.md           # All skills prefixed with omr-

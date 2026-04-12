@@ -1,0 +1,106 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Skill Contract Schema",
+  "description": "Defines artifact-bound dependencies for omr skills",
+  "type": "object",
+  "required": ["skill", "requires", "produces", "gates"],
+  "properties": {
+    "skill": {
+      "type": "string",
+      "description": "Unique skill identifier",
+      "pattern": "^omr-[a-z-]+$"
+    },
+    "requires": {
+      "type": "array",
+      "description": "Artifacts required before skill can be invoked",
+      "items": {
+        "type": "object",
+        "required": ["artifact", "optional"],
+        "properties": {
+          "artifact": {
+            "type": "string",
+            "description": "Artifact filename or pattern (e.g., 'evidence-map.md', 'materials in raw/')"
+          },
+          "optional": {
+            "type": "boolean",
+            "description": "Whether this artifact is optional (if false, skill invocation blocked without it)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of what this artifact provides"
+          }
+        }
+      },
+      "default": []
+    },
+    "produces": {
+      "type": "array",
+      "description": "Artifacts produced by this skill",
+      "items": {
+        "type": "object",
+        "required": ["artifact"],
+        "properties": {
+          "artifact": {
+            "type": "string",
+            "description": "Artifact filename or directory pattern"
+          },
+          "schema": {
+            "type": "string",
+            "description": "Optional JSON schema for artifact validation"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of this artifact"
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "gates": {
+      "type": "array",
+      "description": "Quality gates enforced before skill completion",
+      "items": {
+        "type": "object",
+        "required": ["id", "checks", "enforcement"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Gate identifier (e.g., 'gate_a', 'gate_b')",
+            "pattern": "^gate_[a-d]$"
+          },
+          "checks": {
+            "type": "array",
+            "description": "Quality criteria to verify",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "enforcement": {
+            "type": "string",
+            "description": "How gate is enforced",
+            "enum": ["user-confirm", "auto-pass", "auto-fail"],
+            "default": "user-confirm"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable gate purpose"
+          }
+        }
+      },
+      "default": []
+    },
+    "modes": {
+      "type": "array",
+      "description": "Optional modes for configurable skills (e.g., omr-synthesis)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "default_mode": {
+      "type": "string",
+      "description": "Default mode if skill is configurable"
+    }
+  },
+  "additionalProperties": false
+}

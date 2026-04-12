@@ -1,0 +1,34 @@
+{
+  "skill": "omr-research-plan",
+  "requires": [
+    {
+      "artifact": "evidence-map.md",
+      "optional": false,
+      "description": "Evidence mapping from omr-evidence"
+    }
+  ],
+  "produces": [
+    {
+      "artifact": "judgment-summary.md",
+      "schema": "schemas/judgment-summary.schema.json",
+      "description": "Synthesized judgment from evidence with main conclusion and confidence"
+    },
+    {
+      "artifact": "research-plan.md",
+      "schema": "schemas/research-plan.schema.json",
+      "description": "Research approach with priorities and timeline"
+    }
+  ],
+  "gates": [
+    {
+      "id": "gate_a",
+      "checks": [
+        "Evidence coverage adequate",
+        "Research question clear",
+        "Scope defined"
+      ],
+      "enforcement": "user-confirm",
+      "description": "Verify evidence is sufficient for research planning"
+    }
+  ]
+}

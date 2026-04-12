@@ -3,5 +3,4 @@ thirdparty
 
 # BMad - commit config and modules, ignore personal settings and output
 _bmad/config.user.yaml
-_bmad-output/
 _bmad/memory/

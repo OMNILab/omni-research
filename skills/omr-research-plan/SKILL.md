@@ -1,6 +1,14 @@
 ---
 name: omr-research-plan
-description: Synthesize judgment from evidence and plan research execution. Creates judgment summary (main conclusion, confidence, contradictions) and research plan (priorities, timeline, resources). Enforces Gate A review before proceeding - checks evidence coverage, question clarity, and scope definition. Use after evidence mapping is complete, when user wants to "plan research", "judge evidence", or asks "what should I investigate".
+description: Synthesize judgment from evidence and plan research execution. Creates judgment summary (main conclusion, confidence, contradictions) and research plan (priorities, timeline, resources). Enforces Gate A review before proceeding - checks evidence coverage, question clarity, and scope definition. Use after evidence mapping is complete, when user wants to "plan research", "judge evidence", or asks "what should I investigate". REQUIRES omr-core skill and workspace with evidence map.
+version: 1.0.0
+author: OmniResearch Team
+license: MIT
+metadata:
+  requires_skills: [omr-core]
+  requires_workspace: true
+  category: research-planning
+  phase: 2.3
 ---
 
 # omr-research-plan: Judge Evidence and Plan Research

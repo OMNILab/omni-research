@@ -1,6 +1,14 @@
 ---
 name: omr-bootstrap
-description: Initialize a new omni-research project workspace. Creates complete directory structure (raw/, docs/, src/, wiki/), generates CLAUDE.md with research context, and displays skill tree showing available next actions. Use whenever starting a new research project, even if user doesn't explicitly say "bootstrap" or mentions "new project", "start research", "initialize workspace", or provides a research topic they want to investigate.
+description: Initialize a new omni-research project workspace. Creates complete directory structure (raw/, docs/, src/, wiki/), generates CLAUDE.md with research context, and displays skill tree showing available next actions. Use whenever starting a new research project, even if user doesn't explicitly say "bootstrap" or mentions "new project", "start research", "initialize workspace", or provides a research topic they want to investigate. REQUIRES omr-core skill for infrastructure setup.
+version: 1.0.0
+author: OmniResearch Team
+license: MIT
+metadata:
+  requires_skills: [omr-core]
+  requires_workspace: false
+  category: project-setup
+  phase: 1.0
 ---
 
 # omr-bootstrap: Initialize Research Workspace

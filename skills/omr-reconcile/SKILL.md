@@ -1,6 +1,14 @@
 ---
 name: omr-reconcile
-description: Update research state when new evidence contradicts existing artifacts. Analyzes impact blast radius across dependent artifacts, proposes reconciliation options, archives old versions, and updates affected downstream artifacts. Maintains traceability through reconciliation history. Can trigger automatically after new material collection. Use when user wants to "update research", "reconcile contradictions", or when new evidence arrives.
+description: Update research state when new evidence contradicts existing artifacts. Analyzes impact blast radius across dependent artifacts, proposes reconciliation options, archives old versions, and updates affected downstream artifacts. Maintains traceability through reconciliation history. Can trigger automatically after new material collection. Use when user wants to "update research", "reconcile contradictions", or when new evidence arrives. REQUIRES omr-core skill and workspace with existing artifacts.
+version: 1.0.0
+author: OmniResearch Team
+license: MIT
+metadata:
+  requires_skills: [omr-core]
+  requires_workspace: true
+  category: state-management
+  phase: 3.4
 ---
 
 # omr-reconcile: Reconcile Research State on Evidence Changes

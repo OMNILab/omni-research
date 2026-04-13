@@ -1,0 +1,21 @@
+{
+  "skill": "omr-reconcile",
+  "requires": [
+    {
+      "artifact": "at least one existing artifact",
+      "optional": false,
+      "description": "Existing research artifacts to reconcile"
+    }
+  ],
+  "produces": [
+    {
+      "artifact": "reconciliation state",
+      "description": "Updated artifacts based on new evidence or user-initiated reconciliation"
+    },
+    {
+      "artifact": "docs/archive/*",
+      "description": "Archived previous versions of updated artifacts"
+    }
+  ],
+  "gates": []
+}

@@ -1,6 +1,14 @@
 ---
 name: omr-evidence
-description: Define research questions and map the evidence landscape by analyzing collected materials. Creates research brief with clear scope and success criteria, and evidence map showing primary evidence, supporting materials, and open gaps. Uses strict evidence boundaries (proven, suggested, inferred). Triggers automatically when materials are ready for analysis. Use when user asks to "analyze papers", "map evidence", "define research scope", or says "now what" after collecting materials.
+description: Define research questions and map the evidence landscape by analyzing collected materials. Creates research brief with clear scope and success criteria, and evidence map showing primary evidence, supporting materials, and open gaps. Uses strict evidence boundaries (proven, suggested, inferred). Triggers automatically when materials are ready for analysis. Use when user asks to "analyze papers", "map evidence", "define research scope", or says "now what" after collecting materials. REQUIRES omr-core skill and workspace with collected materials.
+version: 1.0.0
+author: OmniResearch Team
+license: MIT
+metadata:
+  requires_skills: [omr-core]
+  requires_workspace: true
+  category: evidence-analysis
+  phase: 2.2
 ---
 
 # omr-evidence: Map Evidence Landscape

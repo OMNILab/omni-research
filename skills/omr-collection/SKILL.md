@@ -1,6 +1,14 @@
 ---
 name: omr-collection
-description: Material collection with passive reception philosophy. User provides sources → skill delivers materials. Supports direct input (URLs, DOIs, paths) and search queries with hybrid confirmation. Minimal parsing (format extraction only, no semantic analysis). 4 handlers (Generic Web, Paper, GitHub, HuggingFace) with configurable depth and balanced error handling. Use this skill whenever user wants to collect research materials, download papers, gather code repos, or search for relevant resources.
+description: Material collection with passive reception philosophy. User provides sources → skill delivers materials. Supports direct input (URLs, DOIs, paths) and search queries with hybrid confirmation. Minimal parsing (format extraction only, no semantic analysis). 4 handlers (Generic Web, Paper, GitHub, HuggingFace) with configurable depth and balanced error handling. Use this skill whenever user wants to collect research materials, download papers, gather code repos, or search for relevant resources. REQUIRES omr-core skill and workspace initialization.
+version: 1.0.0
+author: OmniResearch Team
+license: MIT
+metadata:
+  requires_skills: [omr-core]
+  requires_workspace: true
+  category: research-logistics
+  phase: 2.1
 ---
 
 # omr-collection

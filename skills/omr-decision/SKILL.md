@@ -1,6 +1,14 @@
 ---
 name: omr-decision
-description: Create architectural decisions with alternatives, rationale, and evidence references. Documents at least 3 alternatives, selects best option based on evidence and judgment, identifies risks, and ensures traceability. Enforces Gate B review before implementation - checks alternatives documented, risks stated, and evidence refs valid. Use when user wants to "make a decision", "choose architecture", or "select approach" after planning is complete.
+description: Create architectural decisions with alternatives, rationale, and evidence references. Documents at least 3 alternatives, selects best option based on evidence and judgment, identifies risks, and ensures traceability. Enforces Gate B review before implementation - checks alternatives documented, risks stated, and evidence refs valid. Use when user wants to "make a decision", "choose architecture", or "select approach" after planning is complete. REQUIRES omr-core skill and workspace with research plan.
+version: 1.0.0
+author: OmniResearch Team
+license: MIT
+metadata:
+  requires_skills: [omr-core]
+  requires_workspace: true
+  category: architecture-decisions
+  phase: 2.4
 ---
 
 # omr-decision: Make Architecture Decision

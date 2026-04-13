@@ -1,6 +1,14 @@
 ---
 name: omr-evaluation
-description: Design and run evaluation experiments to validate architecture decisions. Creates experiment specification with hypothesis, metrics, and ground truth strategy. Implements prototype code and evaluation tests. Runs experiments and produces evaluation report with results mapped to hypothesis. Enforces Gate C review - checks metrics answer research question, failure conditions explicit, and reproducible design. Use when user wants to "test", "validate", "evaluate decision", or "run experiments".
+description: Design and run evaluation experiments to validate architecture decisions. Creates experiment specification with hypothesis, metrics, and ground truth strategy. Implements prototype code and evaluation tests. Runs experiments and produces evaluation report with results mapped to hypothesis. Enforces Gate C review - checks metrics answer research question, failure conditions explicit, and reproducible design. Use when user wants to "test", "validate", "evaluate decision", or "run experiments". REQUIRES omr-core skill and workspace with decisions.
+version: 1.0.0
+author: OmniResearch Team
+license: MIT
+metadata:
+  requires_skills: [omr-core]
+  requires_workspace: true
+  category: experiment-execution
+  phase: 2.5
 ---
 
 # omr-evaluation: Validate Decision Through Experiments

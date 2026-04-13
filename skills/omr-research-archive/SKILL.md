@@ -1,6 +1,14 @@
 ---
 name: omr-research-archive
-description: Snapshot current research state for preservation or rollback. Creates timestamped archive of all artifacts, generates archive index, and preserves version metadata. Can be triggered manually or automatically during reconciliation. Enables rollback to previous state if needed. Use when user wants to "archive research", "save snapshot", "preserve state", or before risky changes.
+description: Snapshot current research state for preservation or rollback. Creates timestamped archive of all artifacts, generates archive index, and preserves version metadata. Can be triggered manually or automatically during reconciliation. Enables rollback to previous state if needed. Use when user wants to "archive research", "save snapshot", "preserve state", or before risky changes. REQUIRES omr-core skill and workspace with artifacts.
+version: 1.0.0
+author: OmniResearch Team
+license: MIT
+metadata:
+  requires_skills: [omr-core]
+  requires_workspace: true
+  category: archiving
+  phase: 3.5
 ---
 
 # omr-research-archive: Snapshot Research Progress

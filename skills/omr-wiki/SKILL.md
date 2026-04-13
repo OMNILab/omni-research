@@ -1,6 +1,14 @@
 ---
 name: omr-wiki
-description: Generate living knowledge base from synthesis findings. Extracts key concepts from survey/report/manuscript/brief and creates interlinked wiki pages for quick reference. Auto-generates wiki index with navigation. Links back to source documents for deep dives. Continuously updated as new findings emerge. Use when user wants to "create wiki", "generate concept pages", or after synthesis completion.
+description: Generate living knowledge base from synthesis findings. Extracts key concepts from survey/report/manuscript/brief and creates interlinked wiki pages for quick reference. Auto-generates wiki index with navigation. Links back to source documents for deep dives. Continuously updated as new findings emerge. Use when user wants to "create wiki", "generate concept pages", or after synthesis completion. REQUIRES omr-core skill and workspace with synthesis.
+version: 1.0.0
+author: OmniResearch Team
+license: MIT
+metadata:
+  requires_skills: [omr-core]
+  requires_workspace: true
+  category: knowledge-base
+  phase: 3.2
 ---
 
 # omr-wiki: Generate Living Knowledge Base

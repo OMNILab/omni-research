@@ -1,6 +1,14 @@
 ---
 name: omr-idea-note
-description: Capture speculative thoughts and creative insights outside formal research pipeline. Creates timestamped idea notes that can be linked to decisions and experiments later. Available anytime during research process. Supports Idea-First research pattern where creative thinking precedes evidence collection. Use when user wants to "capture idea", "record insight", "note hypothesis", or "save thought".
+description: Capture speculative thoughts and creative insights outside formal research pipeline. Creates timestamped idea notes that can be linked to decisions and experiments later. Available anytime during research process. Supports Idea-First research pattern where creative thinking precedes evidence collection. Use when user wants to "capture idea", "record insight", "note hypothesis", or "save thought". REQUIRES omr-core skill and workspace initialization.
+version: 1.0.0
+author: OmniResearch Team
+license: MIT
+metadata:
+  requires_skills: [omr-core]
+  requires_workspace: true
+  category: idea-capture
+  phase: 3.3
 ---
 
 # omr-idea-note: Capture Creative Insights

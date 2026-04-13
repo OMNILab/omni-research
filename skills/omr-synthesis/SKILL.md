@@ -1,6 +1,14 @@
 ---
 name: omr-synthesis
-description: Write authoritative research findings in configurable output formats (survey chapters, industry reports, academic manuscripts, or executive briefs). Ensures traceability by linking every claim to evidence, decisions, or experiments. Enforces strict evidence boundaries (proven, suggested, inferred). Enforces Gate D review - checks results traceable, evidence boundaries stated, and no over-claiming. Use when user wants to "write up findings", "document results", "create survey", or "publish research".
+description: Write authoritative research findings in configurable output formats (survey chapters, industry reports, academic manuscripts, or executive briefs). Ensures traceability by linking every claim to evidence, decisions, or experiments. Enforces strict evidence boundaries (proven, suggested, inferred). Enforces Gate D review - checks results traceable, evidence boundaries stated, and no over-claiming. Use when user wants to "write up findings", "document results", "create survey", or "publish research". REQUIRES omr-core skill and workspace with completed research.
+version: 1.0.0
+author: OmniResearch Team
+license: MIT
+metadata:
+  requires_skills: [omr-core]
+  requires_workspace: true
+  category: findings-documentation
+  phase: 3.1
 ---
 
 # omr-synthesis: Document Research Findings

@@ -1,0 +1,30 @@
+{
+  "skill": "omr-synthesis",
+  "requires": [
+    {
+      "artifact": "evaluation-report.md OR judgment-summary.md",
+      "optional": false,
+      "description": "Either evaluation results or judgment to synthesize"
+    }
+  ],
+  "produces": [
+    {
+      "artifact": "docs/survey/* OR docs/report/* OR docs/manuscript/* OR docs/brief/*",
+      "description": "Synthesis output in configured mode (survey/report/manuscript/brief)"
+    }
+  ],
+  "gates": [
+    {
+      "id": "gate_d",
+      "checks": [
+        "Results traceable to hypotheses",
+        "Evidence boundaries stated",
+        "No over-claiming"
+      ],
+      "enforcement": "user-confirm",
+      "description": "Verify synthesis is ready for publication"
+    }
+  ],
+  "modes": ["survey", "report", "manuscript", "brief"],
+  "default_mode": "defined by pattern config"
+}

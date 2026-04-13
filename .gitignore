@@ -1,0 +1,9 @@
+thirdparty
+.claude
+
+# BMad - commit config and modules, ignore personal settings and output
+_bmad/config.user.yaml
+_bmad/memory/
+_bmad/_config/
+_bmad/bmb/
+_bmad/core/

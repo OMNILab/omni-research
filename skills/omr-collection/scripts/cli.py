@@ -10,8 +10,13 @@ import sys
 from pathlib import Path
 from typing import List, Dict
 
-from .orchestrator import CollectionOrchestrator
-from .input_router import InputRouter
+# Setup imports for package structure
+skill_root = Path(__file__).parent.parent
+if str(skill_root) not in sys.path:
+    sys.path.insert(0, str(skill_root))
+
+from scripts.orchestrator import CollectionOrchestrator
+from scripts.input_router import InputRouter
 
 def parse_arguments() -> argparse.Namespace:
     """

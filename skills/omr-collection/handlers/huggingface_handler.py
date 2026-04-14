@@ -7,9 +7,15 @@ Fetches README and model/dataset cards from HuggingFace Hub
 import hashlib
 import json
 import requests
+import sys
 from pathlib import Path
 from typing import Dict
 from datetime import datetime
+
+# Setup imports for package structure
+skill_root = Path(__file__).parent.parent
+if str(skill_root) not in sys.path:
+    sys.path.insert(0, str(skill_root))
 
 from .base_handler import BaseHandler
 

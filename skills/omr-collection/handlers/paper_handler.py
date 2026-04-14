@@ -7,11 +7,17 @@ Fetches papers from arXiv, DOI links, and converts PDFs to markdown
 import hashlib
 import json
 import requests
+import sys
 from pathlib import Path
 from typing import Dict
 from datetime import datetime
 import subprocess
 import tempfile
+
+# Setup imports for package structure
+skill_root = Path(__file__).parent.parent
+if str(skill_root) not in sys.path:
+    sys.path.insert(0, str(skill_root))
 
 from .base_handler import BaseHandler
 
@@ -53,7 +59,7 @@ class PaperHandler(BaseHandler):
 
     def _fetch_from_arxiv(self, arxiv_id: str, **kwargs) -> Dict:
         """
-        Fetch paper from arXiv
+        Fetch paper from arXiv using SDK (preferred) or HTTP fallback
 
         Args:
             arxiv_id: arXiv ID (e.g., "2402.12345")
@@ -61,6 +67,80 @@ class PaperHandler(BaseHandler):
 
         Returns:
             Dict with pdf_path, metadata
+        """
+        # Try arxiv SDK first (enhanced reliability + rich metadata)
+        try:
+            import arxiv
+            return self._fetch_with_arxiv_sdk(arxiv_id, **kwargs)
+        except ImportError:
+            # Fallback: Direct HTTP download (existing implementation)
+            return self._fetch_with_arxiv_http(arxiv_id, **kwargs)
+
+    def _fetch_with_arxiv_sdk(self, arxiv_id: str, **kwargs) -> Dict:
+        """
+        Fetch paper using official arxiv Python SDK
+
+        Args:
+            arxiv_id: arXiv ID (e.g., "2402.12345")
+            **kwargs: Optional flags
+
+        Returns:
+            Dict with pdf_path, metadata (rich metadata from SDK)
+        """
+        import arxiv
+
+        # Configure client with retry logic
+        client = arxiv.Client(
+            page_size=1,
+            delay_seconds=3.0,
+            num_retries=3
+        )
+
+        # Search by arxiv ID
+        search = arxiv.Search(id_list=[arxiv_id])
+
+        # Get first result
+        try:
+            result = next(client.results(search))
+        except StopIteration:
+            raise RuntimeError(f"arxiv paper {arxiv_id} not found")
+
+        # Download PDF to temp file
+        temp_dir = Path(tempfile.mkdtemp())
+        pdf_path = temp_dir / "paper.pdf"
+
+        result.download_pdf(
+            dirpath=str(pdf_path.parent),
+            filename="paper.pdf"
+        )
+
+        # Extract rich metadata (minimal parsing boundary: metadata only)
+        metadata = {
+            "arxiv_id": arxiv_id,
+            "title": result.title,
+            "authors": [author.name for author in result.authors],
+            "date": result.published.strftime("%Y-%m-%d"),
+            "doi": result.doi or None,
+            "categories": list(result.categories) if result.categories else [],
+            "source_url": result.entry_id,
+            "summary": result.summary[:200] + "..." if len(result.summary) > 200 else result.summary
+        }
+
+        return {
+            "pdf_path": pdf_path,
+            "metadata": metadata
+        }
+
+    def _fetch_with_arxiv_http(self, arxiv_id: str, **kwargs) -> Dict:
+        """
+        Fetch paper from arXiv via direct HTTP (fallback when SDK unavailable)
+
+        Args:
+            arxiv_id: arXiv ID (e.g., "2402.12345")
+            **kwargs: Optional flags
+
+        Returns:
+            Dict with pdf_path, metadata (basic metadata from API)
         """
         # Construct arXiv PDF URL
         pdf_url = f"https://arxiv.org/pdf/{arxiv_id}.pdf"
@@ -163,35 +243,20 @@ class PaperHandler(BaseHandler):
 
     def _fetch_arxiv_metadata(self, arxiv_id: str) -> Dict:
         """
-        Fetch minimal metadata from arXiv API
+        Fetch minimal metadata from arXiv API (HTTP fallback)
 
         Args:
             arxiv_id: arXiv ID
 
         Returns:
-            Metadata dict (authors, date, arxiv_id)
+            Metadata dict (arxiv_id, source_url - minimal for HTTP fallback)
         """
-        # Use arXiv API to fetch metadata
-        api_url = f"http://export.arxiv.org/api/query?id_list={arxiv_id}"
-
-        try:
-            response = requests.get(api_url, timeout=10)
-            response.raise_for_status()
-
-            # Parse XML response (simplified)
-            # Real implementation would use xml.etree.ElementTree
-            # For now, return basic metadata
-            return {
-                "arxiv_id": arxiv_id,
-                "source_url": f"https://arxiv.org/abs/{arxiv_id}"
-            }
-
-        except Exception as e:
-            # Fallback: minimal metadata
-            return {
-                "arxiv_id": arxiv_id,
-                "source_url": f"https://arxiv.org/abs/{arxiv_id}"
-            }
+        # HTTP fallback provides minimal metadata
+        # Rich metadata available via arxiv SDK (_fetch_with_arxiv_sdk)
+        return {
+            "arxiv_id": arxiv_id,
+            "source_url": f"https://arxiv.org/abs/{arxiv_id}"
+        }
 
     def convert(self, fetched_data: Dict) -> str:
         """
@@ -311,7 +376,7 @@ class PaperHandler(BaseHandler):
         Create markdown header with metadata
 
         Args:
-            metadata: Paper metadata
+            metadata: Paper metadata (rich metadata from arxiv SDK or basic from HTTP)
 
         Returns:
             Header markdown string
@@ -331,12 +396,21 @@ class PaperHandler(BaseHandler):
             lines.append(f"**Date**: {metadata['date']}")
             lines.append("")
 
-        if 'DOI' in metadata:
+        if 'doi' in metadata and metadata['doi']:
+            lines.append(f"**DOI**: {metadata['doi']}")
+            lines.append("")
+
+        if 'DOI' in metadata:  # Legacy format support
             lines.append(f"**DOI**: {metadata['DOI']}")
             lines.append("")
 
         if 'arxiv_id' in metadata:
             lines.append(f"**arXiv**: {metadata['arxiv_id']}")
+            lines.append("")
+
+        if 'categories' in metadata and metadata['categories']:
+            categories_str = ", ".join(metadata['categories'])
+            lines.append(f"**Categories**: {categories_str}")
             lines.append("")
 
         if 'source_url' in metadata:
@@ -383,7 +457,7 @@ class PaperHandler(BaseHandler):
         return paper_dir / filename
 
 def main():
-    """Test paper handler"""
+    """Test paper handler with arxiv SDK integration"""
     import sys
 
     if len(sys.argv) < 2:
@@ -395,6 +469,15 @@ def main():
     arxiv_id = sys.argv[2]
 
     handler = PaperHandler(workspace)
+
+    # Check if arxiv SDK available
+    try:
+        import arxiv
+        sdk_available = True
+        print(f"Using arxiv SDK (enhanced mode)")
+    except ImportError:
+        sdk_available = False
+        print(f"Using HTTP fallback (SDK not installed)")
 
     try:
         print(f"Fetching paper {arxiv_id}...")
@@ -413,6 +496,17 @@ def main():
         print(f"✓ Paper collected")
         print(f"  File: {result['file_path']}")
         print(f"  ID: {result['artifact_id']}")
+
+        # Show metadata richness difference
+        metadata = fetched.get('metadata', {})
+        if sdk_available:
+            print(f"  Title: {metadata.get('title', 'N/A')}")
+            print(f"  Authors: {len(metadata.get('authors', []))} authors")
+            print(f"  Categories: {len(metadata.get('categories', []))} categories")
+            if metadata.get('doi'):
+                print(f"  DOI: {metadata['doi']}")
+        else:
+            print(f"  (Basic metadata - install arxiv SDK for rich metadata)")
 
     except Exception as e:
         print(f"✗ Error: {str(e)}")

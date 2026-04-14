@@ -6,13 +6,19 @@ Coordinates handler execution, retry logic, fallback mechanism, and error handli
 
 import time
 import json
+import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 from datetime import datetime
 
-from .input_router import InputRouter, InputType
-from .handlers import GenericWebHandler, PaperHandler, GitHubHandler, HuggingFaceHandler
-from .handlers.base_handler import BaseHandler
+# Setup imports for package structure
+skill_root = Path(__file__).parent.parent
+if str(skill_root) not in sys.path:
+    sys.path.insert(0, str(skill_root))
+
+from scripts.input_router import InputRouter, InputType
+from handlers import GenericWebHandler, PaperHandler, GitHubHandler, HuggingFaceHandler
+from handlers.base_handler import BaseHandler
 
 class CollectionOrchestrator:
     """

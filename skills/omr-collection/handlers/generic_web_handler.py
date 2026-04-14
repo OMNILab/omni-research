@@ -6,11 +6,17 @@ Fetches web content using Chrome MCP or simple HTTP fetcher
 
 import hashlib
 import requests
+import sys
 from pathlib import Path
 from typing import Dict
 from datetime import datetime
 from html.parser import HTMLParser
 import html2text
+
+# Setup imports for package structure
+skill_root = Path(__file__).parent.parent
+if str(skill_root) not in sys.path:
+    sys.path.insert(0, str(skill_root))
 
 from .base_handler import BaseHandler
 
@@ -48,20 +54,59 @@ class GenericWebHandler(BaseHandler):
 
     def _fetch_with_chrome_mcp(self, url: str, **kwargs) -> Dict:
         """
-        Fetch using Chrome MCP (if available)
+        Fetch using Chrome MCP with screenshot capture
 
         Args:
             url: Web URL
             **kwargs: Optional parameters
 
         Returns:
-            Dict with snapshot_path, html_content, metadata
+            Dict with html_content, snapshot_path (if available), metadata
         """
-        # Chrome MCP integration (placeholder - real would use MCP client)
-        # This is a placeholder for Chrome MCP integration
-        # In real implementation, would call MCP server for snapshot + markdown
+        try:
+            # Import MCP client utility
+            import sys
+            sys.path.insert(0, str(Path(__file__).parent.parent))
+            from mcp_client import ChromeMCPClient
 
-        raise RuntimeError("Chrome MCP not available (placeholder implementation)")
+            client = ChromeMCPClient()
+
+            # Check if Chrome MCP server available
+            if not client.detect_server():
+                raise RuntimeError("Chrome MCP server not installed")
+
+            # Capture webpage (async wrapped in sync)
+            import asyncio
+            result = asyncio.run(client.capture_webpage_async(url))
+
+            # Save screenshot if available
+            snapshot_path = None
+            if result['screenshot_png']:
+                snapshot_path = self.get_snapshot_path(url)
+                snapshot_path.write_bytes(result['screenshot_png'])
+
+            # Build metadata
+            metadata = {
+                "captured_at": result['metadata']['captured_at'],
+                "source_url": url,
+                "screenshot_available": snapshot_path is not None,
+                "snapshot_path": str(snapshot_path) if snapshot_path else None,
+                "content_type": "webpage",
+                "capture_method": "chrome_mcp"
+            }
+
+            return {
+                "html_content": result['markdown'],
+                "snapshot_path": str(snapshot_path) if snapshot_path else None,
+                "metadata": metadata
+            }
+
+        except (ImportError, RuntimeError, Exception) as e:
+            # Fallback to HTTP fetcher
+            # ImportError: MCP SDK not installed
+            # RuntimeError: Chrome MCP server not available
+            # Exception: MCP execution failed
+            return self._fetch_with_http(url, **kwargs)
 
     def _fetch_with_http(self, url: str, **kwargs) -> Dict:
         """
@@ -186,15 +231,33 @@ class GenericWebHandler(BaseHandler):
             f"**URL**: {metadata.get('source_url', '')}",
             "",
             f"**Captured At**: {metadata.get('captured_at', '')}",
-            "",
-            f"**Status Code**: {metadata.get('status_code', 'unknown')}",
-            "",
-            f"**Content Type**: {metadata.get('content_type', 'unknown')}",
             ""
         ]
 
-        if snapshot_path:
-            lines.append(f"**Snapshot**: {snapshot_path}")
+        # Add capture method info
+        capture_method = metadata.get('capture_method', 'http')
+        if capture_method == 'chrome_mcp':
+            lines.append(f"**Capture Method**: Chrome MCP (screenshot + markdown)")
+            lines.append("")
+        else:
+            lines.append(f"**Capture Method**: HTTP fetch (markdown only)")
+            lines.append("")
+            if 'status_code' in metadata:
+                lines.append(f"**Status Code**: {metadata.get('status_code', 'unknown')}")
+                lines.append("")
+
+        if 'content_type' in metadata:
+            lines.append(f"**Content Type**: {metadata.get('content_type', 'unknown')}")
+            lines.append("")
+
+        # Screenshot info
+        if metadata.get('screenshot_available') or snapshot_path:
+            lines.append(f"**Screenshot**: ✓ Available")
+            if snapshot_path:
+                lines.append(f"  Path: {snapshot_path}")
+            lines.append("")
+        else:
+            lines.append(f"**Screenshot**: ✗ Not available")
             lines.append("")
 
         lines.append("---")
@@ -245,7 +308,7 @@ class GenericWebHandler(BaseHandler):
         return web_dir / filename
 
 def main():
-    """Test generic web handler"""
+    """Test generic web handler with Chrome MCP integration"""
     import sys
 
     if len(sys.argv) < 2:
@@ -257,6 +320,20 @@ def main():
     url = sys.argv[2]
 
     handler = GenericWebHandler(workspace)
+
+    # Check MCP availability
+    try:
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from mcp_client import ChromeMCPClient
+        client = ChromeMCPClient()
+        mcp_available = client.detect_server()
+        if mcp_available:
+            print(f"Using Chrome MCP (screenshot + markdown)")
+        else:
+            print(f"Using HTTP fallback (Chrome MCP server not installed)")
+    except ImportError:
+        mcp_available = False
+        print(f"Using HTTP fallback (MCP SDK not installed)")
 
     try:
         print(f"Fetching web content from {url}...")
@@ -275,6 +352,17 @@ def main():
         print(f"✓ Web content collected")
         print(f"  File: {result['file_path']}")
         print(f"  ID: {result['artifact_id']}")
+
+        # Show screenshot status
+        metadata = fetched.get('metadata', {})
+        if metadata.get('screenshot_available'):
+            snapshot_path = metadata.get('snapshot_path')
+            if snapshot_path:
+                print(f"  Screenshot: ✓ {snapshot_path}")
+        else:
+            print(f"  Screenshot: ✗ Not available")
+
+        print(f"  Capture method: {metadata.get('capture_method', 'http')}")
 
     except Exception as e:
         print(f"✗ Error: {str(e)}")

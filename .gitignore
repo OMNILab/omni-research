@@ -7,3 +7,4 @@ _bmad/memory/
 _bmad/_config/
 _bmad/bmb/
 _bmad/core/
+.python-version

@@ -13,6 +13,7 @@ from typing import Dict
 from datetime import datetime
 import subprocess
 import tempfile
+import re
 
 # Setup imports for package structure
 skill_root = Path(__file__).parent.parent
@@ -206,8 +207,12 @@ class PaperHandler(BaseHandler):
         """
         pdf_path = self._download_pdf(pdf_url)
 
+        # Try to extract metadata from PDF
+        pdf_metadata = self._extract_pdf_metadata(pdf_path)
+
         metadata = {
-            "source_url": pdf_url
+            "source_url": pdf_url,
+            **pdf_metadata  # Merge title if available
         }
 
         return {
@@ -240,6 +245,36 @@ class PaperHandler(BaseHandler):
 
         except Exception as e:
             raise RuntimeError(f"PDF download failed: {str(e)}")
+
+    def _extract_pdf_metadata(self, pdf_path: Path) -> Dict:
+        """
+        Extract metadata (title) from PDF file
+
+        Args:
+            pdf_path: Path to downloaded PDF
+
+        Returns:
+            Dict with title if available
+        """
+        try:
+            import PyPDF2
+
+            with open(pdf_path, 'rb') as f:
+                reader = PyPDF2.PdfReader(f)
+
+                # Try to get title from PDF metadata
+                if reader.metadata:
+                    title = reader.metadata.get('/Title', None)
+                    if title:
+                        # Clean title (remove newlines, extra spaces)
+                        title = ' '.join(title.split())
+                        return {"title": title}
+
+            return {}
+
+        except Exception:
+            # If metadata extraction fails, return empty dict
+            return {}
 
     def _fetch_arxiv_metadata(self, arxiv_id: str) -> Dict:
         """
@@ -424,15 +459,18 @@ class PaperHandler(BaseHandler):
 
         return "\n".join(lines)
 
-    def get_output_path(self, source: str) -> Path:
+    def get_output_path(self, source: str, metadata: Dict = None) -> Path:
         """
-        Generate deterministic output path for paper
+        Generate output path for paper
 
         DOI → doi-10-1234-abc.md
         arXiv ID → arxiv-2402-12345.md
+        PDF URL (with title) → paper-{title-slug}.md
+        PDF URL (no title) → url-{hash}.md
 
         Args:
             source: DOI, arXiv ID, or URL
+            metadata: Optional metadata dict with 'title' key
 
         Returns:
             Path to markdown file in raw/paper/
@@ -450,11 +488,106 @@ class PaperHandler(BaseHandler):
             arxiv_slug = source.replace('.', '-')
             filename = f"arxiv-{arxiv_slug}.md"
         else:
-            # URL: use hash
-            source_hash = hashlib.md5(source.encode()).hexdigest()[:8]
-            filename = f"url-{source_hash}.md"
+            # URL: try semantic naming first, then fallback to hash
+            if metadata and 'title' in metadata:
+                # Use title for semantic naming
+                title_slug = self._slugify_title(metadata['title'])
+                filename = f"paper-{title_slug}.md"
+            else:
+                # Fallback to hash-based naming
+                source_hash = hashlib.md5(source.encode()).hexdigest()[:8]
+                filename = f"url-{source_hash}.md"
 
         return paper_dir / filename
+
+    def _slugify_title(self, title: str) -> str:
+        """
+        Convert paper title to URL-safe slug
+
+        Args:
+            title: Paper title string
+
+        Returns:
+            Slug string (lowercase, hyphens, no special chars)
+        """
+        import re
+
+        # Convert to lowercase
+        slug = title.lower()
+
+        # Replace spaces and underscores with hyphens
+        slug = re.sub(r'[\s_]+', '-', slug)
+
+        # Remove special characters (keep only alphanumeric and hyphens)
+        slug = re.sub(r'[^a-z0-9-]', '', slug)
+
+        # Collapse multiple hyphens
+        slug = re.sub(r'-{2,}', '-', slug)
+
+        # Trim hyphens from start/end
+        slug = slug.strip('-')
+
+        # Limit length (max 100 chars to keep filenames manageable)
+        if len(slug) > 100:
+            # Truncate to exactly 100 chars, then remove trailing hyphen if present
+            slug = slug[:100]
+            if slug.endswith('-'):
+                slug = slug[:-1]
+
+        return slug
+
+    def store(self,
+              source: str,
+              markdown_content: str,
+              metadata: Dict,
+              **kwargs) -> Dict:
+        """
+        Store markdown artifact and update index (override to pass metadata to get_output_path)
+
+        Args:
+            source: Original source identifier
+            markdown_content: Markdown content to save
+            metadata: Source-specific metadata
+            **kwargs: Additional parameters
+
+        Returns:
+            Dict with file_path, metadata, status
+        """
+        # Generate output path with metadata for semantic naming
+        output_path = self.get_output_path(source, metadata)
+
+        # Ensure directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write markdown content
+        output_path.write_text(markdown_content)
+
+        # Generate unique ID
+        artifact_id = self._generate_id(source)
+
+        # Build core metadata
+        core_metadata = {
+            "id": artifact_id,
+            "title": metadata.get('title', self._extract_title(markdown_content)),
+            "url": source,
+            "source_type": self.get_source_type(),
+            "collected_at": datetime.now().isoformat(),
+            "collected_by": "omr-collection",
+            "file_path": str(output_path.relative_to(self.workspace_root))
+        }
+
+        # Merge with source-specific metadata
+        full_metadata = {**core_metadata, **metadata}
+
+        # Update index
+        self._update_index(full_metadata)
+
+        return {
+            "status": "success",
+            "file_path": str(output_path),
+            "metadata": full_metadata,
+            "artifact_id": artifact_id
+        }
 
 def main():
     """Test paper handler with arxiv SDK integration"""

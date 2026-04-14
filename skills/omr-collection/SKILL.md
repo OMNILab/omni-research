@@ -191,6 +191,8 @@ omr-collection/
 raw/
 ├── paper/           # DOI-based naming (doi-10-1234-abc.md)
 │                   # arxiv-based naming (arxiv-2402-12345.md)
+│                   # Semantic naming (paper-{title-slug}.md) for PDF URLs with title metadata
+│                   # Hash fallback (url-a1b2c3d4.md) when no title available
 ├── web/             # URL-hash naming (url-a1b2c3d4.md)
 │                   # Screenshots: url-a1b2c3d4-snapshot.png
 ├── github/          # Repo-name naming (github-user-project.md)
@@ -210,9 +212,15 @@ docs/index/
 └── failed-index.json
 ```
 
-**Naming Philosophy**: Deterministic (DOI/hash-based) NOT Human-readable
+**Naming Philosophy**: Deterministic for DOI/arXiv, Semantic for PDF URLs
 
-**Why?**: Artifacts optimized for downstream AI skills, not human browsing. Index provides human-readable metadata for lookup.
+**Paper Naming Strategy**:
+- **DOI papers**: `doi-{slug}.md` (preserves DOI-based determinism)
+- **arXiv papers**: `arxiv-{id}.md` (preserves arXiv-based determinism)
+- **PDF URLs (with title metadata)**: `paper-{title-slug}.md` (semantic, human-readable)
+- **PDF URLs (no title)**: `url-{hash}.md` (fallback to hash-based)
+
+**Why Semantic for PDF URLs?**: PDFs from arbitrary URLs often lack DOIs/arXiv IDs. Using title metadata creates meaningful filenames that aid discovery, while maintaining fallback determinism for edge cases.
 
 **Human Access**: Query index → Find title → Get file_path → Read artifact
 
@@ -327,7 +335,15 @@ See: raw/failed/ for error details
 - Each handler: fetch → convert → store → index
 - Retry logic: max_retries=2, retry_delay=2s (orchestrator)
 - Fallback chain: primary → retry → Generic Web → error artifact
-- Deterministic naming: DOI/hash-based
+- Deterministic naming: DOI/arXiv-based, semantic for PDF URLs
+
+**Semantic Paper Naming (PDF URLs)**:
+- Extract title from PDF metadata (PyPDF2)
+- Slugify title: lowercase, hyphens, remove special chars
+- Example: "RU-UA Conflict Research Report" → `paper-ru-ua-conflict-research-report.md`
+- Fallback: If no title metadata → `url-{hash}.md`
+- Implementation: `handlers/paper_handler.py` → `_extract_pdf_metadata()` + `_slugify_title()`
+- Keeps DOI/arXiv naming unchanged (semantic only for direct PDF URLs)
 
 ### Input Router
 - Pattern matching for URLs, DOIs, arxiv IDs

@@ -31,6 +31,7 @@ class InputRouter:
     ARXIV_URL_PATTERN = re.compile(r'arxiv\.org/(abs|pdf)/(\d{4}\.\d{4,5})', re.IGNORECASE)
     GITHUB_URL_PATTERN = re.compile(r'github\.com/([\w-]+)/([\w-]+)', re.IGNORECASE)
     HUGGINGFACE_URL_PATTERN = re.compile(r'huggingface\.co/(datasets|models)/([\w-]+)/([\w-]+)', re.IGNORECASE)
+    PDF_URL_PATTERN = re.compile(r'https?://.*\.pdf$', re.IGNORECASE)
     URL_PATTERN = re.compile(r'^https?://', re.IGNORECASE)
     LOCAL_PATH_PATTERN = re.compile(r'^[./]|^[A-Za-z]:\\')  # Unix or Windows paths
 
@@ -49,6 +50,12 @@ class InputRouter:
         # Check for quoted string (explicit search marker)
         if input_str.startswith('"') and input_str.endswith('"'):
             return InputType.SEARCH_QUERY, input_str[1:-1]
+
+        # Check for PDF URL first (route to paper handler)
+        pdf_url_match = self.PDF_URL_PATTERN.search(input_str)
+        if pdf_url_match:
+            # Treat as paper for PDF conversion
+            return InputType.URL_HTTPS, input_str  # Will be routed to paper handler based on .pdf extension
 
         # Check for arXiv URL first (extract ID)
         arxiv_match = self.ARXIV_URL_PATTERN.search(input_str)
@@ -96,16 +103,21 @@ class InputRouter:
         # (No URL pattern detected, assume user wants to search)
         return InputType.SEARCH_QUERY, input_str
 
-    def get_handler_name(self, input_type: InputType) -> str:
+    def get_handler_name(self, input_type: InputType, extracted_id: str = None) -> str:
         """
         Get handler name for input type
 
         Args:
             input_type: Classified input type
+            extracted_id: Optional extracted ID to check for PDF extension
 
         Returns:
             Handler name ('generic_web', 'paper', 'github', 'huggingface')
         """
+        # Check if URL ends with .pdf, route to paper handler
+        if extracted_id and extracted_id.endswith('.pdf'):
+            return 'paper'
+
         handler_map = {
             InputType.URL_HTTP: 'generic_web',
             InputType.URL_HTTPS: 'generic_web',
@@ -132,6 +144,32 @@ class InputRouter:
         """
         return input_type == InputType.SEARCH_QUERY
 
+    def route_inputs(self, inputs: list[str]) -> list[dict]:
+        """
+        Route multiple inputs to handlers
+
+        Args:
+            inputs: List of user inputs
+
+        Returns:
+            List of routing decisions with input_type, handler, extracted_id
+        """
+        routed = []
+
+        for input_str in inputs:
+            input_type, extracted_id = self.classify_input(input_str)
+            handler = self.get_handler_name(input_type, extracted_id)
+
+            routed.append({
+                'input': input_str,
+                'input_type': input_type.value,
+                'handler': handler,
+                'extracted_id': extracted_id,
+                'is_search': self.is_search_mode(input_type)
+            })
+
+        return routed
+
 def route_inputs(inputs: list[str]) -> list[dict]:
     """
     Route multiple inputs to handlers
@@ -147,7 +185,7 @@ def route_inputs(inputs: list[str]) -> list[dict]:
 
     for input_str in inputs:
         input_type, extracted_id = router.classify_input(input_str)
-        handler = router.get_handler_name(input_type)
+        handler = router.get_handler_name(input_type, extracted_id)
 
         routed.append({
             'input': input_str,

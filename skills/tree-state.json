@@ -1,0 +1,20 @@
+{
+  "unlocked": [
+    "omr-bootstrap",
+    "omr-collection",
+    "omr-idea-note"
+  ],
+  "ready": [
+    "omr-evidence"
+  ],
+  "locked": [
+    "omr-research-plan",
+    "omr-decision",
+    "omr-evaluation",
+    "omr-synthesis",
+    "omr-wiki",
+    "omr-reconcile",
+    "omr-research-archive"
+  ],
+  "completed": []
+}

@@ -14,6 +14,8 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
     """
     Reconcile existing artifacts when new evidence arrives
 
+    Archives old versions and re-runs evidence extraction to update state
+
     Args:
         workspace_root: Project workspace
 
@@ -22,6 +24,7 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
     """
     docs_dir = workspace_root / 'docs'
     archive_dir = docs_dir / 'archive'
+    raw_dir = workspace_root / 'raw'
 
     # Check existing artifacts
     existing_artifacts = [
@@ -42,7 +45,7 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
             'message': 'No existing artifacts to reconcile'
         }
 
-    # Archive previous versions
+    # Step 1: Archive previous versions
     archive_dir.mkdir(parents=True, exist_ok=True)
 
     timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
@@ -52,24 +55,141 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
     archived_files = []
     for artifact in artifacts_to_reconcile:
         archived_path = archive_session_dir / artifact.name
-        shutil.copy(artifact, archived_path)
-        archived_files.append(str(archived_path))
+        shutil.copy2(artifact, archived_path)
+        archived_files.append(artifact.name)
 
-    # Trigger re-evaluation (placeholder - would call downstream skills)
-    # In real implementation:
-    # - Re-run omr-evidence
-    # - Re-run omr-research-plan
-    # - Update affected decisions
+    # Create archive metadata
+    archive_metadata = {
+        'archive_id': f'reconciliation-{timestamp}',
+        'created_at': datetime.now().isoformat(),
+        'reason': 'Evidence reconciliation triggered',
+        'archived_files': archived_files,
+        'total_files': len(archived_files)
+    }
 
-    # Update skill tree
+    metadata_path = archive_session_dir / 'RECONCILIATION-METADATA.json'
+    metadata_path.write_text(json.dumps(archive_metadata, indent=2))
+
+    # Step 2: Check if new materials exist in raw/
+    new_materials = False
+    for subdir in ['paper', 'web', 'github', 'dataset']:
+        subdir_path = raw_dir / subdir
+        if subdir_path.exists():
+            # Check if directory has files
+            if any(subdir_path.glob('*.md')):
+                new_materials = True
+                break
+
+    # Step 3: Re-run evidence extraction if new materials
+    reconciliation_actions = []
+
+    if new_materials:
+        # Call omr-evidence skill to re-extract
+        try:
+            import subprocess
+            evidence_script = workspace_root.parent.parent / 'skills' / 'omr-evidence' / 'extract_evidence.py'
+
+            if evidence_script.exists():
+                result = subprocess.run(
+                    ['python3', str(evidence_script), str(workspace_root)],
+                    capture_output=True,
+                    text=True,
+                    timeout=60
+                )
+
+                if result.returncode == 0:
+                    reconciliation_actions.append('evidence-extraction-updated')
+                else:
+                    reconciliation_actions.append(f'evidence-extraction-failed: {result.stderr}')
+            else:
+                reconciliation_actions.append('evidence-script-not-found')
+
+        except Exception as e:
+            reconciliation_actions.append(f'evidence-extraction-error: {str(e)}')
+
+    # Step 4: Generate reconciliation report
+    report = generate_reconciliation_report(
+        archived_files=archived_files,
+        actions=reconciliation_actions,
+        new_materials=new_materials
+    )
+
+    report_path = archive_session_dir / 'RECONCILIATION-REPORT.md'
+    report_path.write_text(report)
+
+    # Step 5: Update skill tree
     update_tree_state(workspace_root)
+
+    # Step 6: Create traceability update note
+    traceability_note = create_traceability_update_note(archived_files)
+    traceability_path = docs_dir / 'index' / 'reconciliation-log.md'
+    traceability_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if traceability_path.exists():
+        existing_log = traceability_path.read_text()
+        traceability_path.write_text(existing_log + "\n\n" + traceability_note)
+    else:
+        traceability_path.write_text(traceability_note)
 
     return {
         'status': 'success',
         'archived_dir': str(archive_session_dir),
         'archived_files': len(archived_files),
-        'message': f'Archived {len(archived_files)} previous versions'
+        'actions': reconciliation_actions,
+        'new_materials': new_materials,
+        'message': f'Archived {len(archived_files)} previous versions, reconciliation complete'
     }
+
+def generate_reconciliation_report(archived_files: list, actions: list, new_materials: bool) -> str:
+    """Generate reconciliation report"""
+
+    actions_text = "\n".join([f"- {action}" for action in actions]) if actions else "- No re-extraction performed"
+
+    return f"""# Reconciliation Report
+
+**Generated**: {datetime.now().isoformat()}
+
+## Summary
+
+Evidence reconciliation triggered to update research state.
+
+## Archived Files
+
+{len(archived_files)} files archived:
+
+{chr(10).join([f"- {file}" for file in archived_files])}
+
+## Actions Performed
+
+{actions_text}
+
+## New Materials
+
+**Detected**: {'Yes' if new_materials else 'No'}
+
+{'Evidence extraction re-run to incorporate new materials.' if new_materials else 'No new materials detected, archived existing state only.'}
+
+## Next Steps
+
+- Review updated evidence map
+- Check if judgment summary needs revision
+- Update affected decisions if evidence boundaries changed
+
+---
+_Generated by omr-reconcile_"""
+
+def create_traceability_update_note(archived_files: list) -> str:
+    """Create traceability update note"""
+
+    return f"""## Reconciliation Entry - {datetime.now().isoformat()}
+
+**Archived files**: {len(archived_files)}
+
+**Files**: {', '.join(archived_files)}
+
+**Note**: Previous versions preserved in archive directory for rollback if needed.
+
+---"""
 
 def update_tree_state(workspace_root: Path):
     """Update skill tree after reconciliation"""

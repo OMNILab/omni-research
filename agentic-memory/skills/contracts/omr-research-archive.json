@@ -1,0 +1,17 @@
+{
+  "skill": "omr-research-archive",
+  "requires": [
+    {
+      "artifact": "any artifact",
+      "optional": false,
+      "description": "Artifact to snapshot for archival"
+    }
+  ],
+  "produces": [
+    {
+      "artifact": "docs/archive/*",
+      "description": "Timestamped snapshot of current research state"
+    }
+  ],
+  "gates": []
+}

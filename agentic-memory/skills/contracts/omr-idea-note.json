@@ -1,0 +1,11 @@
+{
+  "skill": "omr-idea-note",
+  "requires": [],
+  "produces": [
+    {
+      "artifact": "docs/ideas/*.md",
+      "description": "Captured speculative idea note"
+    }
+  ],
+  "gates": []
+}

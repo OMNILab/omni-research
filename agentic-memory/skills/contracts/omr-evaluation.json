@@ -1,0 +1,39 @@
+{
+  "skill": "omr-evaluation",
+  "requires": [
+    {
+      "artifact": "architecture-decision.md",
+      "optional": false,
+      "description": "Decision to validate (can be overridden by Experiment-First pattern)"
+    },
+    {
+      "artifact": "experiment-spec.md",
+      "optional": true,
+      "description": "Existing experiment spec (if not provided, skill generates one)"
+    }
+  ],
+  "produces": [
+    {
+      "artifact": "experiment-spec.md",
+      "schema": "schemas/experiment-spec.schema.json",
+      "description": "Generated if not provided: hypothesis, metrics, ground truth"
+    },
+    {
+      "artifact": "evaluation-report.md",
+      "schema": "schemas/evaluation-report.schema.json",
+      "description": "Evaluation results with hypothesis support, decision validation, traceability"
+    }
+  ],
+  "gates": [
+    {
+      "id": "gate_c",
+      "checks": [
+        "Metrics answer research question",
+        "Failure conditions explicit",
+        "Reproducible evaluation"
+      ],
+      "enforcement": "user-confirm",
+      "description": "Verify experiment design is valid"
+    }
+  ]
+}

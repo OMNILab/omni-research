@@ -1,15 +1,16 @@
 ---
 name: omr-collection
 description: Material collection with passive reception philosophy. User provides sources → skill delivers materials. Supports direct input (URLs, DOIs, arxiv IDs, GitHub repos, HuggingFace URLs) and keyword search queries. Minimal parsing (format extraction only, no semantic analysis). 4 handlers with configurable depth and graceful fallbacks. arxiv SDK integration for reliable paper downloads with rich metadata. Chrome MCP integration for webpage screenshots. Search automation with prioritized downloads. Use this skill whenever user wants to collect research materials, download papers, gather code repos, search for papers by keyword, capture webpage screenshots, or gather any web resources for research. Even if they don't explicitly mention 'collection' or 'download' - if they reference papers, repos, datasets, or web content, this skill should trigger.
-version: 1.1.0
-author: OmniResearch Team
 license: MIT
+compatibility: Requires Python 3.10+ and arxiv SDK
 metadata:
-  requires_skills: [omr-core]
+  version: "1.1.0"
+  author: OmniResearch Team
+  requires_skills: omr-core
   requires_workspace: true
   category: research-logistics
   phase: 2.1
-  enhancements: [arxiv-sdk, chrome-mcp, search-automation]
+  enhancements: arxiv-sdk chrome-mcp search-automation
 ---
 
 # omr-collection

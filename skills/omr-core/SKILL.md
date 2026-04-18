@@ -1,23 +1,14 @@
 ---
 name: omr-core
 description: Foundation infrastructure for OmniResearch skills system. Provides contract system, dependency resolver, skill tree tracking, and pattern definitions. MUST install this before any other omr-* skills. Use when setting up OmniResearch environment or when skills report missing infrastructure dependencies. Automatically invoked by omr-bootstrap to initialize workspace infrastructure.
-version: 1.0.0
-author: OmniResearch Team
 license: MIT
 metadata:
+  version: "1.0.0"
+  author: OmniResearch Team
   role: infrastructure-provider
-  provides:
-    - contracts (11 skill dependency definitions)
-    - dependency_resolver (prerequisite checking)
-    - skill_tree (progression tracking)
-    - patterns (5 research workflow patterns)
-  required_for:
-    - omr-bootstrap
-    - omr-collection
-    - omr-evidence
-    - omr-research-plan
-    - omr-decision
-    - omr-evaluation
+  provides: contracts dependency_resolver skill_tree patterns
+  required_for: omr-bootstrap omr-collection omr-evidence omr-research-plan omr-decision omr-evaluation
+---
     - omr-synthesis
     - omr-wiki
     - omr-idea-note

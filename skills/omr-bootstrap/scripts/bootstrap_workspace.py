@@ -97,7 +97,7 @@ def create_workspace(project_name: str,
         created_indexes.append(index_file)
 
     # Generate CLAUDE.md from template
-    template_path = skills_dir / "templates" / "CLAUDE.md.template"
+    template_path = skills_dir / "assets" / "CLAUDE.md.template"
     claude_md = generate_claude_md(
         template_path=template_path,
         project_name=project_name,

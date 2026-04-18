@@ -365,6 +365,8 @@ class SearchCollector:
 
         if search_index.exists():
             index_data = json.loads(search_index.read_text())
+            if 'queries' not in index_data:
+                index_data['queries'] = []
         else:
             index_data = {'queries': [], 'last_updated': datetime.now().isoformat()}
 

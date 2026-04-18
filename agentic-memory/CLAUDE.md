@@ -1,0 +1,134 @@
+# agentic-memory
+
+> Research project initialized with omr-bootstrap
+
+## Project Overview
+
+**Research Question**: Agentic Memory Survey
+
+**Status**: initialized
+
+**Active Pattern**: Not yet detected (will emerge after 3+ skill invocations)
+
+**Started**: 2026-04-18T14:15:06.871105
+
+**Last Updated**: 2026-04-18T14:15:06.871105
+
+## Workspace Structure
+
+```
+agentic-memory/
+├── CLAUDE.md              # Project instructions (this file)
+├── raw/                   # Collected materials
+│   ├── paper/             # Research papers (PDFs converted to markdown)
+│   ├── web/               # Web articles, blogs, documentation
+│   ├── github/            # GitHub repositories (README + metadata)
+│   ├── dataset/           # HuggingFace datasets/models (README + cards)
+│   ├── search/            # Search-based collections
+│   └── failed/            # Failed collection attempts (error artifacts)
+├── docs/
+│   ├── index/             # Metadata indexes (machine-readable)
+│   ├── ideas/             # Speculative idea notes
+│   ├── archive/           # Archived artifacts (previous versions)
+│   ├── survey/            # Synthesis output: survey mode
+│   ├── report/            # Synthesis output: report mode
+│   ├── manuscript/        # Synthesis output: manuscript mode
+│   └── brief/             # Synthesis output: brief mode
+├── wiki/                  # Wiki output
+├── src/                   # Code prototypes
+└── skills/                # Skill-related files
+    ├── patterns/          # Pattern definitions
+    ├── contracts/         # Skill contracts (copied from omr skills)
+    └── tree-state.json    # Skill tree progress state
+```
+
+## Skill Tree State
+
+**Unlocked Skills** (available for invocation):
+- `omr-bootstrap`
+- `omr-collection`
+- `omr-idea-note`
+
+**Ready Skills** (prerequisites satisfied, waiting for user action):
+None
+
+**Locked Skills** (missing prerequisites):
+- `omr-evidence`
+- `omr-research-plan`
+- `omr-decision`
+- `omr-evaluation`
+- `omr-synthesis`
+- `omr-wiki`
+- `omr-reconcile`
+- `omr-research-archive`
+
+**Completed Skills** (already executed):
+- `omr-bootstrap`
+
+## Usage
+
+Invoke skills using `/skill-name` syntax:
+
+- `/omr-collection "https://arxiv.org/abs/..."` — Collect materials
+- `/omr-evidence` — Extract evidence from collected materials
+- `/omr-research-plan` — Judge evidence and plan research approach
+- `/omr-decision` — Make architecture decision
+- `/omr-evaluation` — Build prototype and run evaluation
+- `/omr-synthesis` — Write synthesis (survey/report/manuscript/brief)
+- `/omr-wiki` — Generate wiki from synthesis
+- `/omr-idea-note` — Capture speculative idea
+- `/omr-reconcile` — Update artifacts when new evidence arrives
+
+## Pattern Emergence
+
+Patterns emerge from your research workflow. After 3+ skill invocations, the system will propose a pattern based on your actions.
+
+Available patterns:
+- **Evidence-First**: Rigorous research starting from literature (default for systematic surveys)
+- **Idea-First**: Exploratory research starting from creative insight
+- **Decision-First**: Hypothesis-driven research starting from architecture stance
+- **Experiment-First**: Empirical research starting from building/testing
+- **Rapid-Prototype**: Fastest path to working output
+
+## Gates
+
+Quality gates enforce rigor at critical checkpoints:
+
+- **Gate A** (before `omr-research-plan`): Evidence sufficient for planning?
+- **Gate B** (before `omr-decision`): Architecture decision sound?
+- **Gate C** (before `omr-evaluation`): Experiment design valid?
+- **Gate D** (before `omr-synthesis`): Results traceable, no over-claiming?
+
+Gates are enforced by default (semi-automated mode). Switch to fully-automated mode to bypass gates.
+
+## Dependencies
+
+Skills have explicit artifact dependencies. Invocation blocked if prerequisites missing.
+
+Example:
+- `omr-decision` requires `evidence-map.md` (mandatory) + `judgment-summary.md` (optional)
+- `omr-evaluation` requires `architecture-decision.md` (mandatory, can be overridden by Experiment-First pattern)
+
+## Next Steps
+
+
+Since this is a new project, here are recommended starting points:
+
+1. **If you have papers to collect**: Start with `/omr-collection` to gather materials
+   Example: `/omr-collection "https://arxiv.org/abs/2402.12345"`
+
+2. **If you have an idea to explore**: Start with `/omr-idea-note` to capture your insight
+   Example: `/omr-idea-note "Hybrid memory architecture combining vector and graph approaches"`
+
+3. **If you have a decision to validate**: Start with `/omr-decision` to document your architecture stance
+   Example: `/omr-decision` (will require evidence later)
+
+4. **If you have a hypothesis to test**: Start with `/omr-evaluation` to build and test
+   Example: `/omr-evaluation` (Experiment-First pattern, no prior decision required)
+
+5. **If you're exploring**: No specific goal — invoke any unlocked skill and the pattern will emerge
+
+
+---
+
+_Generated by omr-bootstrap on 2026-04-18T14:15:06.871105_

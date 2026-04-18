@@ -1,0 +1,259 @@
+{
+  "artifacts": [
+    {
+      "id": "paper-6e2a6d28",
+      "title": "CraniMem: Cranial Inspired Gated and Bounded Memory for Agentic Systems",
+      "url": "2603.15642v1",
+      "source_type": "paper",
+      "collected_at": "2026-04-18T14:16:30.869988",
+      "collected_by": "omr-collection",
+      "file_path": "raw/paper/arxiv-2603-15642v1.md",
+      "arxiv_id": "2603.15642v1",
+      "authors": [
+        "Pearl Mody",
+        "Mihir Panchal",
+        "Rishit Kar",
+        "Kiran Bhowmick",
+        "Ruhina Karani"
+      ],
+      "date": "2026-03-03",
+      "doi": null,
+      "categories": [
+        "cs.AI"
+      ],
+      "source_url": "http://arxiv.org/abs/2603.15642v1",
+      "summary": "Large language model (LLM) agents are increasingly deployed in long running workflows, where they must preserve user and task state across many turns. Many existing agent memory systems behave like ex..."
+    },
+    {
+      "id": "paper-325b6742",
+      "title": "Did You Check the Right Pocket? Cost-Sensitive Store Routing for Memory-Augmented Agents",
+      "url": "2603.15658v1",
+      "source_type": "paper",
+      "collected_at": "2026-04-18T14:16:33.426296",
+      "collected_by": "omr-collection",
+      "file_path": "raw/paper/arxiv-2603-15658v1.md",
+      "arxiv_id": "2603.15658v1",
+      "authors": [
+        "Madhava Gaikwad"
+      ],
+      "date": "2026-03-08",
+      "doi": null,
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.IR"
+      ],
+      "source_url": "http://arxiv.org/abs/2603.15658v1",
+      "summary": "Memory-augmented agents maintain multiple specialized stores, yet most systems retrieve from all stores for every query, increasing cost and introducing irrelevant context. We formulate memory retriev..."
+    },
+    {
+      "id": "paper-67b6e6a4",
+      "title": "Distilling Feedback into Memory-as-a-Tool",
+      "url": "2601.05960v2",
+      "source_type": "paper",
+      "collected_at": "2026-04-18T14:16:35.610136",
+      "collected_by": "omr-collection",
+      "file_path": "raw/paper/arxiv-2601-05960v2.md",
+      "arxiv_id": "2601.05960v2",
+      "authors": [
+        "V\u00edctor Gallego"
+      ],
+      "date": "2026-01-09",
+      "doi": null,
+      "categories": [
+        "cs.CL"
+      ],
+      "source_url": "http://arxiv.org/abs/2601.05960v2",
+      "summary": "We propose a framework that amortizes the cost of inference-time reasoning by converting transient critiques into retrievable guidelines, through a file-based memory system and agent-controlled tool c..."
+    },
+    {
+      "id": "paper-d84193c3",
+      "title": "Memory in Large Language Models: Mechanisms, Evaluation and Evolution",
+      "url": "2509.18868v1",
+      "source_type": "paper",
+      "collected_at": "2026-04-18T14:16:42.332734",
+      "collected_by": "omr-collection",
+      "file_path": "raw/paper/arxiv-2509-18868v1.md",
+      "arxiv_id": "2509.18868v1",
+      "authors": [
+        "Dianxing Zhang",
+        "Wendong Li",
+        "Kani Song",
+        "Jiaye Lu",
+        "Gang Li",
+        "Liuchun Yang",
+        "Sheng Li"
+      ],
+      "date": "2025-09-23",
+      "doi": null,
+      "categories": [
+        "cs.AI"
+      ],
+      "source_url": "http://arxiv.org/abs/2509.18868v1",
+      "summary": "Under a unified operational definition, we define LLM memory as a persistent state written during pretraining, finetuning, or inference that can later be addressed and that stably influences outputs. ..."
+    },
+    {
+      "id": "paper-2c8b2061",
+      "title": "Agentic Reasoning for Large Language Models",
+      "url": "2601.12538v1",
+      "source_type": "paper",
+      "collected_at": "2026-04-18T14:18:09.280580",
+      "collected_by": "omr-collection",
+      "file_path": "raw/paper/arxiv-2601-12538v1.md",
+      "arxiv_id": "2601.12538v1",
+      "authors": [
+        "Tianxin Wei",
+        "Ting-Wei Li",
+        "Zhining Liu",
+        "Xuying Ning",
+        "Ze Yang",
+        "Jiaru Zou",
+        "Zhichen Zeng",
+        "Ruizhong Qiu",
+        "Xiao Lin",
+        "Dongqi Fu",
+        "Zihao Li",
+        "Mengting Ai",
+        "Duo Zhou",
+        "Wenxuan Bao",
+        "Yunzhe Li",
+        "Gaotang Li",
+        "Cheng Qian",
+        "Yu Wang",
+        "Xiangru Tang",
+        "Yin Xiao",
+        "Liri Fang",
+        "Hui Liu",
+        "Xianfeng Tang",
+        "Yuji Zhang",
+        "Chi Wang",
+        "Jiaxuan You",
+        "Heng Ji",
+        "Hanghang Tong",
+        "Jingrui He"
+      ],
+      "date": "2026-01-18",
+      "doi": null,
+      "categories": [
+        "cs.AI",
+        "cs.CL"
+      ],
+      "source_url": "http://arxiv.org/abs/2601.12538v1",
+      "summary": "Reasoning is a fundamental cognitive process underlying inference, problem-solving, and decision-making. While large language models (LLMs) demonstrate strong reasoning capabilities in closed-world se..."
+    },
+    {
+      "id": "paper-e1f62b56",
+      "title": "In-Line-Test of Variability and Bit-Error-Rate of HfOx-Based Resistive Memory",
+      "url": "1509.00070v1",
+      "source_type": "paper",
+      "collected_at": "2026-04-18T14:18:12.203504",
+      "collected_by": "omr-collection",
+      "file_path": "raw/paper/arxiv-1509-00070v1.md",
+      "arxiv_id": "1509.00070v1",
+      "authors": [
+        "B. L. Ji",
+        "H. Li",
+        "Q. Ye",
+        "S. Gausepohl",
+        "S. Deora",
+        "D. Veksler",
+        "S. Vivekanand",
+        "H. Chong",
+        "H. Stamper",
+        "T. Burroughs",
+        "C. Johnson",
+        "M. Smalley",
+        "S. Bennett",
+        "V. Kaushik",
+        "J. Piccirillo",
+        "M. Rodgers",
+        "M. Passaro",
+        "M. Liehr"
+      ],
+      "date": "2015-08-31",
+      "doi": "10.1109/IMW.2015.7150290",
+      "categories": [
+        "cs.ET",
+        "cond-mat.mtrl-sci",
+        "physics.data-an"
+      ],
+      "source_url": "http://arxiv.org/abs/1509.00070v1",
+      "summary": "Spatial and temporal variability of HfOx-based resistive random access memory (RRAM) are investigated for manufacturing and product designs. Manufacturing variability is characterized at different lev..."
+    },
+    {
+      "id": "paper-86766289",
+      "title": "SBOMs into Agentic AIBOMs: Schema Extensions, Agentic Orchestration, and Reproducibility Evaluation",
+      "url": "2603.10057v1",
+      "source_type": "paper",
+      "collected_at": "2026-04-18T14:18:17.646063",
+      "collected_by": "omr-collection",
+      "file_path": "raw/paper/arxiv-2603-10057v1.md",
+      "arxiv_id": "2603.10057v1",
+      "authors": [
+        "Petar Radanliev",
+        "Carsten Maple",
+        "Omar Santos",
+        "Kayvan Atefi"
+      ],
+      "date": "2026-03-09",
+      "doi": "10.1145/3798285",
+      "categories": [
+        "cs.CR",
+        "cs.AI",
+        "cs.SE"
+      ],
+      "source_url": "http://arxiv.org/abs/2603.10057v1",
+      "summary": "Software supply-chain security requires provenance mechanisms that support reproducibility and vulnerability assessment under dynamic execution conditions. Conventional Software Bills of Materials (SB..."
+    },
+    {
+      "id": "paper-e7e48c8d",
+      "title": "Agentic Large Language Models, a survey",
+      "url": "2503.23037v3",
+      "source_type": "paper",
+      "collected_at": "2026-04-18T14:20:06.896288",
+      "collected_by": "omr-collection",
+      "file_path": "raw/paper/arxiv-2503-23037v3.md",
+      "arxiv_id": "2503.23037v3",
+      "authors": [
+        "Aske Plaat",
+        "Max van Duijn",
+        "Niki van Stein",
+        "Mike Preuss",
+        "Peter van der Putten",
+        "Kees Joost Batenburg"
+      ],
+      "date": "2025-03-29",
+      "doi": "10.1613/jair.1.18675",
+      "categories": [
+        "cs.AI",
+        "cs.CL",
+        "cs.LG"
+      ],
+      "source_url": "http://arxiv.org/abs/2503.23037v3",
+      "summary": "Background: There is great interest in agentic LLMs, large language models that act as agents.\n  Objectives: We review the growing body of work in this area and provide a research agenda.\n  Methods: A..."
+    },
+    {
+      "id": "paper-8d757561",
+      "title": "Opacity of Memory Management in Software Transactional Memory",
+      "url": "1308.2881v1",
+      "source_type": "paper",
+      "collected_at": "2026-04-18T14:20:10.045052",
+      "collected_by": "omr-collection",
+      "file_path": "raw/paper/arxiv-1308-2881v1.md",
+      "arxiv_id": "1308.2881v1",
+      "authors": [
+        "Holger Machens",
+        "Volker Turau"
+      ],
+      "date": "2013-08-13",
+      "doi": null,
+      "categories": [
+        "cs.DC",
+        "cs.OS"
+      ],
+      "source_url": "http://arxiv.org/abs/1308.2881v1",
+      "summary": "Opacity of Transactional Memory is proposed to be established by incremental validation. Quiescence in terms of epoch-based memory reclamation is applied to deal with doomed transactions causing memor..."
+    }
+  ],
+  "last_updated": "2026-04-18T14:20:10.045162"
+}

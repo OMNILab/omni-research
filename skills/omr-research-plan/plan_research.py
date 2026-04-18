@@ -261,7 +261,21 @@ def create_research_plan(evidence_map: str, judgment: Dict) -> Dict:
     })
 
     # Calculate timeline
-    total_days = sum([int(p['estimated_time'].split()[0]) for p in priorities if p['estimated_time']])
+    total_days = 0
+    for p in priorities:
+        if p.get('estimated_time'):
+            # Parse estimates like "1-2 days", "2-3 weeks", "1 week"
+            time_str = p['estimated_time']
+            # Extract first number
+            import re
+            match = re.search(r'(\d+)', time_str)
+            if match:
+                days = int(match.group(1))
+                # Convert weeks to days
+                if 'week' in time_str:
+                    days *= 7
+                total_days += days
+
     timeline = f"{total_days}-{total_days+2} days estimated"
 
     markdown = f"""# Research Plan

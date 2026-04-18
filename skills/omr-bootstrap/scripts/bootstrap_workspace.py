@@ -58,7 +58,7 @@ def create_workspace(project_name: str,
 
     # Copy contract files to workspace
     skills_dir = Path(__file__).parent.parent
-    contracts_src = skills_dir / "contracts"
+    contracts_src = skills_dir.parent / "shared" / "contracts"
     contracts_dst = workspace_path / "skills" / "contracts"
 
     copied_contracts = []

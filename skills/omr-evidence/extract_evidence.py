@@ -117,7 +117,7 @@ def extract_questions(materials: List[Dict]) -> List[Dict]:
     """
     Extract research questions from materials
 
-    Simplified: In real implementation, would use LLM for semantic extraction
+    Pattern matching approach for alpha version
 
     Args:
         materials: List of materials
@@ -127,31 +127,65 @@ def extract_questions(materials: List[Dict]) -> List[Dict]:
     """
     questions = []
 
+    # Keywords that indicate research questions
+    question_starters = [
+        'this paper investigates',
+        'we study',
+        'the goal is',
+        'this research examines',
+        'our objective is',
+        'we aim to',
+        'this work explores',
+        'we analyze',
+        'this study addresses'
+    ]
+
     for material in materials:
         content = material['content']
         metadata = material['metadata']
+        source_type = material['source_type']
+        source_path = material['file_path']
 
-        # Extract from title (simplified)
-        title = metadata.get('title', 'Unknown')
+        # Find sentences ending with '?'
+        question_sentences = re.findall(r'([A-Z][^.!?]*\?)', content)
 
-        # Generate question from title (placeholder logic)
-        # Real would use LLM to extract explicit research questions
-        question = f"What does {title} contribute?"
+        for q_text in question_sentences[:3]:  # Max 3 per material
+            questions.append({
+                'question_id': f"Q-{len(questions)+1}",
+                'question': q_text,
+                'source': source_path,
+                'source_type': source_type
+            })
 
-        questions.append({
-            'question_id': f"Q-{len(questions)+1}",
-            'question': question,
-            'source': metadata.get('file_path', ''),
-            'source_type': material['source_type']
-        })
+        # Find sentences starting with question indicators
+        for starter in question_starters:
+            pattern = re.compile(starter + r'[^.!?]*[.!?]', re.IGNORECASE)
+            matches = pattern.findall(content)
+            for match in matches[:2]:
+                questions.append({
+                    'question_id': f"Q-{len(questions)+1}",
+                    'question': match.strip(),
+                    'source': source_path,
+                    'source_type': source_type
+                })
 
-    return questions[:5]  # Limit to top 5
+        # If no questions found, generate from title
+        if len(questions) == 0 or len(questions) < 5:
+            title = metadata.get('title', 'Unknown')
+            questions.append({
+                'question_id': f"Q-{len(questions)+1}",
+                'question': f"What does '{title}' contribute to the research domain?",
+                'source': source_path,
+                'source_type': source_type
+            })
+
+    return questions[:10]  # Limit to top 10
 
 def extract_claims(materials: List[Dict]) -> List[Dict]:
     """
     Extract evidence claims from materials
 
-    Simplified: Placeholder - real would use LLM
+    Pattern matching approach for alpha version
 
     Args:
         materials: List of materials
@@ -161,25 +195,123 @@ def extract_claims(materials: List[Dict]) -> List[Dict]:
     """
     claims = []
 
-    for i, material in enumerate(materials[:10]):  # Process first 10
+    # Keywords for different evidence boundaries
+    proven_keywords = ['proves', 'demonstrates', 'validates', 'confirms', 'establishes', 'shows', 'verifies']
+    suggested_keywords = ['suggests', 'indicates', 'implies', 'may', 'might', 'could', 'appears', 'seems']
+    inferred_keywords = ['likely', 'probably', 'presumably', 'conjectured', 'hypothesized']
+
+    for material in materials:
         content = material['content']
+        source_type = material['source_type']
+        source_path = material['file_path']
+        metadata = material['metadata']
 
-        # Placeholder: would use LLM to extract claims
-        claim = {
-            'claim_id': f"C-{i+1}",
-            'claim': f"Key finding from {material['metadata'].get('title', 'source')}",
-            'evidence_type': material['source_type'],
-            'source': material['file_path'],
-            'confidence': 'medium'  # Placeholder
-        }
+        # Split content into sentences
+        sentences = re.split(r'[.!?]+', content)
 
-        claims.append(claim)
+        for sentence in sentences:
+            # Check for claim keywords
+            sentence_lower = sentence.lower()
 
-    return claims
+            # Check if sentence contains claim indicators
+            has_proven = any(kw in sentence_lower for kw in proven_keywords)
+            has_suggested = any(kw in sentence_lower for kw in suggested_keywords)
+            has_inferred = any(kw in sentence_lower for kw in inferred_keywords)
+
+            # Only extract if contains claim keywords
+            if has_proven or has_suggested or has_inferred:
+                # Clean up sentence
+                claim_text = sentence.strip()
+                if len(claim_text) < 10:  # Skip very short claims
+                    continue
+
+                # Classify evidence boundary
+                evidence_boundary = classify_evidence_boundary(
+                    claim_text=claim_text,
+                    source_type=source_type,
+                    has_proven=has_proven,
+                    has_suggested=has_suggested,
+                    has_inferred=has_inferred
+                )
+
+                # Create claim entry
+                claim = {
+                    'claim_id': f"C-{len(claims)+1}",
+                    'claim': claim_text,
+                    'evidence_type': source_type,
+                    'source': source_path,
+                    'evidence_boundary': evidence_boundary,
+                    'confidence': map_boundary_to_confidence(evidence_boundary)
+                }
+
+                claims.append(claim)
+
+        # Limit claims per material to 5
+        if len(claims) >= 50:  # Total limit
+            break
+
+    return claims[:50]  # Limit to 50 total
+
+def classify_evidence_boundary(claim_text: str, source_type: str, has_proven: bool, has_suggested: bool, has_inferred: bool) -> str:
+    """
+    Classify claim as proven/suggested/inferred based on keywords and source type
+
+    Args:
+        claim_text: Claim text
+        source_type: Source type (paper, web, github, dataset)
+        has_proven: Contains proven keywords
+        has_suggested: Contains suggested keywords
+        has_inferred: Contains inferred keywords
+
+    Returns:
+        Evidence boundary classification
+    """
+    # Rule 1: Non-paper sources can never be "proven"
+    # Only papers with experimental results can provide proven evidence
+    if source_type != 'paper':
+        if has_proven:
+            return 'suggested'  # Downgrade to suggested
+        elif has_suggested:
+            return 'suggested'
+        else:
+            return 'inferred'
+
+    # Rule 2: Paper sources
+    # Check if claim contains experimental proof indicators
+    if has_proven:
+        # Additional check: claim should mention experiment, study, test
+        experiment_indicators = ['experiment', 'study', 'test', 'trial', 'validation', 'empirical']
+        claim_lower = claim_text.lower()
+        has_experiment = any(ind in claim_lower for ind in experiment_indicators)
+
+        if has_experiment:
+            return 'proven'  # Paper + proven keyword + experiment = proven
+        else:
+            return 'suggested'  # Paper + proven keyword but no experiment = suggested
+
+    elif has_suggested:
+        return 'suggested'
+
+    elif has_inferred:
+        return 'inferred'
+
+    else:
+        return 'inferred'  # Default
+
+def map_boundary_to_confidence(boundary: str) -> str:
+    """Map evidence boundary to confidence level"""
+    mapping = {
+        'proven': 'high',
+        'suggested': 'medium',
+        'inferred': 'low'
+    }
+    return mapping.get(boundary, 'low')
 
 def identify_gaps(materials: List[Dict], questions: List[Dict]) -> List[Dict]:
     """
     Identify research gaps
+
+    Compare research questions against extracted claims to find unanswered questions
 
     Args:
         materials: Collected materials
@@ -190,17 +322,38 @@ def identify_gaps(materials: List[Dict], questions: List[Dict]) -> List[Dict]:
     """
     gaps = []
 
-    # Placeholder gap identification
-    gap = {
-        'gap_id': 'G-001',
-        'gap': 'Limited coverage of [topic]',
-        'related_question': questions[0]['question_id'] if questions else '',
-        'priority': 'high'
-    }
+    # If we have questions, check which ones lack evidence
+    if questions:
+        # For alpha version: assume questions without strong evidence are gaps
+        # In full implementation, would compare questions against claims semantically
 
-    gaps.append(gap)
+        for i, question in enumerate(questions[:5]):
+            # Simple heuristic: mark question as gap if it's from non-paper source
+            # or if it contains speculative keywords
+            question_text = question['question'].lower()
+            has_speculation = any(kw in question_text for kw in ['could', 'might', 'should', 'would'])
 
-    return gaps
+            if question['source_type'] != 'paper' or has_speculation:
+                gap = {
+                    'gap_id': f"G-{i+1}",
+                    'gap': f"Limited evidence for: {question['question'][:100]}",
+                    'related_question': question['question_id'],
+                    'priority': 'high' if has_speculation else 'medium',
+                    'suggested_action': 'Collect additional materials' if question['source_type'] != 'paper' else 'Run experiment'
+                }
+                gaps.append(gap)
+
+    # Add generic gap if none identified
+    if not gaps:
+        gaps.append({
+            'gap_id': 'G-001',
+            'gap': 'Insufficient proven evidence across research domain',
+            'related_question': '',
+            'priority': 'high',
+            'suggested_action': 'Collect more papers with experimental validation'
+        })
+
+    return gaps[:5]  # Limit to 5 gaps
 
 def generate_brief(questions: List[Dict], materials: List[Dict]) -> str:
     """
@@ -275,17 +428,57 @@ def generate_map(claims: List[Dict], gaps: List[Dict], materials: List[Dict]) ->
         "",
         "---",
         "",
-        "## Primary Evidence",
+        "## Evidence Boundaries Summary",
         ""
     ]
 
-    # Group claims by confidence
+    # Count claims by boundary
+    proven_count = sum(1 for c in claims if c.get('evidence_boundary') == 'proven')
+    suggested_count = sum(1 for c in claims if c.get('evidence_boundary') == 'suggested')
+    inferred_count = sum(1 for c in claims if c.get('evidence_boundary') == 'inferred')
+
+    lines.append(f"- **Proven**: {proven_count} claims")
+    lines.append(f"- **Suggested**: {suggested_count} claims")
+    lines.append(f"- **Inferred**: {inferred_count} claims")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append("## Primary Evidence")
+    lines.append("")
+    lines.append("### Proven Claims")
+    lines.append("")
+
     for claim in claims:
-        lines.append(f"- **{claim['claim_id']}**: {claim['claim']}")
-        lines.append(f"  - Type: {claim['evidence_type']}")
-        lines.append(f"  - Confidence: {claim['confidence']}")
-        lines.append(f"  - Source: {claim['source']}")
-        lines.append("")
+        if claim.get('evidence_boundary') == 'proven':
+            lines.append(f"- **{claim['claim_id']}**: {claim['claim']}")
+            lines.append(f"  - **Evidence boundary**: proven")
+            lines.append(f"  - Source type: {claim['evidence_type']}")
+            lines.append(f"  - Source: `{claim['source']}`")
+            lines.append("")
+
+    lines.append("")
+    lines.append("### Suggested Claims")
+    lines.append("")
+
+    for claim in claims:
+        if claim.get('evidence_boundary') == 'suggested':
+            lines.append(f"- **{claim['claim_id']}**: {claim['claim']}")
+            lines.append(f"  - **Evidence boundary**: suggested")
+            lines.append(f"  - Source type: {claim['evidence_type']}")
+            lines.append(f"  - Source: `{claim['source']}`")
+            lines.append("")
+
+    lines.append("")
+    lines.append("### Inferred Claims")
+    lines.append("")
+
+    for claim in claims:
+        if claim.get('evidence_boundary') == 'inferred':
+            lines.append(f"- **{claim['claim_id']}**: {claim['claim']}")
+            lines.append(f"  - **Evidence boundary**: inferred")
+            lines.append(f"  - Source type: {claim['evidence_type']}")
+            lines.append(f"  - Source: `{claim['source']}`")
+            lines.append("")
 
     lines.append("---")
     lines.append("")
@@ -294,8 +487,11 @@ def generate_map(claims: List[Dict], gaps: List[Dict], materials: List[Dict]) ->
 
     for gap in gaps:
         lines.append(f"- **{gap['gap_id']}**: {gap['gap']}")
-        lines.append(f"  - Related Question: {gap['related_question']}")
+        if gap.get('related_question'):
+            lines.append(f"  - Related Question: {gap['related_question']}")
         lines.append(f"  - Priority: {gap['priority']}")
+        if gap.get('suggested_action'):
+            lines.append(f"  - Suggested Action: {gap['suggested_action']}")
         lines.append("")
 
     lines.append("---")
@@ -304,7 +500,10 @@ def generate_map(claims: List[Dict], gaps: List[Dict], materials: List[Dict]) ->
     lines.append("")
     lines.append(f"- Materials reviewed: {len(materials)}")
     lines.append(f"- Claims extracted: {len(claims)}")
-    lines.append(f"- Questions defined: {len(claims)}")
+    lines.append(f"- Evidence boundaries:")
+    lines.append(f"  - Proven: {proven_count}")
+    lines.append(f"  - Suggested: {suggested_count}")
+    lines.append(f"  - Inferred: {inferred_count}")
     lines.append(f"- Gaps identified: {len(gaps)}")
     lines.append("")
 

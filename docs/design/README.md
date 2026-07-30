@@ -20,21 +20,19 @@ This folder contains detailed design specifications for the omni-research skill 
 
 ## Quick Reference
 
-**12 Core Skills:**
-1. `omr-bootstrap` — Initialize workspace
-2. `omr-collection` — Collect materials
-3. `omr-evidence` — Map evidence
-4. `omr-research-plan` — Judge + plan
+**9 Core Skills:**
+1. `omr-core` — Infrastructure
+2. `omr-bootstrap` — Initialize workspace
+3. `omr-collection` — Collect materials
+4. `omr-analyze` — Brief + evidence-map + judgment + plan (Gate A internal)
 5. `omr-decision` — Architectural decision
 6. `omr-evaluation` — Run experiments
-7. `omr-synthesis` — Write findings (survey/report/manuscript/brief)
-8. `omr-wiki` — Generate wiki
-9. `omr-reconcile` — Update state on evidence change
-10. `omr-idea-note` — Capture insights
-11. `omr-research-archive` — Snapshot progress
+7. `omr-synthesis` — Write findings + wiki (survey/report/manuscript/brief)
+8. `omr-reconcile` — Update state on evidence change + archive
+9. `omr-idea-note` — Capture insights
 
 **4 Gates:**
-- Gate A: Before planning
+- Gate A: Within omr-analyze (after judgment, before plan)
 - Gate B: Before decision
 - Gate C: Before evaluation
 - Gate D: Before synthesis

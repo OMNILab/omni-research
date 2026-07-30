@@ -275,7 +275,7 @@ User: Y
 System: ✓ Auto-triggering `/omr-decision` (Idea-First basis)
 
         Note: Decision will be speculative (no evidence backfill yet)
-        Recommend: Run `/omr-evidence` after decision to backfill
+        Recommend: Run `/omr-analyze` after decision to backfill
 ```
 
 **Option 4: Create hypothesis for experiment**
@@ -336,7 +336,7 @@ omr-bootstrap ✓
     │
     ├── omr-collection ● (locked)
     │       │
-    │       ├── omr-evidence ●
+    │       ├── omr-analyze ●
     │       │
     │       └── omr-idea-note ✓ (can run anytime) ← Available
     │
@@ -476,7 +476,7 @@ User: Y
 System: ✓ Auto-triggering `/omr-decision`
 
         Note: Decision will be speculative basis
-        Recommend: Backfill evidence later with `/omr-evidence`
+        Recommend: Backfill evidence later with `/omr-analyze`
 
         Starting `/omr-decision`...
 ```
@@ -591,7 +591,7 @@ If user provides image/code/non-text:
 
 **Idea-First pattern:**
 ```
-omr-idea-note → omr-decision → omr-evaluation → omr-evidence → omr-synthesis → omr-wiki
+omr-idea-note → omr-decision → omr-evaluation → omr-analyze → omr-synthesis
 ```
 
 Idea captured first, then decision created (speculative basis), then evaluation tests hypothesis, then evidence backfills support, then synthesis documents findings.
@@ -607,7 +607,7 @@ User has creative insight before evidence collection:
 1. Capture idea: `/omr-idea-note`
 2. Create decision from idea (Idea-First)
 3. Test hypothesis: `/omr-evaluation`
-4. Backfill evidence: `/omr-evidence`
+4. Backfill evidence: `/omr-analyze`
 5. Synthesize findings
 
 ### Exploratory thinking

@@ -53,7 +53,7 @@ metadata:
 
 **Collection = preparation, Evidence = analysis**
 
-Semantic extraction belongs in `omr-evidence` (downstream skill), not here.
+Semantic extraction belongs in `omr-analyze` (downstream skill), not here.
 
 ---
 
@@ -175,7 +175,7 @@ omr-collection/
 │   └── base_handler.py      # Abstract base class
 │
 ├── utils/             # Shared utilities
-│   └── runtime_utils.py # Infrastructure loader
+│   └── runtime_utils.py # Proxy stub → omr-core/scripts/runtime_utils.py
 │
 └── tests/             # Test suite (future)
 ```
@@ -411,7 +411,7 @@ See DEPENDENCIES.md for comprehensive setup guide.
 
 ## What NOT to Do
 
-- ✗ Do NOT extract abstract, keywords, citations (belongs in omr-evidence)
+- ✗ Do NOT extract abstract, keywords, citations (belongs in omr-analyze)
 - ✗ Do NOT filter or curate materials (user decides)
 - ✗ Do NOT fail entire batch if one source fails
 - ✗ Do NOT use human-readable filenames (use DOI/hash)
@@ -425,8 +425,7 @@ See DEPENDENCIES.md for comprehensive setup guide.
 
 | Downstream Skill | omr-collection Outputs Used |
 |------------------|----------------------------|
-| **omr-evidence** | `raw/paper/*.md`, `docs/index/papers-index.json` |
-| **omr-research-plan** | `raw/paper/*.md`, `raw/web/*.md` |
+| **omr-analyze** | `raw/paper/*.md`, `raw/web/*.md`, `docs/index/papers-index.json` |
 | **omr-decision** | `raw/github/*.md`, `raw/dataset/*.md` |
 | **omr-evaluation** | `raw/dataset/*` (if `--download-dataset`) |
 | **omr-synthesis** | All `raw/` artifacts |

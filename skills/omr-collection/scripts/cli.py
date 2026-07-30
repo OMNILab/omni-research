@@ -240,7 +240,7 @@ def main():
     # Update skill tree
     if args.update_tree and results.get('collected'):
         print("\n📊 Skill tree updated")
-        print("  - omr-evidence [READY]")
+        print("  - omr-analyze [READY]")
 
 if __name__ == "__main__":
     main()

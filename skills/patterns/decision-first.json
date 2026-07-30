@@ -3,13 +3,11 @@
   "description": "Hypothesis-driven research starting from architecture stance. Engineering-focused with strong validation.",
   "graph": {
     "entry_points": ["omr-decision"],
-    "nodes": ["omr-evidence", "omr-research-plan", "omr-evaluation", "omr-synthesis", "omr-wiki"],
+    "nodes": ["omr-analyze", "omr-evaluation", "omr-synthesis"],
     "edges": [
-      "omr-decision → omr-evidence",
-      "omr-evidence → omr-research-plan",
-      "omr-research-plan → omr-evaluation",
-      "omr-evaluation → omr-synthesis",
-      "omr-synthesis → omr-wiki"
+      "omr-decision → omr-analyze",
+      "omr-analyze → omr-evaluation",
+      "omr-evaluation → omr-synthesis"
     ]
   },
   "skill_gates": {

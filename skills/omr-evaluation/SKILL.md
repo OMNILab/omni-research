@@ -639,8 +639,7 @@ Next step: `/omr-synthesis` to document findings
 
 ## Can Call
 
-- `omr-synthesis` (auto-trigger on evaluation success)
-- `omr-wiki` (auto-trigger after synthesis)
+- `omr-synthesis` (auto-trigger on evaluation success, includes wiki generation)
 
 ## Prerequisites
 
@@ -869,7 +868,7 @@ If results vary widely across scenarios:
 
 **Before evaluation:**
 - Requires `omr-decision` for decision (unless Experiment-First)
-- May use `omr-research-plan` for plan context
+- May use `omr-analyze` for plan context
 
 **Reconciliation:**
 - If new evidence contradicts evaluation, `omr-reconcile` may call this skill to re-run

@@ -84,14 +84,14 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
     reconciliation_actions = []
 
     if new_materials:
-        # Call omr-evidence skill to re-extract
+        # Call omr-analyze skill to re-extract evidence
         try:
             import subprocess
-            evidence_script = workspace_root.parent.parent / 'skills' / 'omr-evidence' / 'extract_evidence.py'
+            analyze_script = workspace_root.parent.parent / 'skills' / 'omr-analyze' / 'scripts' / 'analyze.py'
 
-            if evidence_script.exists():
+            if analyze_script.exists():
                 result = subprocess.run(
-                    ['python3', str(evidence_script), str(workspace_root)],
+                    ['python3', str(analyze_script), str(workspace_root)],
                     capture_output=True,
                     text=True,
                     timeout=60
@@ -102,7 +102,7 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
                 else:
                     reconciliation_actions.append(f'evidence-extraction-failed: {result.stderr}')
             else:
-                reconciliation_actions.append('evidence-script-not-found')
+                reconciliation_actions.append('analyze-script-not-found')
 
         except Exception as e:
             reconciliation_actions.append(f'evidence-extraction-error: {str(e)}')

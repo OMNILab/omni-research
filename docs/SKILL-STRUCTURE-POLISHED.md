@@ -2,7 +2,9 @@
 
 **Date**: 2026-04-18
 
-**Status**: ✅ All 12 skills polished to match agent skill specification
+**Status**: ✅ All 9 skills polished to match agent skill specification (v1.0.0 baseline)
+
+> **Update (v2.0.0, 2026-07-30)**: Skills consolidated from 12 → 9. See `omr-skills-flowchart.md` for the current 9-skill structure. The `required_for` field below has been updated to reflect merged skills.
 
 ---
 
@@ -54,7 +56,7 @@ metadata:
 
 ---
 
-## Skills Polished (12 Total)
+## Skills Polished (9 Total)
 
 ### 1. omr-bootstrap ✓
 ```yaml
@@ -93,10 +95,10 @@ metadata:
   author: OmniResearch Team
   role: infrastructure-provider
   provides: contracts dependency_resolver skill_tree patterns
-  required_for: omr-bootstrap omr-collection omr-evidence omr-research-plan omr-decision omr-evaluation omr-synthesis omr-wiki omr-idea-note omr-reconcile omr-research-archive
+  required_for: omr-bootstrap omr-collection omr-analyze omr-decision omr-evaluation omr-synthesis omr-idea-note omr-reconcile
 ```
 
-### 4-12. Remaining Skills ✓
+### 4-9. Remaining Skills ✓
 
 All follow the same pattern:
 - name matches directory name ✓
@@ -111,7 +113,7 @@ All follow the same pattern:
 Per agent skill spec, skills can have:
 
 ### Required
-- `SKILL.md` ✓ (all 12 skills have this)
+- `SKILL.md` ✓ (all 9 skills have this)
 
 ### Optional
 - `scripts/` ✓ (present where implementations exist)
@@ -126,7 +128,7 @@ omr-bootstrap/
 ├── SKILL.md ✓
 ├── scripts/
 │   ├── bootstrap_workspace.py ✓
-│   └── runtime_utils.py ✓
+│   └── runtime_utils.py ✓ (proxy stub → omr-core/scripts/)
 ├── templates/
 │   └── CLAUDE.md.template ✓
 
@@ -151,13 +153,17 @@ omr-core/
 │   ├── detect_pattern.py ✓
 │   ├── skill_tree.py ✓
 │   └── dependency_resolver.py ✓
-├── contracts/ ✓ (11 JSON files)
+├── contracts/ ✓ (8 JSON files)
 ├── patterns/ ✓ (5 pattern JSON files)
 
-omr-evidence/
+omr-evidence/  ⚠️ DEPRECATED (v2.0.0) — merged into omr-analyze (see below)
+
+omr-analyze/  ✓ (replaces omr-evidence + omr-research-plan)
 ├── SKILL.md ✓
-├── extract_evidence.py ✓
-├── runtime_utils.py ✓
+├── scripts/
+│   ├── extract_evidence.py ✓
+│   ├── plan_research.py ✓
+│   └── runtime_utils.py ✓
 
 ... (similar for all skills)
 ```
@@ -216,7 +222,7 @@ Per spec recommendation:
 
 ## Summary
 
-**All 12 OmniResearch skills now comply with the agent skill specification format**.
+**All 9 OmniResearch skills now comply with the agent skill specification format**.
 
 **Key improvements**:
 - Frontmatter fields organized per spec

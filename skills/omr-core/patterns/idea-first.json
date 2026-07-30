@@ -3,13 +3,12 @@
   "description": "Exploratory research starting from creative insight. Speculative work with minimal ceremony before validation.",
   "graph": {
     "entry_points": ["omr-idea-note"],
-    "nodes": ["omr-decision", "omr-evaluation", "omr-evidence", "omr-synthesis", "omr-wiki"],
+    "nodes": ["omr-decision", "omr-evaluation", "omr-analyze", "omr-synthesis"],
     "edges": [
       "omr-idea-note → omr-decision",
       "omr-decision → omr-evaluation",
-      "omr-evaluation → omr-evidence",
-      "omr-evidence → omr-synthesis",
-      "omr-synthesis → omr-wiki"
+      "omr-evaluation → omr-analyze",
+      "omr-analyze → omr-synthesis"
     ]
   },
   "skill_gates": {

@@ -42,11 +42,10 @@ class DependencyResolver:
         if not self.tree_state_path.exists():
             # Default initial state
             return {
-                "unlocked": ["omr-bootstrap", "omr-collection", "omr-idea-note"],
+                "unlocked": ["omr-bootstrap", "omr-collection", "omr-idea-note", "omr-reconcile"],
                 "ready": [],
-                "locked": ["omr-evidence", "omr-research-plan", "omr-decision",
-                           "omr-evaluation", "omr-synthesis", "omr-wiki",
-                           "omr-reconcile", "omr-research-archive"],
+                "locked": ["omr-analyze", "omr-decision",
+                           "omr-evaluation", "omr-synthesis"],
                 "completed": []
             }
         return json.loads(self.tree_state_path.read_text())
@@ -314,11 +313,10 @@ def main():
     if not tree_state_path.exists():
         tree_state_path.parent.mkdir(parents=True, exist_ok=True)
         tree_state_path.write_text(json.dumps({
-            "unlocked": ["omr-bootstrap", "omr-collection", "omr-idea-note"],
+            "unlocked": ["omr-bootstrap", "omr-collection", "omr-idea-note", "omr-reconcile"],
             "ready": [],
-            "locked": ["omr-evidence", "omr-research-plan", "omr-decision",
-                       "omr-evaluation", "omr-synthesis", "omr-wiki",
-                       "omr-reconcile", "omr-research-archive"],
+            "locked": ["omr-analyze", "omr-decision",
+                       "omr-evaluation", "omr-synthesis"],
             "completed": []
         }, indent=2))
 

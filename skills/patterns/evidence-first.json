@@ -3,18 +3,16 @@
   "description": "Rigorous research starting from literature collection. Systematic review with strong evidence foundation before decisions.",
   "graph": {
     "entry_points": ["omr-collection"],
-    "nodes": ["omr-evidence", "omr-research-plan", "omr-decision", "omr-evaluation", "omr-synthesis", "omr-wiki"],
+    "nodes": ["omr-analyze", "omr-decision", "omr-evaluation", "omr-synthesis"],
     "edges": [
-      "omr-collection → omr-evidence",
-      "omr-evidence → omr-research-plan",
-      "omr-research-plan → omr-decision",
+      "omr-collection → omr-analyze",
+      "omr-analyze → omr-decision",
       "omr-decision → omr-evaluation",
-      "omr-evaluation → omr-synthesis",
-      "omr-synthesis → omr-wiki"
+      "omr-evaluation → omr-synthesis"
     ]
   },
   "skill_gates": {
-    "omr-research-plan": "gate_a",
+    "omr-analyze": "gate_a",
     "omr-decision": "gate_b",
     "omr-evaluation": "gate_c",
     "omr-synthesis": "gate_d"

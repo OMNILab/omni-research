@@ -6,19 +6,28 @@ See [skills.md](skills.md) for detailed capabilities per skill.
 
 | Skill | Purpose | Stage | Gates |
 |-------|---------|-------|-------|
+| `omr-core` | Infrastructure | Core | None |
 | `omr-bootstrap` | Initialize workspace | Init | None |
 | `omr-collection` | Collect materials | Collection | None |
-| `omr-evidence` | Map evidence | Definition + Evidence | None |
-| `omr-research-plan` | Judge + plan | Judgment + Planning | Gate A |
+| `omr-analyze` | Scan + brief + evidence-map + judgment + plan | Definition + Judgment + Planning | Gate A (internal) |
 | `omr-decision` | Architecture decision | Decision | Gate B |
 | `omr-evaluation` | Run experiments | Validation | Gate C |
-| `omr-synthesis` | Write findings | Writeback | Gate D |
-| `omr-wiki` | Generate wiki | Writeback | None |
-| `omr-reconcile` | Update on evidence change | Iteration | None |
+| `omr-synthesis` | Write findings (+ wiki internal, `--no-wiki` to skip) | Writeback | Gate D |
+| `omr-reconcile` | Update on evidence change + archive (`--archive` / `--rollback` / `--list` / `--review`) | Iteration | None |
 | `omr-idea-note` | Capture insights | Any | None |
-| `omr-research-archive` | Snapshot progress | Lifecycle | None |
 
-**Total: 12 skills** (11 core + configurable synthesis)
+**Total: 9 skills** (8 core + `omr-core` infrastructure)
+
+## Deprecated / Merged Skills
+
+Merged in v2.0.0 as part of skill consolidation (12 → 9). Keep references for backward compatibility.
+
+| Skill | Status | Merged Into |
+|-------|--------|-------------|
+| `omr-evidence` | Deprecated (v2.0.0, phase 2.2) | `omr-analyze` — brief + evidence-map |
+| `omr-research-plan` | Deprecated (v2.0.0, phase 2.2) | `omr-analyze` — judgment + plan (Gate A now internal) |
+| `omr-wiki` | Deprecated (v2.0.0, phase 3.1) | `omr-synthesis` — wiki is an internal post-Gate-D step |
+| `omr-research-archive` | Deprecated (v2.0.0, phase 3.4) | `omr-reconcile` — archive via `--archive` / `--rollback` / `--list` / `--review` |
 
 ## Skill Contracts (Template)
 

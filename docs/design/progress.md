@@ -10,9 +10,9 @@ omr-bootstrap ✓
     │
     ├── omr-collection ✓  (papers downloaded)
     │       │
-    │       ├── omr-evidence ○  (ready to run)
+    │       ├── omr-analyze ○  (ready to run)
     │       │       │
-    │       │       └── omr-research-plan ●  (locked: needs evidence-map.md)
+    │       │       └── omr-decision ●  (locked: needs Gate A pass + research-plan.md)
     │       │
     │       └── omr-idea-note ✓  (can run anytime)
     │
@@ -30,18 +30,16 @@ Each skill has explicit prerequisites (from contracts):
 
 | Skill | Prerequisites | Unlocks After Completion |
 |-------|---------------|--------------------------|
-| `omr-collection` | workspace | `omr-evidence` |
-| `omr-evidence` | materials in raw/ | `omr-research-plan` |
-| `omr-research-plan` | evidence-map.md | `omr-decision` |
-| `omr-decision` | evidence-map.md (judgment optional) | `omr-evaluation` |
+| `omr-collection` | workspace | `omr-analyze` |
+| `omr-analyze` | materials in raw/ | `omr-decision` (after Gate A passes) |
+| `omr-decision` | research-plan.md (Gate A passed) | `omr-evaluation` |
 | `omr-evaluation` | architecture-decision.md | `omr-synthesis` |
-| `omr-synthesis` | evaluation-report OR judgment | `omr-wiki` |
+| `omr-synthesis` | evaluation-report OR judgment | wiki (internal, `--no-wiki` to skip) |
 
 ## Always-Unlocked Skills
 
 - `omr-idea-note` — Standalone, anytime
-- `omr-reconcile` — Iteration support, anytime
-- `omr-research-archive` — Snapshot, anytime
+- `omr-reconcile` — Iteration + archive support, anytime
 
 ## Dual View Mode
 
@@ -53,8 +51,8 @@ Each skill has explicit prerequisites (from contracts):
 **Display:**
 ```
 Available skills:
-[✓] omr-evidence (ready)
-[●] omr-research-plan (locked: needs evidence-map.md)
+[✓] omr-analyze (ready)
+[●] omr-decision (locked: needs Gate A pass)
 [✓] omr-idea-note (anytime)
 ```
 
@@ -68,14 +66,13 @@ Available skills:
 Goal: Produce survey
 Path: 
   1. omr-collection ✓
-  2. omr-evidence ○
-  3. omr-research-plan ●
-  4. omr-decision ●
-  5. omr-evaluation ●
-  6. omr-synthesis ●
+  2. omr-analyze ○
+  3. omr-decision ●
+  4. omr-evaluation ●
+  5. omr-synthesis ●
 
-Estimated: 5 skills between you and goal
-Missing: 4 artifacts
+Estimated: 4 skills between you and goal
+Missing: 3 artifacts
 ```
 
 ## Skill Tree Updates

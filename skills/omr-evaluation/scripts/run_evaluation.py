@@ -414,11 +414,6 @@ def update_tree_state(workspace_root: Path):
         state['locked'].remove('omr-synthesis')
         state['ready'].append('omr-synthesis')
 
-    # Unlock omr-wiki
-    if 'omr-wiki' in state['locked']:
-        state['locked'].remove('omr-wiki')
-        state['ready'].append('omr-wiki')
-
     tree_state_path.write_text(json.dumps(state, indent=2))
 
 def main():
@@ -455,7 +450,7 @@ def main():
 
         print(f"\n📊 Skill tree updated")
         print(f"  - omr-synthesis [READY]")
-        print(f"  - omr-wiki [READY]")
+        print(f"  - omr-synthesis [READY]")
 
     elif result['status'] == 'gate_failed':
         print(f"⚠️  GATE C FAILED")

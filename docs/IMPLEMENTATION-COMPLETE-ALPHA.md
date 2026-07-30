@@ -1,8 +1,10 @@
 # Implementation Complete: OmniResearch Alpha Version
 
-**Status**: ✅ All 11 skills functional and tested
+**Status**: ✅ All 11 skills functional and tested (v1.0.0 alpha)
 
 **Date**: 2026-04-18
+
+> **Update (v2.0.0, 2026-07-30)**: Skills consolidated from 12 → 9 (8 active domain skills below + omr-core infrastructure). `omr-evidence` + `omr-research-plan` merged into `omr-analyze` (§4); `omr-wiki` merged into `omr-synthesis` (§7); `omr-research-archive` merged into `omr-reconcile` (§8). See `omr-skills-flowchart.md` for the current 9-skill structure.
 
 ---
 
@@ -12,7 +14,7 @@ Successfully implemented all OmniResearch skills with functional logic, replacin
 
 ---
 
-## Skills Implemented (11 Total)
+## Skills Implemented (8 Total)
 
 ### Tier 1: Foundation (3 skills) ✓
 
@@ -35,27 +37,27 @@ Successfully implemented all OmniResearch skills with functional logic, replacin
 - ✓ Links to related artifacts
 - ✓ Updates artifacts index
 
-### Tier 2: Evidence Layer (2 skills) ✓
+### Tier 2: Evidence Layer (1 skill) ✓
 
-**4. omr-evidence**
+**4. omr-analyze** (v2.0.0) — merges deprecated omr-evidence + omr-research-plan
 - ✓ Replaced placeholder claim extraction with pattern matching
 - ✓ Evidence boundary classification (proven/suggested/inferred)
 - ✓ Keywords: proves/demonstrates/suggests/indicates/implies
 - ✓ Non-paper sources can never be "proven"
 - ✓ Question extraction from text patterns
 - ✓ Gap identification comparing questions vs claims
-
-**5. omr-research-plan**
-- ✓ Replaced placeholder judgment synthesis
 - ✓ Coverage calculation (proven ratio)
 - ✓ Quality assessment (Strong/Moderate/Weak)
 - ✓ Priorities generation from gaps
 - ✓ Timeline calculation with week-to-day conversion
 - ✓ Next skill recommendations
+- ✓ Produces all 4 artifacts: research-brief.md, evidence-map.md, judgment-summary.md, research-plan.md
+- ✓ Gate A is an internal checkpoint (position: after_judgment_before_plan)
+- ✓ Unlocks omr-decision after Gate A passes
 
 ### Tier 3: Decision Layer (1 skill) ✓
 
-**6. omr-decision**
+**5. omr-decision**
 - ✓ Replaced placeholder alternatives generation
 - ✓ Evidence-based alternatives from proven/suggested claims
 - ✓ 3 alternatives: Lightweight/Comprehensive/Hybrid
@@ -65,7 +67,7 @@ Successfully implemented all OmniResearch skills with functional logic, replacin
 
 ### Tier 4: Validation Layer (1 skill) ✓
 
-**7. omr-evaluation**
+**6. omr-evaluation**
 - ✓ Replaced placeholder experiment execution
 - ✓ Spec generation from decision document
 - ✓ Simplified validation checks (artifact consistency)
@@ -74,9 +76,9 @@ Successfully implemented all OmniResearch skills with functional logic, replacin
 - ✓ Evidence boundary classification for validation results
 - ✓ Creates validation checks log in src/prototype/
 
-### Tier 5: Synthesis Layer (2 skills) ✓
+### Tier 5: Synthesis Layer (1 skill) ✓
 
-**8. omr-synthesis**
+**7. omr-synthesis** (v2.0.0) — absorbs deprecated omr-wiki
 - ✓ Replaced placeholder content generation
 - ✓ Introduction with quality and traceability
 - ✓ Background from evidence map counts
@@ -85,32 +87,19 @@ Successfully implemented all OmniResearch skills with functional logic, replacin
 - ✓ Conclusions with proper boundary classification
 - ✓ Gate D validation (checks traceability, boundaries, no over-claiming)
 - ✓ Brief mode with complete traceability section
+- ✓ Wiki generation now an internal post-Gate-D step (`--no-wiki` to skip)
+- ✓ Enhanced conversion with key concepts extraction, navigation, cross-references
 
-**9. omr-wiki**
-- ✓ Enhanced conversion with key concepts extraction
-- ✓ Added navigation and quick links
-- ✓ Cross-references linking back to synthesis
-- ✓ Wiki index with all pages
-- ✓ Can generate from judgment if synthesis not ready
+### Tier 6: Maintenance Layer (1 skill) ✓
 
-### Tier 6: Maintenance Layer (2 skills) ✓
-
-**10. omr-reconcile**
+**8. omr-reconcile** (v2.0.0) — absorbs deprecated omr-research-archive
 - ✓ Replaced placeholder reconciliation workflow
 - ✓ Archive previous artifacts with metadata
 - ✓ Re-run evidence extraction when new materials detected
 - ✓ Generate reconciliation report
 - ✓ Create traceability update log
 - ✓ Full workflow implementation
-
-**11. omr-research-archive**
-- ✓ Created archive_research.py implementation
-- ✓ Collect artifacts from docs directories
-- ✓ Create timestamped snapshot directory
-- ✓ Copy artifacts with shutil
-- ✓ Generate METADATA.json with counts and skill tree state
-- ✓ Generate SUMMARY.md human-readable report
-- ✓ Archive all research progress
+- ✓ Archive mode (`--archive`, `--rollback`, `--list`, `--review`) replaces omr-research-archive
 
 ---
 
@@ -135,7 +124,7 @@ Successfully implemented all OmniResearch skills with functional logic, replacin
 
 ### Enforcement Mechanisms
 
-1. **omr-evidence**: Automatic classification during claim extraction
+1. **omr-analyze** (v2.0.0): Automatic classification during claim extraction (merged from omr-evidence + omr-research-plan)
 2. **omr-synthesis Gate D**: Checks all claims have boundary labels
 3. **omr-evaluation**: Results classified based on validation success
 4. **Traceability**: All claims link to sources with boundary labels
@@ -174,21 +163,18 @@ Gate D checks:
 
 ### Manual Workflow Test (April 18, 2026)
 
-**Skills tested**: 11/11
+**Skills tested**: 8/8
 
 **Test sequence**:
 ```bash
 1. bootstrap ✓ (created workspace)
-2. evidence ✓ (2 claims extracted)
-3. research-plan ✓ (Gate A: insufficient coverage - expected)
-4. decision ✓ (Gate B passed)
-5. evaluation ✓ (Gate C passed)
-6. synthesis ✓ (Gate D passed)
-7. wiki ✓ (generated pages)
-8. idea-note ✓ (captured speculation)
-9. archive ✓ (10 artifacts archived)
-10. reconcile ✓ (7 files reconciled)
-11. collection ✓ (already working)
+2. collection ✓ (already working)
+3. idea-note ✓ (captured speculation)
+4. analyze ✓ (2 claims extracted; Gate A: insufficient coverage - expected)
+5. decision ✓ (Gate B passed)
+6. evaluation ✓ (Gate C passed)
+7. synthesis ✓ (Gate D passed; wiki generated)
+8. reconcile ✓ (7 files reconciled; --archive: 10 artifacts archived)
 ```
 
 **All gates passed**: Gate B, C, D
@@ -263,7 +249,7 @@ Gate D checks:
 | Traceability complete | ✓ | All claims link to sources, document cross-references |
 | No over-claiming | ✓ | Gate D prevents proven without validation |
 | Skill tree dependencies respected | ✓ | Skills unlock correctly, tree state updates |
-| Passive reception philosophy | ✓ | Collection skill only extracts format, evidence skill does semantics |
+| Passive reception philosophy | ✓ | Collection skill only extracts format, analyze skill does semantics |
 | Pattern emergence detected | ✓ | Pattern detection infrastructure in shared directory |
 
 ---
@@ -329,7 +315,7 @@ Gate D checks:
 
 ## Conclusion
 
-**Alpha version**: Fully functional with working implementations across all 11 skills.
+**Alpha version**: Fully functional with working implementations across all 8 domain skills (v1.0.0). Consolidated to 9 skills in v2.0.0 (8 domain + omr-core).
 
 **Status**: Ready for testing and validation. Evidence boundaries, traceability, and gates all working correctly.
 

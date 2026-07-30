@@ -89,7 +89,8 @@ def init_workspace_infrastructure(workspace_path: Path,
         "dependency_resolver.py",
         "skill_tree.py",
         "validate_contract.py",
-        "detect_pattern.py"
+        "detect_pattern.py",
+        "runtime_utils.py"
     ]
 
     copied_scripts = []
@@ -106,9 +107,9 @@ def init_workspace_infrastructure(workspace_path: Path,
 
     # Initialize skill tree state
     tree_state = {
-        "unlocked": ["omr-bootstrap", "omr-collection", "omr-idea-note", "omr-reconcile", "omr-research-archive"],
+        "unlocked": ["omr-bootstrap", "omr-collection", "omr-idea-note", "omr-reconcile"],
         "ready": [],
-        "locked": ["omr-evidence", "omr-research-plan", "omr-decision", "omr-evaluation", "omr-synthesis", "omr-wiki"],
+        "locked": ["omr-analyze", "omr-decision", "omr-evaluation", "omr-synthesis"],
         "completed": []
     }
 

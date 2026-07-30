@@ -6,14 +6,11 @@
   ],
   "ready": [],
   "locked": [
-    "omr-evidence",
-    "omr-research-plan",
+    "omr-analyze",
     "omr-decision",
     "omr-evaluation",
     "omr-synthesis",
-    "omr-wiki",
-    "omr-reconcile",
-    "omr-research-archive"
+    "omr-reconcile"
   ],
   "completed": []
 }

@@ -4,12 +4,14 @@
 
 | Gate | Position | Purpose | Required Artifacts |
 |------|----------|---------|-------------------|
-| **A** | Before `omr-research-plan` | Evidence sufficient for planning? | research-brief.md, evidence-map.md |
+| **A** | Within `omr-analyze` (after judgment, before plan) | Evidence sufficient for planning? | research-brief.md, evidence-map.md, judgment-summary.md |
 | **B** | Before `omr-decision` | Architecture decision sound? | research-brief.md, evidence-map.md, judgment-summary.md (optional) |
 | **C** | Before `omr-evaluation` | Experiment design valid? | architecture-decision.md |
 | **D** | Before `omr-synthesis` | Results traceable, no over-claiming? | evaluation-report.md OR judgment-summary.md |
 
-## Gate A: Before Research Planning
+## Gate A: Within omr-analyze (Internal Checkpoint)
+
+Gate A is now an **internal checkpoint** within `omr-analyze`, positioned after judgment synthesis and before plan generation (position: `after_judgment_before_plan`). It is no longer a standalone gate before `omr-research-plan`. When Gate A passes, `omr-analyze` unlocks `omr-decision`.
 
 **Review Criteria:**
 - [ ] Evidence coverage adequate
@@ -17,7 +19,7 @@
 - [ ] Scope defined
 - [ ] Judgment confidence reasonable
 
-**Failure handling:** "Evidence insufficient. Add materials via `/omr-collection` or revise scope."
+**Failure handling:** "Evidence insufficient. Add materials via `/omr-collection` or revise scope." `omr-analyze` re-runs the evidence/judgment phases before producing `research-plan.md`.
 
 ## Gate B: Before Architecture Decision
 

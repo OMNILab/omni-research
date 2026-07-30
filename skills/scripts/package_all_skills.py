@@ -14,15 +14,12 @@ SKILLS_TO_PACKAGE = [
     'omr-core',           # Foundation infrastructure (must be first)
     'omr-bootstrap',      # Project initializer
     'omr-collection',     # Material collection
-    'omr-evidence',       # Evidence extraction
-    'omr-research-plan',  # Research planning
+    'omr-analyze',        # Evidence analysis + research planning
     'omr-decision',       # Architecture decisions
     'omr-evaluation',     # Experiment execution
-    'omr-synthesis',      # Findings synthesis
-    'omr-wiki',           # Wiki generation
+    'omr-synthesis',      # Findings synthesis + wiki
     'omr-idea-note',      # Idea capture
-    'omr-reconcile',      # Reconciliation
-    'omr-research-archive'  # Archiving
+    'omr-reconcile'       # Reconciliation + archiving
 ]
 
 def find_package_script() -> Path:

@@ -4,7 +4,7 @@
     {
       "artifact": "evidence-map.md",
       "optional": false,
-      "description": "Evidence mapping from omr-evidence"
+      "description": "Evidence mapping from omr-analyze"
     },
     {
       "artifact": "judgment-summary.md",

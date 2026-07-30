@@ -101,15 +101,12 @@ This project uses omni-research skills for evidence-bound, traceable research.
 
 ### Available Skills
 - omr-collection: Collect and classify materials
-- omr-evidence: Map evidence landscape
-- omr-research-plan: Judge evidence and plan research
+- omr-analyze: Map evidence landscape and plan research
 - omr-decision: Make architectural decisions
 - omr-evaluation: Run experiments
-- omr-synthesis: Write findings (survey/report/manuscript/brief)
-- omr-wiki: Generate wiki
-- omr-reconcile: Update state on evidence changes
+- omr-synthesis: Write findings + generate wiki (survey/report/manuscript/brief)
+- omr-reconcile: Update state on evidence changes + archive snapshots
 - omr-idea-note: Capture insights
-- omr-research-archive: Snapshot progress
 
 ### Evidence Philosophy
 - All claims must be traceable to sources
@@ -148,14 +145,11 @@ omr-bootstrap ✓
     │
     ├── omr-collection ●  (locked: ready after workspace created)
     │       │
-    │       ├── omr-evidence ●  (locked: needs materials in raw/)
-    │       │       │
-    │       │       └── omr-research-plan ●  (locked: needs evidence-map.md)
+    │       ├── omr-analyze ●  (locked: needs materials in raw/)
     │       │
     │       └── omr-idea-note ✓  (can run anytime)
     │
     └── omr-reconcile ✓  (can run anytime)
-    └── omr-research-archive ✓  (can run anytime)
 
 Legend:
 ✓ = available (can run now)

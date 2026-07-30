@@ -6,14 +6,12 @@ metadata:
   version: "1.0.0"
   author: OmniResearch Team
   role: infrastructure-provider
-  provides: contracts dependency_resolver skill_tree patterns
-  required_for: omr-bootstrap omr-collection omr-evidence omr-research-plan omr-decision omr-evaluation
+  provides: contracts dependency_resolver skill_tree patterns runtime_utils
+  required_for: omr-bootstrap omr-collection omr-analyze omr-decision omr-evaluation
 ---
     - omr-synthesis
-    - omr-wiki
     - omr-idea-note
     - omr-reconcile
-    - omr-research-archive
 ---
 
 # omr-core: OmniResearch Infrastructure Foundation
@@ -34,7 +32,7 @@ Provides the foundational infrastructure for the OmniResearch skills system. Thi
 
 ### 1. Contract System
 
-**Location**: `contracts/*.json` (11 files)
+**Location**: `contracts/*.json` (8 files)
 
 Each contract defines:
 - **Skill identifier**: Unique `omr-*` pattern name
@@ -46,15 +44,12 @@ Each contract defines:
 **Contract files**:
 - `omr-bootstrap.json` - Workspace initialization contract
 - `omr-collection.json` - Material collection contract
-- `omr-evidence.json` - Evidence extraction contract
-- `omr-research-plan.json` - Research planning contract
+- `omr-analyze.json` - Evidence extraction + research planning contract
 - `omr-decision.json` - Architecture decision contract
 - `omr-evaluation.json` - Experiment execution contract
-- `omr-synthesis.json` - Findings synthesis contract
-- `omr-wiki.json` - Wiki generation contract
+- `omr-synthesis.json` - Findings synthesis + wiki generation contract
 - `omr-idea-note.json` - Idea capture contract
-- `omr-reconcile.json` - Reconciliation contract
-- `omr-research-archive.json` - Archive snapshot contract
+- `omr-reconcile.json` - Reconciliation + archive contract
 
 **Validation schema**: `schemas/contract.schema.json`
 
@@ -82,7 +77,7 @@ resolver = DependencyResolver(
 )
 
 # Check if skill can be invoked
-can_invoke, missing = resolver.can_invoke_skill('omr-evidence')
+can_invoke, missing = resolver.can_invoke_skill('omr-analyze')
 
 # Update skill tree after producing artifacts
 resolver.update_downstream_skills(['evidence-map.md'])
@@ -115,10 +110,10 @@ python scripts/skill_tree.py --reverse  # Reverse producer view
 **Purpose**: Define research workflow patterns that emerge from skill invocation sequences
 
 **Patterns**:
-- `evidence-first.json` - Start with literature collection → evidence → plan → decision → synthesis
-- `idea-first.json` - Start with creative insight → collection → evidence → plan → decision → synthesis
-- `decision-first.json` - Start with architectural stance → collection → evidence → plan → evaluation → synthesis
-- `experiment-first.json` - Start by building/testing → collection → evidence → plan → evaluation → synthesis
+- `evidence-first.json` - Start with literature collection → analyze → decision → synthesis
+- `idea-first.json` - Start with creative insight → collection → analyze → decision → synthesis
+- `decision-first.json` - Start with architectural stance → collection → analyze → evaluation → synthesis
+- `experiment-first.json` - Start by building/testing → collection → analyze → evaluation → synthesis
 - `rapid-prototype.json` - Fast iteration: idea → collection → evaluation → decision → synthesis
 
 **Pattern detection**: `scripts/detect_pattern.py`
@@ -136,6 +131,39 @@ python scripts/validate_contract.py
 
 **Output**: Reports valid contracts or schema violations
 
+### 6. Runtime Utilities (Shared Module)
+
+**Script**: `scripts/runtime_utils.py` (canonical copy)
+**Proxy template**: `scripts/_runtime_utils_proxy.py`
+
+**Purpose**: Infrastructure loader for domain skills — finds contracts, dependency resolver, and skill tree from workspace or global installation
+
+**Architecture**:
+- The canonical `runtime_utils.py` lives in `omr-core/scripts/`
+- Each domain skill carries a thin 68-line proxy stub (`runtime_utils.py`) that locates and imports the canonical copy
+- Proxy uses `importlib.util` to avoid circular imports (since the proxy itself is named `runtime_utils.py`)
+- All 6 public functions are re-exported, so calling code is unchanged:
+  - `load_infrastructure(workspace_root)` — resolves paths to contracts, resolver, tree
+  - `check_skill_dependency(skill_name, workspace_root)` — prerequisite check
+  - `update_skill_tree(workspace_root, artifacts, skill_name)` — post-execution update
+  - `get_skill_tree_visualization(workspace_root, mode)` — ASCII tree output
+  - `validate_contract(skill_name, workspace_root)` — contract schema check
+  - `load_global_infrastructure()` — convenience for non-workspace contexts
+
+**Proxy search order**:
+1. Relative to proxy file (sibling skill in workspace/repo)
+2. Walk up from cwd to find `skills/omr-core/scripts/`
+3. Global marketplace: `~/.claude/skills/omr-core/scripts/`
+
+**Usage** (from any domain skill):
+```python
+from runtime_utils import load_infrastructure
+infra = load_infrastructure(workspace_root)
+resolver = infra['resolver'](infra['contracts_dir'], workspace_root, infra['tree_state_path'])
+```
+
+**Eliminates**: ~290 lines × 7 skills = ~2,030 lines of duplication
+
 ## Infrastructure Initialization
 
 **Script**: `scripts/init_workspace.py`
@@ -146,7 +174,7 @@ python scripts/validate_contract.py
 ```
 <workspace>/
 ├── skills/
-│   ├── contracts/       # Copy of all 11 contract JSON files
+│   ├── contracts/       # Copy of all 8 contract JSON files
 │   ├── schemas/         # Copy of contract validation schema
 │   ├── patterns/        # Copy of 5 pattern JSON files
 │   ├── tree/
@@ -155,7 +183,8 @@ python scripts/validate_contract.py
 │       ├── dependency_resolver.py
 │       ├── skill_tree.py
 │       ├── validate_contract.py
-│       └── detect_pattern.py
+│       ├── detect_pattern.py
+│       └── runtime_utils.py  # Canonical shared module
 └── docs/
     └── index/
         ├── .gitkeep
@@ -182,19 +211,21 @@ python scripts/init_workspace.py /path/to/workspace
 3. Skills check for omr-core presence and report errors if missing
 
 **For skill developers**:
-1. Domain skills must include `runtime_utils.py` to load infrastructure
-2. Skills declare dependency via SKILL.md metadata: `requires_skills: [omr-core]`
-3. Skills use `load_infrastructure()` utility to resolve paths
+1. Domain skills must include `runtime_utils.py` (thin proxy stub) to load infrastructure
+2. The proxy delegates to the canonical `runtime_utils.py` in `omr-core/scripts/`
+3. Skills declare dependency via SKILL.md metadata: `requires_skills: [omr-core]`
+4. Skills use `load_infrastructure()` utility to resolve paths
 
 ## Marketplace Distribution
 
-**Package size**: ~104KB
+**Package size**: ~90KB
 
 **Contents**:
-- 11 contract JSON files (~4KB each)
+- 8 contract JSON files (~4KB each)
 - 1 contract schema (~2KB)
 - 5 pattern JSON files (~3KB each)
-- 4 Python scripts (resolver, tree, validate, detect) ~15KB total
+- 5 Python scripts (resolver, tree, validate, detect, runtime_utils) ~18KB total
+- 1 proxy template (`_runtime_utils_proxy.py`) ~3KB
 - 1 init_workspace.py script ~8KB
 - 1 tree-state.json ~1KB
 
@@ -215,7 +246,7 @@ All other OmniResearch skills depend on this skill.
 
 ## Success Criteria
 
-- [ ] All 11 contracts valid against schema
+- [ ] All 8 contracts valid against schema
 - [ ] Dependency resolver functional
 - [ ] Skill tree visualization working
 - [ ] Pattern detection operational

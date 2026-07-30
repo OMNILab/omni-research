@@ -26,7 +26,7 @@ def make_decision(workspace_root: Path) -> Dict:
     if not evidence_map_path.exists():
         return {
             'status': 'failed',
-            'error': 'evidence-map.md not found. Run omr-evidence first.'
+            'error': 'evidence-map.md not found. Run omr-analyze first.'
         }
 
     evidence_map = evidence_map_path.read_text()

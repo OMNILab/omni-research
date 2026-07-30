@@ -2,7 +2,9 @@
 
 **Date**: 2026-04-18
 
-**Status**: ✅ All 12 skills organized per agent skill specification
+**Status**: ✅ All 9 skills organized per agent skill specification (v1.0.0 baseline)
+
+> **Update (v2.0.0, 2026-07-30)**: Skills consolidated from 12 → 9. `omr-evidence` + `omr-research-plan` merged into `omr-analyze` (§6); `omr-wiki` merged into `omr-synthesis` (§11); `omr-research-archive` merged into `omr-reconcile` (§8). Sections 9, 10, 12 below are deprecation notes for the merged-away skills. See `omr-skills-flowchart.md` for the current 9-skill structure.
 
 ---
 
@@ -30,7 +32,7 @@ omr-bootstrap/
 │   └── CLAUDE.md.template ✓
 ├── scripts/ ✓
 │   ├── bootstrap_workspace.py ✓
-│   └── runtime_utils.py ✓
+│   └── runtime_utils.py ✓ (proxy stub)
 ```
 
 ### 2. omr-collection ✓
@@ -61,6 +63,8 @@ omr-core/
 │   ├── skill_tree.py ✓
 │   ├── detect_pattern.py ✓
 │   ├── validate_contract.py ✓
+│   ├── runtime_utils.py ✓ (canonical shared module)
+│   ├── _runtime_utils_proxy.py ✓ (proxy template for domain skills)
 │   └── init_workspace.py ✓
 ├── contracts/ ✓ (infrastructure)
 ├── patterns/ ✓ (infrastructure)
@@ -74,7 +78,7 @@ omr-decision/
 ├── SKILL.md ✓
 ├── scripts/ ✓
 │   ├── make_decision.py ✓
-│   └── runtime_utils.py ✓
+│   └── runtime_utils.py ✓ (proxy stub)
 ```
 
 ### 5. omr-evaluation ✓
@@ -86,12 +90,13 @@ omr-evaluation/
 │   └ runtime_utils.py ✓
 ```
 
-### 6. omr-evidence ✓
+### 6. omr-analyze ✓ (replaces deprecated omr-evidence + omr-research-plan)
 ```
-omr-evidence/
+omr-analyze/
 ├── SKILL.md ✓
 ├── scripts/ ✓
-│   ├── extract_evidence.py ✓
+│   ├── extract_evidence.py ✓ (from omr-evidence)
+│   ├── plan_research.py ✓ (from omr-research-plan)
 │   └── runtime_utils.py ✓
 ```
 
@@ -113,23 +118,13 @@ omr-reconcile/
 │   └ runtime_utils.py ✓
 ```
 
-### 9. omr-research-archive ✓
-```
-omr-research-archive/
-├── SKILL.md ✓
-├── scripts/ ✓
-│   ├── archive_research.py ✓
-│   └ runtime_utils.py ✓
-```
+### 9. omr-research-archive ⚠️ DEPRECATED (v2.0.0) — merged into omr-reconcile (§8)
 
-### 10. omr-research-plan ✓
-```
-omr-research-plan/
-├── SKILL.md ✓
-├── scripts/ ✓
-│   ├── plan_research.py ✓
-│   └ runtime_utils.py ✓
-```
+> Archive functionality now internal to `omr-reconcile` via `--archive`, `--rollback`, `--list`, `--review` modes.
+
+### 10. omr-research-plan ⚠️ DEPRECATED (v2.0.0) — merged into omr-analyze (§6)
+
+> Research planning is now an internal phase of `omr-analyze` (Gate A checkpoint at `after_judgment_before_plan`).
 
 ### 11. omr-synthesis ✓
 ```
@@ -140,14 +135,9 @@ omr-synthesis/
 │   └ runtime_utils.py ✓
 ```
 
-### 12. omr-wiki ✓
-```
-omr-wiki/
-├── SKILL.md ✓
-├── scripts/ ✓
-│   ├── generate_wiki.py ✓
-│   └ runtime_utils.py ✓
-```
+### 12. omr-wiki ⚠️ DEPRECATED (v2.0.0) — merged into omr-synthesis (§11)
+
+> Wiki generation is now an internal post-Gate-D step within `omr-synthesis`. Use `--no-wiki` to skip.
 
 ---
 
@@ -158,7 +148,7 @@ omr-wiki/
 **Before**: Python files in skill roots (make_decision.py, extract_evidence.py, etc.)
 **After**: All .py files moved to scripts/ directories
 
-**Skills affected**: 8 skills (omr-decision through omr-wiki)
+**Skills affected**: 6 skills (omr-analyze through omr-synthesis; omr-evidence/omr-research-plan/omr-wiki/omr-research-archive deprecated & merged in v2.0.0)
 
 ### Templates Renamed
 
@@ -188,7 +178,7 @@ Per spec recommendation, assets/ contains static resources like templates.
 
 **Each scripts/ directory contains**:
 - ✓ Main executable (skill_name.py)
-- ✓ runtime_utils.py (shared utilities)
+- ✓ runtime_utils.py (proxy stub → omr-core/scripts/runtime_utils.py)
 - ✓ Additional scripts (where applicable)
 
 ### Assets Directory
@@ -221,7 +211,7 @@ Per spec recommendations:
 
 ## Summary
 
-**All 12 OmniResearch skills now fully comply with agent skill specification**:
+**All 9 active OmniResearch skills now fully comply with agent skill specification** (12 in v1.0.0; 4 merged/deprecated in v2.0.0):
 
 1. ✓ Frontmatter fields per spec (name/description/license/compatibility/metadata)
 2. ✓ SKILL.md in root directory (required)

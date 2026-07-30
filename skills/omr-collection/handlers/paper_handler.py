@@ -28,7 +28,7 @@ class PaperHandler(BaseHandler):
 
     Minimal parsing: PDF → markdown conversion only
     Metadata: authors, date, DOI/arxiv_id, source_url
-    No semantic extraction (abstract, keywords belong to omr-evidence)
+    No semantic extraction (abstract, keywords belong to omr-analyze)
     """
 
     def get_source_type(self) -> str:

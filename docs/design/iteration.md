@@ -5,7 +5,7 @@
 | Trigger | Source | Action |
 |---------|--------|--------|
 | New paper arrives | `omr-collection` | Auto-flag: "Reconcile?" |
-| Evidence map updated | `omr-evidence` | Check affected decisions |
+| Evidence map updated | `omr-analyze` | Check affected decisions |
 | Gate failure | Gate A/B/C/D | Prompt: "Reconcile state?" |
 | Manual request | User command | `/omr-reconcile` |
 
@@ -58,8 +58,7 @@ System shows full dependency chain, not just immediate artifact.
 Reconciliation calls skills in dependency order:
 ```
 omr-reconcile → 
-  omr-evidence (re-evaluate) →
-  omr-research-plan (update judgment) →
+  omr-analyze (re-evaluate evidence + update judgment, Gate A internal) →
   omr-decision (re-decide, Gate B) →
   omr-evaluation (re-run, Gate C)
 ```
@@ -72,7 +71,7 @@ omr-reconcile →
 - Version history updated in `docs/index/versions/{id}-history.json`
 
 ### Manual Archiving
-- User triggers `/omr-research-archive`
+- User triggers `/omr-reconcile --archive`
 - Timestamped snapshot of all current artifacts
 - Snapshot stored in `docs/archive/{timestamp}/`
 - Use case: Preserve state before risky pivot
@@ -126,8 +125,7 @@ affected_artifacts:
   - DEC-001 (contradicted)
   - EXP-001 (needs re-run)
 reconciliation_actions:
-  - re_evaluate_evidence
-  - update_judgment
+  - re_analyze  # re-evaluate evidence + update judgment (omr-analyze, Gate A internal)
   - re_decide
 completed_at: 2026-04-11T16:45:00Z
 archived_versions:
@@ -138,6 +136,7 @@ archived_versions:
 ## Rollback Support
 
 Archived versions can be restored:
-- View archived version: `/omr-archive --view DEC-001-v1.0.0`
-- Restore archived version: `/omr-reconcile --restore DEC-001-v1.0.0`
+- List archives: `/omr-reconcile --list`
+- Review archived version: `/omr-reconcile --review DEC-001-v1.0.0`
+- Restore archived version: `/omr-reconcile --rollback DEC-001-v1.0.0`
 - Creates new current version from archived state

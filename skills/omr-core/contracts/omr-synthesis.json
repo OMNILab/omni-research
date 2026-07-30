@@ -11,6 +11,11 @@
     {
       "artifact": "docs/survey/* OR docs/report/* OR docs/manuscript/* OR docs/brief/*",
       "description": "Synthesis output in configured mode (survey/report/manuscript/brief)"
+    },
+    {
+      "artifact": "wiki/*",
+      "description": "Living knowledge base pages (auto-generated after Gate D, skip with --no-wiki)",
+      "optional": true
     }
   ],
   "gates": [
@@ -26,5 +31,6 @@
     }
   ],
   "modes": ["survey", "report", "manuscript", "brief"],
-  "default_mode": "defined by pattern config"
+  "default_mode": "defined by pattern config",
+  "merged_skills": ["omr-wiki"]
 }

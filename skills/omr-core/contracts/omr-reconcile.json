@@ -14,8 +14,11 @@
     },
     {
       "artifact": "docs/archive/*",
-      "description": "Archived previous versions of updated artifacts"
+      "description": "Archived previous versions (auto during supersession, or manual via --archive flag)"
     }
   ],
-  "gates": []
+  "gates": [],
+  "modes": ["reconcile", "archive", "rollback", "list", "review"],
+  "default_mode": "reconcile",
+  "merged_skills": ["omr-research-archive"]
 }

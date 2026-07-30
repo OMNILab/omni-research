@@ -1,7 +1,7 @@
 ---
 name: omr-reconcile
-description: Update research state when new evidence contradicts existing artifacts. Analyzes impact blast radius across dependent artifacts, proposes reconciliation options, archives old versions, and updates affected downstream artifacts. Maintains traceability through reconciliation history. Can trigger automatically after new material collection. Use when user wants to "update research", "reconcile contradictions", or when new evidence arrives. REQUIRES omr-core skill and workspace with existing artifacts.
-version: 1.0.0
+description: Update research state when new evidence contradicts existing artifacts. Analyzes impact blast radius across dependent artifacts, proposes reconciliation options, archives old versions, and updates affected downstream artifacts. Maintains traceability through reconciliation history. Also provides manual snapshot/rollback capability (--archive, --rollback, --list, --review flags). Can trigger automatically after new material collection. Use when user wants to "update research", "reconcile contradictions", "archive state", "rollback", or when new evidence arrives. REQUIRES omr-core skill and workspace with existing artifacts.
+version: 2.0.0
 author: OmniResearch Team
 license: MIT
 metadata:
@@ -9,6 +9,7 @@ metadata:
   requires_workspace: true
   category: state-management
   phase: 3.4
+  merged_skills: [omr-research-archive]
 ---
 
 # omr-reconcile: Reconcile Research State on Evidence Changes
@@ -20,14 +21,24 @@ Update research state when new evidence contradicts existing artifacts. This ski
 ## Trigger
 
 ```
-/omr-reconcile
+/omr-reconcile [mode/flags]
 ```
 
-**No arguments required** — triggered by contradiction detection
+**Modes:**
+
+| Invocation | Purpose |
+|------------|---------|
+| `/omr-reconcile` | Default: contradiction detection + blast radius + re-evaluation |
+| `/omr-reconcile --archive [reason]` | Manual snapshot of current state |
+| `/omr-reconcile --rollback ARCH-XXX` | Restore state from archive |
+| `/omr-reconcile --list` | List all available archives |
+| `/omr-reconcile --review ARCH-XXX` | Review archive contents |
+
+**No arguments required** — triggered by contradiction detection (default mode)
 
 **Automatic triggers:**
 - New material collected via `omr-collection` contradicts existing evidence
-- Gate failure during `omr-research-plan` or `omr-decision`
+- Gate failure during `omr-analyze` or `omr-decision`
 - User manual request
 
 **Trigger detection:**
@@ -170,7 +181,7 @@ Choose [1-3]:
    - Update `docs/plans/evidence-{id}.md` (add P-005 to primary evidence)
 
 2. **Update judgment:**
-   - Call `omr-evidence` (re-map evidence landscape)
+   - Call `omr-analyze` (re-map evidence landscape and re-plan judgment)
    - New judgment: "Hybrid vs. graph-only debated"
    - Confidence: medium (contradictions present)
 
@@ -198,7 +209,7 @@ Choose [1-3]:
 ```
 User: 1
 
-System: ✓ Re-evaluating evidence (calling omr-evidence)...
+System: ✓ Re-evaluating evidence (calling omr-analyze)...
 
         Evidence updated: P-005 added (graph-only claims)
 
@@ -439,12 +450,15 @@ None (reconciliation is iterative process, no gates)
 
 ## Can Call
 
-- `omr-evidence` (re-map evidence)
-- `omr-research-plan` (re-plan judgment)
+- `omr-analyze` (re-map evidence and re-plan judgment)
 - `omr-decision` (re-decide architecture)
 - `omr-evaluation` (re-run experiment)
-- `omr-synthesis` (update synthesis)
-- `omr-research-archive` (archive superseded versions)
+- `omr-synthesis` (update synthesis + wiki)
+
+**Archive operations (internal, no separate skill):**
+- Snapshot: `--archive` mode copies all artifacts to `docs/archive/{timestamp}/`
+- Rollback: `--rollback` mode restores artifacts from specified archive
+- Auto-archive: triggered automatically during supersession
 
 ## Prerequisites
 
@@ -513,7 +527,7 @@ System: ✓ Triggering reconciliation...
 
         Call `/omr-collection` to add papers.
 
-        After collection, re-run `/omr-evidence` to update evidence map.
+        After collection, re-run `/omr-analyze` to update evidence map.
 ```
 
 ### Example 3: Manual reconciliation request
@@ -660,12 +674,10 @@ If artifacts have circular dependencies (rare):
 ## Integration with Other Skills
 
 **Can call:**
-- `omr-evidence`: Re-map evidence landscape
-- `omr-research-plan`: Re-plan with updated judgment
+- `omr-analyze`: Re-map evidence and re-plan judgment
 - `omr-decision`: Re-decide with new alternatives
 - `omr-evaluation`: Re-run experiments
 - `omr-synthesis`: Update synthesis with new findings
-- `omr-research-archive`: Archive superseded versions
 
 **Called by:**
 - `omr-collection`: Auto-trigger if new material contradicts
@@ -674,12 +686,11 @@ If artifacts have circular dependencies (rare):
 **Reconciliation loop:**
 ```
 New evidence → omr-reconcile →
-  calls omr-evidence →
-  calls omr-research-plan →
+  (internal: archive superseded versions) →
+  calls omr-analyze →
   calls omr-decision →
   calls omr-evaluation →
-  calls omr-synthesis →
-  calls omr-research-archive →
+  calls omr-synthesis (synthesis + wiki) →
 Reconciliation complete
 ```
 

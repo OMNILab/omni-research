@@ -41,7 +41,7 @@ Make an architectural decision with explicit alternatives, rationale, and eviden
 - Research plan: `docs/plans/plan-{id}.md`
 
 **If evidence map missing:**
-- Error: "Missing evidence. Run `/omr-evidence` first."
+- Error: "Missing evidence. Run `/omr-analyze` first."
 - Do not proceed
 
 **Load data:**
@@ -480,7 +480,7 @@ None
 
 - Evidence map exists (required)
 - Judgment summary may exist (optional, improves decision quality)
-- If evidence map missing: Error "Run `/omr-evidence` first."
+- If evidence map missing: Error "Run `/omr-analyze` first."
 
 ## Examples
 
@@ -597,7 +597,7 @@ System: ⚠️  Missing prerequisites:
 
         Cannot proceed without evidence.
 
-        Run `/omr-evidence` first.
+        Run `/omr-analyze` first.
 
         Aborting...
 ```
@@ -629,7 +629,7 @@ System: ✓ Generating alternatives (speculative basis)...
 User: Y
 
 System: ✓ Decision created (speculative basis)
-        ✓ Note: Run `/omr-evidence` to backfill evidence
+        ✓ Note: Run `/omr-analyze` to backfill evidence
         📊 Skill tree: omr-evaluation [READY]
 ```
 
@@ -707,8 +707,8 @@ If selected alternative is novel (no direct evidence):
 - Prepare for Gate C review
 
 **Before decision:**
-- Requires `omr-evidence` for evidence map (unless Idea-First)
-- May use `omr-research-plan` judgment (improves decision quality)
+- Requires `omr-analyze` for evidence map (unless Idea-First)
+- May use `omr-analyze` judgment (improves decision quality)
 
 **Reconciliation:**
 - If new evidence contradicts decision, `omr-reconcile` may call this skill to re-decide

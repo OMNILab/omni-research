@@ -3,10 +3,10 @@
   "description": "Fastest path to working output. No gates, minimal ceremony, fully automated.",
   "graph": {
     "entry_points": ["omr-evaluation"],
-    "nodes": ["omr-evidence", "omr-decision", "omr-synthesis"],
+    "nodes": ["omr-analyze", "omr-decision", "omr-synthesis"],
     "edges": [
-      "omr-evaluation → omr-evidence",
-      "omr-evidence → omr-decision",
+      "omr-evaluation → omr-analyze",
+      "omr-analyze → omr-decision",
       "omr-decision → omr-synthesis"
     ]
   },

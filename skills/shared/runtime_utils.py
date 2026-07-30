@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-Runtime Utilities for OmniResearch Skills
+Runtime Utilities for OmniResearch Skills (Canonical Shared Module)
 Minimal loader for omr-core infrastructure (contracts, dependency resolver, skill tree)
+
+This is the single canonical copy of runtime_utils.py, located in omr-core/scripts/.
+Domain skills carry a thin proxy stub that imports from this module, eliminating
+~290 lines of duplication per skill.
 
 This utility enables domain skills to load infrastructure from:
 1. Local workspace (if bootstrapped) - workspace/skills/shared/
@@ -107,7 +111,7 @@ def check_skill_dependency(skill_name: str,
     Check if skill can be invoked (prerequisites satisfied)
 
     Args:
-        skill_name: Skill identifier (e.g., 'omr-evidence')
+        skill_name: Skill identifier (e.g., 'omr-analyze')
         workspace_root: Path to project workspace
         required_artifacts: Optional list of artifact paths to check
 

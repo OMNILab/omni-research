@@ -4,17 +4,13 @@
     "omr-collection",
     "omr-idea-note"
   ],
-  "ready": [
-    "omr-evidence"
-  ],
+  "ready": [],
   "locked": [
-    "omr-research-plan",
+    "omr-analyze",
     "omr-decision",
     "omr-evaluation",
     "omr-synthesis",
-    "omr-wiki",
-    "omr-reconcile",
-    "omr-research-archive"
+    "omr-reconcile"
   ],
   "completed": []
 }

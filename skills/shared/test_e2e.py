@@ -44,26 +44,17 @@ def test_evidence_first_workflow():
         mock_paper.write_text("# Mock Paper\n\nContent about agent memory...\n")
         print("✓ Mock materials created")
 
-        # Step 3: Evidence extraction
-        print("\n[3] Extract evidence...")
+        # Step 3: Analyze (evidence extraction + research planning, Gate A)
+        print("\n[3] Analyze materials...")
         result = run_skill(
-            'skills/omr-evidence/extract_evidence.py',
+            'skills/omr-analyze/scripts/analyze.py',
             str(workspace)
         )
-        assert result['success'], "Evidence extraction failed"
-        print("✓ Evidence extracted")
+        assert result['success'], "Analysis failed"
+        print("✓ Analysis complete (Gate A passed)")
 
-        # Step 4: Research planning (Gate A)
-        print("\n[4] Research planning...")
-        result = run_skill(
-            'skills/omr-research-plan/plan_research.py',
-            str(workspace)
-        )
-        assert result['success'], "Research planning failed"
-        print("✓ Research plan complete (Gate A passed)")
-
-        # Step 5: Decision (Gate B)
-        print("\n[5] Make decision...")
+        # Step 4: Decision (Gate B)
+        print("\n[4] Make decision...")
         result = run_skill(
             'skills/omr-decision/make_decision.py',
             str(workspace)
@@ -71,8 +62,8 @@ def test_evidence_first_workflow():
         assert result['success'], "Decision failed"
         print("✓ Decision made (Gate B passed)")
 
-        # Step 6: Evaluation (Gate C)
-        print("\n[6] Run evaluation...")
+        # Step 5: Evaluation (Gate C)
+        print("\n[5] Run evaluation...")
         result = run_skill(
             'skills/omr-evaluation/run_evaluation.py',
             str(workspace)
@@ -80,26 +71,17 @@ def test_evidence_first_workflow():
         assert result['success'], "Evaluation failed"
         print("✓ Evaluation complete (Gate C passed)")
 
-        # Step 7: Synthesis (Gate D)
-        print("\n[7] Synthesize findings...")
+        # Step 6: Synthesis (Gate D, includes wiki generation)
+        print("\n[6] Synthesize findings...")
         result = run_skill(
             'skills/omr-synthesis/synthesize_findings.py',
             str(workspace) + ' brief'
         )
         assert result['success'], "Synthesis failed"
-        print("✓ Synthesis complete (Gate D passed)")
-
-        # Step 8: Wiki generation
-        print("\n[8] Generate wiki...")
-        result = run_skill(
-            'skills/omr-wiki/generate_wiki.py',
-            str(workspace)
-        )
-        assert result['success'], "Wiki generation failed"
-        print("✓ Wiki generated")
+        print("✓ Synthesis complete (Gate D passed, wiki auto-generated)")
 
         # Verify all artifacts exist
-        print("\n[9] Verify artifacts...")
+        print("\n[7] Verify artifacts...")
         docs_dir = workspace / 'docs'
         expected_artifacts = [
             'research-brief.md',
@@ -118,7 +100,7 @@ def test_evidence_first_workflow():
             print(f"  ✓ {artifact}")
 
         # Verify skill tree state
-        print("\n[10] Verify skill tree...")
+        print("\n[8] Verify skill tree...")
         tree_state_path = workspace / 'skills' / 'tree-state.json'
         assert tree_state_path.exists(), "Tree state missing"
 
@@ -129,12 +111,10 @@ def test_evidence_first_workflow():
         expected_skills = [
             'omr-bootstrap',
             'omr-collection',
-            'omr-evidence',
-            'omr-research-plan',
+            'omr-analyze',
             'omr-decision',
             'omr-evaluation',
             'omr-synthesis',
-            'omr-wiki'
         ]
 
         for skill in expected_skills:

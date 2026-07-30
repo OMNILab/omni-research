@@ -173,14 +173,14 @@ def generate_next_steps(idea_type: str) -> str:
 - Link to synthesis if confirmed"""
     elif idea_type == 'question':
         return """- Run `/omr-collection` to gather materials addressing this question
-- Run `/omr-evidence` to extract evidence
+- Run `/omr-analyze` to extract evidence
 - Run `/omr-synthesis` to document findings"""
     elif idea_type == 'speculation':
         return """- Consider running `/omr-evaluation` to validate speculation
 - Discuss with domain experts before investing in experiments
 - Link to decision if it influences architecture"""
     else:  # observation
-        return """- Run `/omr-evidence` to see if observation aligns with collected evidence
+        return """- Run `/omr-analyze` to see if observation aligns with collected evidence
 - Run `/omr-synthesis` to include in findings if relevant"""
 
 def update_artifacts_index(workspace_root: Path, idea_path: Path, idea_id: str):

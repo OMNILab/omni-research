@@ -69,11 +69,10 @@ def create_workspace(project_name: str,
 
     # Initialize skill tree state
     tree_state = {
-        "unlocked": ["omr-bootstrap", "omr-collection", "omr-idea-note"],
+        "unlocked": ["omr-bootstrap", "omr-collection", "omr-idea-note", "omr-reconcile"],
         "ready": [],
-        "locked": ["omr-evidence", "omr-research-plan", "omr-decision",
-                   "omr-evaluation", "omr-synthesis", "omr-wiki", "omr-reconcile",
-                   "omr-research-archive"],
+        "locked": ["omr-analyze", "omr-decision",
+                   "omr-evaluation", "omr-synthesis"],
         "completed": ["omr-bootstrap"]
     }
 

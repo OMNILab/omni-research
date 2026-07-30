@@ -3,12 +3,11 @@
   "description": "Empirical research starting from building and testing. Hands-on validation with retroactive documentation.",
   "graph": {
     "entry_points": ["omr-evaluation"],
-    "nodes": ["omr-evidence", "omr-decision", "omr-synthesis", "omr-wiki"],
+    "nodes": ["omr-analyze", "omr-decision", "omr-synthesis"],
     "edges": [
-      "omr-evaluation → omr-evidence",
-      "omr-evidence → omr-decision",
-      "omr-decision → omr-synthesis",
-      "omr-synthesis → omr-wiki"
+      "omr-evaluation → omr-analyze",
+      "omr-analyze → omr-decision",
+      "omr-decision → omr-synthesis"
     ]
   },
   "skill_gates": {

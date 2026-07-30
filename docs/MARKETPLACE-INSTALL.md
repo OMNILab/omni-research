@@ -24,12 +24,12 @@ Skills must be installed in dependency order:
 ```
 
 **omr-core** provides:
-- Contract system (11 skill dependency definitions)
+- Contract system (8 skill dependency definitions)
 - Dependency resolver (prerequisite checking)
 - Skill tree tracking (progression state)
 - Pattern definitions (5 research workflow patterns)
 
-**Size**: ~104KB
+**Size**: ~90KB
 
 ### Step 2: Install Project Initializer
 
@@ -53,15 +53,12 @@ Install based on your research pattern needs:
 
 ```
 /find-skills omr-collection      # Phase 2.1 - Material collection (~112KB)
-/find-skills omr-evidence        # Phase 2.2 - Evidence extraction (~28KB)
-/find-skills omr-research-plan   # Phase 2.3 - Research planning (~28KB)
+/find-skills omr-analyze         # Phase 2.2 - Evidence analysis + research planning (~56KB)
 /find-skills omr-decision        # Phase 2.4 - Architecture decisions (~36KB)
 /find-skills omr-evaluation      # Phase 2.5 - Experiment execution (~36KB)
-/find-skills omr-synthesis       # Phase 3.1 - Findings synthesis (~36KB)
-/find-skills omr-wiki            # Phase 3.2 - Wiki generation (~24KB)
+/find-skills omr-synthesis       # Phase 3.1 - Findings synthesis + wiki generation (~60KB)
 /find-skills omr-idea-note       # Phase 3.3 - Idea capture (~16KB)
-/find-skills omr-reconcile       # Phase 3.4 - Reconciliation (~24KB)
-/find-skills omr-research-archive # Phase 3.5 - Archiving (~20KB)
+/find-skills omr-reconcile       # Phase 3.4 - Reconciliation + archiving (~44KB)
 ```
 
 **All domain skills depend on**: omr-core + initialized workspace
@@ -100,38 +97,35 @@ Install based on your research pattern:
 **Evidence-First Pattern** (literature-driven):
 ```bash
 /find-skills omr-collection  # Collect papers/materials
-/find-skills omr-evidence    # Map evidence landscape
-/find-skills omr-research-plan # Plan research
+/find-skills omr-analyze     # Map evidence + plan research
 /find-skills omr-decision    # Make architecture decisions
-/find-skills omr-synthesis   # Write findings
+/find-skills omr-evaluation  # Build and test prototype
+/find-skills omr-synthesis   # Write findings (+ wiki)
 ```
 
 **Idea-First Pattern** (insight-driven):
 ```bash
 /find-skills omr-idea-note   # Capture creative insight
-/find-skills omr-collection  # Gather supporting materials
-/find-skills omr-evidence    # Map evidence landscape
-/find-skills omr-research-plan # Plan research
 /find-skills omr-decision    # Make decisions based on idea
-/find-skills omr-synthesis   # Document findings
+/find-skills omr-evaluation  # Validate the idea
+/find-skills omr-analyze     # Map evidence + plan research
+/find-skills omr-synthesis   # Document findings (+ wiki)
 ```
 
 **Decision-First Pattern** (architecture-driven):
 ```bash
 /find-skills omr-decision    # Document architectural stance
-/find-skills omr-collection  # Gather evidence for alternatives
-/find-skills omr-evidence    # Map evidence landscape
+/find-skills omr-analyze     # Map evidence for alternatives
 /find-skills omr-evaluation  # Build and test prototype
-/find-skills omr-synthesis   # Document results
+/find-skills omr-synthesis   # Document results (+ wiki)
 ```
 
 **Experiment-First Pattern** (test-driven):
 ```bash
-/find-skills omr-collection  # Gather materials
-/find-skills omr-evidence    # Map evidence landscape
 /find-skills omr-evaluation  # Build and test hypothesis
+/find-skills omr-analyze     # Map evidence landscape
 /find-skills omr-decision    # Make decision from results
-/find-skills omr-synthesis   # Document findings
+/find-skills omr-synthesis   # Document findings (+ wiki)
 ```
 
 ### 4. Execute Skills in Workspace
@@ -146,16 +140,13 @@ cd my-research-topic
 /omr-collection "github:anthropics/anthropic-sdk-python"
 /omr-collection "search:agent memory mechanisms"
 
-# Map evidence
-/omr-evidence
-
-# Plan research
-/omr-research-plan
+# Map evidence + plan research (produces all 4 artifacts; Gate A is internal)
+/omr-analyze
 
 # Make decisions
 /omr-decision
 
-# Document findings
+# Document findings (+ generate wiki; use --no-wiki to skip)
 /omr-synthesis --mode survey  # or --mode report, --mode manuscript, --mode brief
 ```
 
@@ -189,11 +180,11 @@ Usage:
 ```
 ❌ Error: Skill prerequisites not satisfied.
 Missing artifacts:
-  - evidence-map.md (required by omr-research-plan)
-  - research-brief.md (required by omr-research-plan)
+  - evidence-map.md (produced by omr-analyze)
+  - research-brief.md (produced by omr-analyze)
 
 Run prerequisite skills first:
-  /omr-evidence
+  /omr-analyze
 ```
 
 ## Skill Package Contents
@@ -203,20 +194,17 @@ Each `.skill` file is a ZIP archive containing:
 ### omr-core Package
 
 ```
-omr-core.skill (104KB)
+omr-core.skill (~90KB)
 ├── SKILL.md            # Infrastructure skill specification
-├── contracts/          # 11 JSON contract files
+├── contracts/          # 8 JSON contract files
 │   ├── omr-bootstrap.json
 │   ├── omr-collection.json
-│   ├── omr-evidence.json
-│   ├── omr-research-plan.json
+│   ├── omr-analyze.json
 │   ├── omr-decision.json
 │   ├── omr-evaluation.json
 │   ├── omr-synthesis.json
-│   ├── omr-wiki.json
 │   ├── omr-idea-note.json
-│   ├── omr-reconcile.json
-│   └── omr-research-archive.json
+│   └── omr-reconcile.json
 ├── schemas/
 │   └── contract.schema.json
 ├── patterns/           # 5 research pattern definitions
@@ -230,6 +218,7 @@ omr-core.skill (104KB)
 │   ├── skill_tree.py
 │   ├── validate_contract.py
 │   ├── detect_pattern.py
+│   ├── runtime_utils.py      # Canonical shared module
 │   └── init_workspace.py
 └── tree/
     └── tree-state.json
@@ -240,7 +229,7 @@ omr-core.skill (104KB)
 ```
 omr-collection.skill (112KB)
 ├── SKILL.md            # Skill specification with marketplace metadata
-├── runtime_utils.py    # Infrastructure loader
+├── runtime_utils.py    # Proxy stub → omr-core/scripts/runtime_utils.py
 ├── cli.py              # CLI entry point
 ├── orchestrator.py     # Orchestration logic
 ├── input_router.py     # Input detection
@@ -263,22 +252,17 @@ omr-bootstrap ✓ (completed)
     │
     ├── omr-collection ○ (ready)
     │       │
-    │       ├── omr-evidence ● (locked: needs materials in raw/)
-    │       │       │
-    │       │       └── omr-research-plan ● (locked: needs evidence-map.md)
-    │       │               │
-    │       │               ├── omr-decision ● (locked: needs research-plan.md)
-    │       │               │       │
-    │       │               │       └── omr-evaluation ● (locked: needs decision.md)
-    │       │               │
-    │       │               └── omr-synthesis ● (locked: needs research-plan.md)
-    │       │                       │
-    │       │                       └── omr-wiki ● (locked: needs synthesis)
-    │       │
-    │       └── omr-idea-note ✓ (available anytime)
+    │       └── omr-analyze ● (locked: needs materials in raw/)
+    │               │
+    │               ├── omr-decision ● (locked: needs Gate A passed in omr-analyze)
+    │               │       │
+    │               │       └── omr-evaluation ● (locked: needs decision.md)
+    │               │
+    │               └── omr-synthesis ● (locked: needs Gate A passed; wiki generated internally)
     │
-    └── omr-reconcile ✓ (available anytime)
-    └── omr-research-archive ✓ (available anytime)
+    ├── omr-idea-note ✓ (available anytime)
+    │
+    └── omr-reconcile ✓ (available anytime; --archive/--rollback/--list/--review)
 ```
 
 **Legend**:
@@ -304,7 +288,7 @@ OmniResearch recognizes 5 workflow patterns:
 
 Literature-driven research:
 ```
-collection → evidence → plan → decision → synthesis
+collection → analyze → decision → evaluation → synthesis
 ```
 
 Use when: Starting with papers to analyze
@@ -313,7 +297,7 @@ Use when: Starting with papers to analyze
 
 Insight-driven research:
 ```
-idea → collection → evidence → plan → decision → synthesis
+idea → decision → evaluation → analyze → synthesis
 ```
 
 Use when: Starting with creative hypothesis
@@ -322,7 +306,7 @@ Use when: Starting with creative hypothesis
 
 Architecture-driven research:
 ```
-decision → collection → evidence → plan → evaluation → synthesis
+decision → analyze → evaluation → synthesis
 ```
 
 Use when: Starting with architectural stance to validate
@@ -331,7 +315,7 @@ Use when: Starting with architectural stance to validate
 
 Test-driven research:
 ```
-collection → evidence → evaluation → decision → synthesis
+evaluation → analyze → decision → synthesis
 ```
 
 Use when: Starting with hypothesis to test
@@ -479,12 +463,16 @@ metadata:
 
 - **1.0.0** (2026-04-13): Initial marketplace release
   - Hybrid architecture with omr-core foundation
-  - 11 skills packaged individually
-  - runtime_utils.py for infrastructure loading
+  - 9 skills packaged individually (originally 11, consolidated to 9 in v2.0.0)
+  - runtime_utils.py proxy stub delegates to canonical module in omr-core/scripts/
   - Marketplace metadata in SKILL.md frontmatter
+- **2.0.0** (2026-07-30): Skill consolidation — merged 12 skills into 9
+  - `omr-evidence` + `omr-research-plan` → `omr-analyze` (produces all 4 artifacts; Gate A now an internal checkpoint)
+  - `omr-synthesis` absorbs `omr-wiki` (`--no-wiki` to skip wiki generation)
+  - `omr-reconcile` absorbs `omr-research-archive` (`--archive` / `--rollback` / `--list` / `--review`)
 
 ---
 
-**Last updated**: 2026-04-13
-**OmniResearch version**: 1.0.0
+**Last updated**: 2026-07-30
+**OmniResearch version**: 2.0.0
 **Compatibility**: Claude Code 1.0+

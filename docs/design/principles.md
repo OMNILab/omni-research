@@ -4,7 +4,7 @@
 
 | Dimension | Decision | Rationale |
 |-----------|----------|-----------|
-| Skill model | 12 composable skills | Right granularity — not too coarse, not too fine |
+| Skill model | 9 composable skills | Right granularity — merged evidence+planning (omr-analyze), wiki into synthesis, archive into reconcile |
 | Progress model | Skill tree (game-inspired) | Visible progress, unlock-based, motivating |
 | Planning model | Reverse skill tree | Goal-driven, shortest path, deadline-friendly |
 | Patterns | Emerged from practice, saved | Flexible rigor, not rigid pipelines |
@@ -46,8 +46,10 @@
 True deep research requires a complete lifecycle:
 
 ```
-Collection → Definition → Evidence → Judgment → Decision → Validation → Writeback
+Collection → Analysis (Definition + Evidence + Judgment + Planning) → Decision → Validation → Writeback
 ```
+
+The Analysis stage is owned by `omr-analyze` — semantic extraction, evidence mapping, judgment synthesis, and planning all happen here (Gate A is an internal checkpoint after judgment, before plan).
 
 **Three principles:**
 - **Traceable**: Every claim links to source, decision, or experiment

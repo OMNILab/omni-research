@@ -9,8 +9,8 @@
     "url": "https://github.com/OMNILab/omni-research"
   },
   "metadata": {
-    "version": "1.0.0",
-    "description": "OmniResearch - A suite of AI agent skills for accelerating scientific innovation. Provides evidence-bound, traceable research workflow with contract system, dependency resolution, and skill tree progression. Supports 5 research patterns: Evidence-First, Idea-First, Decision-First, Experiment-First, and Rapid-Prototype.",
+    "version": "2.0.0",
+    "description": "OmniResearch - A suite of 9 AI agent skills for accelerating scientific innovation. Provides evidence-bound, traceable research workflow with contract system, dependency resolution, and skill tree progression. Supports 5 research patterns: Evidence-First, Idea-First, Decision-First, Experiment-First, and Rapid-Prototype.",
     "keywords": [
       "agent-skills",
       "scientific-research",
@@ -67,8 +67,8 @@
     {
       "name": "omr-collection",
       "path": "skills/omr-collection",
-      "description": "Material collection with passive reception philosophy. User provides sources → skill delivers materials. Supports direct input (URLs, DOIs, paths) and search queries. 4 handlers (Generic Web, Paper, GitHub, HuggingFace) with minimal parsing and balanced error handling. Use for collecting research materials, downloading papers, gathering repos. REQUIRES omr-core and workspace initialization.",
-      "version": "1.0.0",
+      "description": "Material collection with passive reception philosophy. User provides sources, skill delivers materials. Supports direct input (URLs, DOIs, paths) and search queries. 4 handlers (Generic Web, Paper, GitHub, HuggingFace) with minimal parsing and balanced error handling. Use for collecting research materials, downloading papers, gathering repos. REQUIRES omr-core and workspace initialization.",
+      "version": "1.1.0",
       "category": "research-logistics",
       "tags": [
         "material-collection",
@@ -81,35 +81,21 @@
       ]
     },
     {
-      "name": "omr-evidence",
-      "path": "skills/omr-evidence",
-      "description": "Define research questions and map evidence landscape by analyzing collected materials. Creates research brief with scope and success criteria, and evidence map showing primary evidence, supporting materials, and gaps. Uses strict evidence boundaries (proven, suggested, inferred). Use when ready to analyze collected papers and materials. REQUIRES omr-core and workspace with materials.",
-      "version": "1.0.0",
+      "name": "omr-analyze",
+      "path": "skills/omr-analyze",
+      "description": "Analyze collected materials and plan research execution. Scans raw materials, extracts findings with strict evidence boundaries (proven, suggests, inferred), generates research brief and evidence map, synthesizes judgment with confidence assessment, and creates a prioritized research plan. Enforces Gate A review as an internal checkpoint before execution. Merged from omr-evidence + omr-research-plan. Use when ready to analyze collected papers and materials. REQUIRES omr-core skill and workspace with collected materials.",
+      "version": "2.0.0",
       "category": "evidence-analysis",
       "tags": [
         "evidence-mapping",
         "research-questions",
         "research-brief",
         "evidence-boundaries",
-        "proven-suggested-inferred",
-        "landscape-analysis",
-        "phase-2.2"
-      ]
-    },
-    {
-      "name": "omr-research-plan",
-      "path": "skills/omr-research-plan",
-      "description": "Synthesize judgment from evidence and plan research execution. Creates judgment summary with confidence assessment and research plan with priorities, timeline, resources. Enforces Gate A review checking evidence coverage and question clarity. Use after evidence mapping complete. REQUIRES omr-core and workspace with evidence map.",
-      "version": "1.0.0",
-      "category": "research-planning",
-      "tags": [
+        "proven-suggests-inferred",
         "judgment-synthesis",
         "research-planning",
-        "confidence-assessment",
-        "timeline",
-        "priorities",
         "gate-a-review",
-        "phase-2.3"
+        "phase-2.2"
       ]
     },
     {
@@ -148,8 +134,8 @@
     {
       "name": "omr-synthesis",
       "path": "skills/omr-synthesis",
-      "description": "Write authoritative research findings in configurable formats (survey chapters, industry reports, academic manuscripts, executive briefs). Ensures traceability linking every claim to evidence. Enforces strict evidence boundaries and Gate D review checking no over-claiming. Use for documenting final results. REQUIRES omr-core and workspace with completed research.",
-      "version": "1.0.0",
+      "description": "Write authoritative research findings in configurable formats (survey chapters, industry reports, academic manuscripts, executive briefs). Ensures traceability linking every claim to evidence. Enforces strict evidence boundaries and Gate D review. After Gate D passes, auto-generates living wiki (interlinked concept pages). Use --no-wiki to skip wiki generation. Merged from omr-synthesis + omr-wiki. Use for documenting final results. REQUIRES omr-core and workspace with completed research.",
+      "version": "2.0.0",
       "category": "findings-documentation",
       "tags": [
         "findings-synthesis",
@@ -157,25 +143,10 @@
         "industry-reports",
         "academic-manuscripts",
         "executive-briefs",
+        "wiki-generation",
         "traceability",
         "gate-d-review",
         "phase-3.1"
-      ]
-    },
-    {
-      "name": "omr-wiki",
-      "path": "skills/omr-wiki",
-      "description": "Generate living knowledge base from synthesis findings. Extracts key concepts from survey/report/manuscript/brief and creates interlinked wiki pages for quick reference. Auto-generates wiki index with navigation. Links back to source documents. Use for creating browsable knowledge base. REQUIRES omr-core and workspace with synthesis.",
-      "version": "1.0.0",
-      "category": "knowledge-base",
-      "tags": [
-        "wiki-generation",
-        "knowledge-base",
-        "concept-pages",
-        "interlinked-pages",
-        "navigation",
-        "living-documentation",
-        "phase-3.2"
       ]
     },
     {
@@ -197,8 +168,8 @@
     {
       "name": "omr-reconcile",
       "path": "skills/omr-reconcile",
-      "description": "Update research state when new evidence contradicts existing artifacts. Analyzes impact blast radius, proposes reconciliation options, archives old versions, updates downstream artifacts while maintaining traceability. Can trigger automatically after new material collection. Use when handling contradictions. REQUIRES omr-core and workspace with existing artifacts.",
-      "version": "1.0.0",
+      "description": "Update research state when new evidence contradicts existing artifacts. Analyzes impact blast radius, proposes reconciliation options, archives old versions, and updates downstream artifacts while maintaining traceability. Also provides manual snapshot/rollback capability (--archive, --rollback, --list, --review flags). Merged from omr-reconcile + omr-research-archive. Use when handling contradictions or archiving state. REQUIRES omr-core and workspace with existing artifacts.",
+      "version": "2.0.0",
       "category": "state-management",
       "tags": [
         "reconciliation",
@@ -206,24 +177,9 @@
         "impact-analysis",
         "artifact-updates",
         "version-archiving",
+        "rollback-capability",
         "traceability-maintenance",
         "phase-3.4"
-      ]
-    },
-    {
-      "name": "omr-research-archive",
-      "path": "skills/omr-research-archive",
-      "description": "Snapshot current research state for preservation or rollback. Creates timestamped archive of all artifacts, generates archive index, preserves version metadata. Can be triggered manually or automatically during reconciliation. Enables rollback to previous state. Use for saving research progress. REQUIRES omr-core and workspace with artifacts.",
-      "version": "1.0.0",
-      "category": "archiving",
-      "tags": [
-        "research-archiving",
-        "state-snapshot",
-        "version-preservation",
-        "rollback-capability",
-        "artifact-backup",
-        "timestamped-archives",
-        "phase-3.5"
       ]
     }
   ],

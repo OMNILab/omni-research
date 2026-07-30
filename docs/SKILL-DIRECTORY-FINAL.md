@@ -1,10 +1,8 @@
 # Skill Directory Structure: Final Organization
 
-**Date**: 2026-04-18
+**Date**: 2026-07-30
 
-**Status**: ✅ All 9 skills organized per agent skill specification (v1.0.0 baseline)
-
-> **Update (v2.0.0, 2026-07-30)**: Skills consolidated from 12 → 9. `omr-evidence` + `omr-research-plan` merged into `omr-analyze` (§6); `omr-wiki` merged into `omr-synthesis` (§11); `omr-research-archive` merged into `omr-reconcile` (§8). Sections 9, 10, 12 below are deprecation notes for the merged-away skills. See `omr-skills-flowchart.md` for the current 9-skill structure.
+**Status**: ✅ All 9 skills organized per agent skill specification
 
 ---
 
@@ -87,17 +85,14 @@ omr-evaluation/
 ├── SKILL.md ✓
 ├── scripts/ ✓
 │   ├── run_evaluation.py ✓
-│   └ runtime_utils.py ✓
+│   └── runtime_utils.py ✓ (proxy stub)
 ```
 
-### 6. omr-analyze ✓ (replaces deprecated omr-evidence + omr-research-plan)
+### 6. omr-analyze ✓
 ```
 omr-analyze/
 ├── SKILL.md ✓
-├── scripts/ ✓
-│   ├── extract_evidence.py ✓ (from omr-evidence)
-│   ├── plan_research.py ✓ (from omr-research-plan)
-│   └── runtime_utils.py ✓
+└── scripts/ (planned — skill instructions define the workflow)
 ```
 
 ### 7. omr-idea-note ✓
@@ -106,7 +101,7 @@ omr-idea-note/
 ├── SKILL.md ✓
 ├── scripts/ ✓
 │   ├── capture_idea.py ✓
-│   └ runtime_utils.py ✓
+│   └── runtime_utils.py ✓ (proxy stub)
 ```
 
 ### 8. omr-reconcile ✓
@@ -115,29 +110,17 @@ omr-reconcile/
 ├── SKILL.md ✓
 ├── scripts/ ✓
 │   ├── reconcile_evidence.py ✓
-│   └ runtime_utils.py ✓
+│   └── runtime_utils.py ✓ (proxy stub)
 ```
 
-### 9. omr-research-archive ⚠️ DEPRECATED (v2.0.0) — merged into omr-reconcile (§8)
-
-> Archive functionality now internal to `omr-reconcile` via `--archive`, `--rollback`, `--list`, `--review` modes.
-
-### 10. omr-research-plan ⚠️ DEPRECATED (v2.0.0) — merged into omr-analyze (§6)
-
-> Research planning is now an internal phase of `omr-analyze` (Gate A checkpoint at `after_judgment_before_plan`).
-
-### 11. omr-synthesis ✓
+### 9. omr-synthesis ✓
 ```
 omr-synthesis/
 ├── SKILL.md ✓
 ├── scripts/ ✓
 │   ├── synthesize_findings.py ✓
-│   └ runtime_utils.py ✓
+│   └── runtime_utils.py ✓ (proxy stub)
 ```
-
-### 12. omr-wiki ⚠️ DEPRECATED (v2.0.0) — merged into omr-synthesis (§11)
-
-> Wiki generation is now an internal post-Gate-D step within `omr-synthesis`. Use `--no-wiki` to skip.
 
 ---
 
@@ -148,7 +131,7 @@ omr-synthesis/
 **Before**: Python files in skill roots (make_decision.py, extract_evidence.py, etc.)
 **After**: All .py files moved to scripts/ directories
 
-**Skills affected**: 6 skills (omr-analyze through omr-synthesis; omr-evidence/omr-research-plan/omr-wiki/omr-research-archive deprecated & merged in v2.0.0)
+**Skills affected**: 6 skills (omr-decision, omr-evaluation, omr-idea-note, omr-reconcile, omr-synthesis, omr-bootstrap)
 
 ### Templates Renamed
 
@@ -162,6 +145,11 @@ Per spec recommendation, assets/ contains static resources like templates.
 **Skills already organized**: omr-collection, omr-core
 - omr-collection: Already had scripts/, handlers/, tests/, utils/
 - omr-core: Already had scripts/, contracts/, patterns/, schemas/
+
+### Runtime Utils Consolidated
+
+**Before**: 11 identical 294-line copies across all skills
+**After**: 1 canonical copy in `omr-core/scripts/` + 7 thin proxy stubs (68 lines each)
 
 ---
 
@@ -211,7 +199,7 @@ Per spec recommendations:
 
 ## Summary
 
-**All 9 active OmniResearch skills now fully comply with agent skill specification** (12 in v1.0.0; 4 merged/deprecated in v2.0.0):
+**All 9 OmniResearch skills now fully comply with agent skill specification**:
 
 1. ✓ Frontmatter fields per spec (name/description/license/compatibility/metadata)
 2. ✓ SKILL.md in root directory (required)
@@ -229,4 +217,5 @@ Per spec recommendations:
 ---
 
 _Generated: 2026-04-18_
+_Updated: 2026-07-30_
 _Status: Directory Structure Organization Complete_

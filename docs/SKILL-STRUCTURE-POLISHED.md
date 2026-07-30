@@ -1,10 +1,8 @@
 # Skill Structure Polished: Agent Skill Specification Compliance
 
-**Date**: 2026-04-18
+**Date**: 2026-07-30
 
-**Status**: ✅ All 9 skills polished to match agent skill specification (v1.0.0 baseline)
-
-> **Update (v2.0.0, 2026-07-30)**: Skills consolidated from 12 → 9. See `omr-skills-flowchart.md` for the current 9-skill structure. The `required_for` field below has been updated to reflect merged skills.
+**Status**: ✅ All 9 skills polished to match agent skill specification
 
 ---
 
@@ -118,7 +116,7 @@ Per agent skill spec, skills can have:
 ### Optional
 - `scripts/` ✓ (present where implementations exist)
 - `references/` (not needed, SKILL.md <500 lines)
-- `assets/` ✓ (present where templates exist, e.g., omr-bootstrap/templates/)
+- `assets/` ✓ (present where templates exist, e.g., omr-bootstrap/assets/)
 - Additional files ✓ (runtime_utils.py, handlers, etc.)
 
 ### Current Structure
@@ -129,7 +127,7 @@ omr-bootstrap/
 ├── scripts/
 │   ├── bootstrap_workspace.py ✓
 │   └── runtime_utils.py ✓ (proxy stub → omr-core/scripts/)
-├── templates/
+├── assets/
 │   └── CLAUDE.md.template ✓
 
 omr-collection/
@@ -152,20 +150,22 @@ omr-core/
 │   ├── init_workspace.py ✓
 │   ├── detect_pattern.py ✓
 │   ├── skill_tree.py ✓
-│   └── dependency_resolver.py ✓
+│   ├── dependency_resolver.py ✓
+│   └── runtime_utils.py ✓ (canonical shared module)
 ├── contracts/ ✓ (8 JSON files)
 ├── patterns/ ✓ (5 pattern JSON files)
 
-omr-evidence/  ⚠️ DEPRECATED (v2.0.0) — merged into omr-analyze (see below)
+omr-analyze/
+├── SKILL.md ✓
+└── scripts/ (planned)
 
-omr-analyze/  ✓ (replaces omr-evidence + omr-research-plan)
+omr-decision/
 ├── SKILL.md ✓
 ├── scripts/
-│   ├── extract_evidence.py ✓
-│   ├── plan_research.py ✓
-│   └── runtime_utils.py ✓
+│   ├── make_decision.py ✓
+│   └── runtime_utils.py ✓ (proxy stub)
 
-... (similar for all skills)
+... (similar for omr-evaluation, omr-idea-note, omr-reconcile, omr-synthesis)
 ```
 
 ---
@@ -244,4 +244,5 @@ Per spec recommendation:
 ---
 
 _Generated: 2026-04-18_
+_Updated: 2026-07-30_
 _Status: Specification Compliance Complete_

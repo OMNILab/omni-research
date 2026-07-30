@@ -8,7 +8,7 @@ This folder contains detailed design specifications for the omni-research skill 
 |----------|---------|
 | [overview.md](overview.md) | Research philosophy, core capabilities, evidence hierarchy |
 | [architecture.md](architecture.md) | Repository structure, generated workspace structure |
-| [skills.md](skills.md) | Core skills list, contracts, detailed capabilities per skill |
+| [skills-reference.md](skills-reference.md) | Core skills list, contracts, detailed capabilities per skill |
 | [patterns.md](patterns.md) | Research patterns library, pattern emergence workflow |
 | [gates.md](gates.md) | Quality gates system (A, B, C, D), enforcement modes |
 | [progress.md](progress.md) | Skill tree model, progress visualization, dual view mode |

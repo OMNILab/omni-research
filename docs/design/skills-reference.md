@@ -1,6 +1,6 @@
 # Skills Reference (Quick)
 
-See [skills.md](skills.md) for detailed capabilities per skill.
+See individual `skills/omr-*/SKILL.md` files for detailed capabilities per skill.
 
 ## Core Skills List
 

@@ -13,7 +13,7 @@ flowchart TD
     %% ===== Phase 1.0: Foundation =====
     subgraph P1["Phase 1.0 — Foundation"]
         CORE["omr-core<br/>infra-provider<br/>v1.0.0<br/>contracts · dependency_resolver<br/>skill_tree · patterns"]
-        BOOT["omr-bootstrap<br/>project-setup<br/>v1.0.0 · phase 1.0<br/>Creates workspace + CLAUDE.md<br/>Invocation: /omr-bootstrap 'topic'"]
+        BOOT["omr-bootstrap<br/>project-setup<br/>v1.0.0 · phase 1.0<br/>Creates workspace + AGENTS.md<br/>Invocation: /omr-bootstrap 'topic'"]
         CORE -- "required_for / auto-invoked by" --> BOOT
     end
 
@@ -110,7 +110,7 @@ flowchart TD
 
 ### 2. Lifecycle Architecture — Three Phases
 
-- **Phase 1.0 (Foundation)**: `omr-core` provides the contract system, dependency resolver, skill-tree tracker, and pattern definitions. `omr-bootstrap` is the single entry point — it initializes the workspace (`raw/`, `docs/`, `src/`, `wiki/`) and generates `CLAUDE.md`, auto-invoking `omr-core` infrastructure.
+- **Phase 1.0 (Foundation)**: `omr-core` provides the contract system, dependency resolver, skill-tree tracker, and pattern definitions. `omr-bootstrap` is the single entry point — it initializes the workspace (`raw/`, `docs/`, `src/`, `wiki/`) and generates `AGENTS.md`, auto-invoking `omr-core` infrastructure.
 - **Phase 2.x (Research Pipeline)**: A strictly linear, gate-controlled chain — collection → analyze → decision → evaluation. `omr-analyze` produces all 4 artifacts (research-brief.md, evidence-map.md, judgment-summary.md, research-plan.md) and runs Gate A as an internal checkpoint (position: after_judgment_before_plan); it unlocks `omr-decision` once Gate A passes. Each stage consumes the prior stage's artifacts and emits a gate review (Gate B in decision, Gate C in evaluation).
 - **Phase 3.x (Documentation & State)**: `omr-synthesis` (Gate D) writes authoritative findings in 4 configurable modes and performs internal wiki generation after Gate D (use `--no-wiki` to skip); `omr-idea-note` is a lightweight, dependency-free capture channel; `omr-reconcile` handles state management, blast-radius analysis, and archiving/rollback (via `--archive`, `--rollback`, `--list`, `--review` modes).
 

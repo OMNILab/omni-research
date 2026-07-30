@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Workspace Bootstrap Script
-Creates standard project directory structure and generates CLAUDE.md
+Creates standard project directory structure and generates AGENTS.md
 """
 
 import json
@@ -95,32 +95,32 @@ def create_workspace(project_name: str,
         index_path.write_text(json.dumps({"artifacts": [], "last_updated": datetime.now().isoformat()}, indent=2))
         created_indexes.append(index_file)
 
-    # Generate CLAUDE.md from template
-    template_path = skills_dir / "assets" / "CLAUDE.md.template"
-    claude_md = generate_claude_md(
+    # Generate AGENTS.md from template
+    template_path = skills_dir / "assets" / "AGENTS.md.template"
+    agents_md = generate_agents_md(
         template_path=template_path,
         project_name=project_name,
         research_question=research_question or "Not yet defined",
         tree_state=tree_state
     )
 
-    claude_md_path = workspace_path / "CLAUDE.md"
-    claude_md_path.write_text(claude_md)
+    agents_md_path = workspace_path / "AGENTS.md"
+    agents_md_path.write_text(agents_md)
 
     return {
         "workspace_path": str(workspace_path),
         "created_directories": len(created_dirs),
         "copied_contracts": len(copied_contracts),
         "created_indexes": len(created_indexes),
-        "claude_md_path": str(claude_md_path),
+        "agents_md_path": str(agents_md_path),
         "tree_state_path": str(tree_state_path)
     }
 
-def generate_claude_md(template_path: Path,
+def generate_agents_md(template_path: Path,
                        project_name: str,
                        research_question: str,
                        tree_state: dict) -> str:
-    """Generate CLAUDE.md from template with filled values"""
+    """Generate AGENTS.md from template with filled values"""
 
     template = template_path.read_text()
     now = datetime.now().isoformat()
@@ -150,19 +150,19 @@ Since this is a new project, here are recommended starting points:
 """
 
     # Replace template placeholders
-    claude_md = template.replace("{{project_name}}", project_name)
-    claude_md = claude_md.replace("{{research_question}}", research_question)
-    claude_md = claude_md.replace("{{status}}", "initialized")
-    claude_md = claude_md.replace("{{active_pattern}}", "Not yet detected (will emerge after 3+ skill invocations)")
-    claude_md = claude_md.replace("{{created_at}}", now)
-    claude_md = claude_md.replace("{{last_updated}}", now)
-    claude_md = claude_md.replace("{{unlocked_skills}}", unlocked)
-    claude_md = claude_md.replace("{{ready_skills}}", ready)
-    claude_md = claude_md.replace("{{locked_skills}}", locked)
-    claude_md = claude_md.replace("{{completed_skills}}", completed)
-    claude_md = claude_md.replace("{{next_steps}}", next_steps)
+    agents_md = template.replace("{{project_name}}", project_name)
+    agents_md = agents_md.replace("{{research_question}}", research_question)
+    agents_md = agents_md.replace("{{status}}", "initialized")
+    agents_md = agents_md.replace("{{active_pattern}}", "Not yet detected (will emerge after 3+ skill invocations)")
+    agents_md = agents_md.replace("{{created_at}}", now)
+    agents_md = agents_md.replace("{{last_updated}}", now)
+    agents_md = agents_md.replace("{{unlocked_skills}}", unlocked)
+    agents_md = agents_md.replace("{{ready_skills}}", ready)
+    agents_md = agents_md.replace("{{locked_skills}}", locked)
+    agents_md = agents_md.replace("{{completed_skills}}", completed)
+    agents_md = agents_md.replace("{{next_steps}}", next_steps)
 
-    return claude_md
+    return agents_md
 
 def main():
     """CLI entry point for bootstrap script"""
@@ -187,7 +187,7 @@ def main():
     print(f"  Contracts: {result['copied_contracts']}")
     print(f"  Indexes: {result['created_indexes']}")
     print()
-    print(f"✓ CLAUDE.md generated: {result['claude_md_path']}")
+    print(f"✓ AGENTS.md generated: {result['agents_md_path']}")
     print(f"✓ Skill tree initialized: {result['tree_state_path']}")
     print()
     print("Next: Start collecting materials with /omr-collection or capture ideas with /omr-idea-note")

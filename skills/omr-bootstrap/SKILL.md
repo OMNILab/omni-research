@@ -1,6 +1,6 @@
 ---
 name: omr-bootstrap
-description: Initialize a new omni-research project workspace. Creates complete directory structure (raw/, docs/, src/, wiki/), generates CLAUDE.md with research context, and displays skill tree showing available next actions. Use whenever starting a new research project, even if user doesn't explicitly say "bootstrap" or mentions "new project", "start research", "initialize workspace", or provides a research topic they want to investigate.
+description: Initialize a new omni-research project workspace. Creates complete directory structure (raw/, docs/, src/, wiki/), generates AGENTS.md with research context, and displays skill tree showing available next actions. Use whenever starting a new research project, even if user doesn't explicitly say "bootstrap" or mentions "new project", "start research", "initialize workspace", or provides a research topic they want to investigate.
 license: MIT
 metadata:
   version: "1.0.0"
@@ -65,16 +65,16 @@ Generate the full omni-research workspace hierarchy:
 ├── wiki/                     # Living knowledge base
 │   └── README.md             # Auto-generated index
 │
-└── CLAUDE.md                 # Project context for AI agents
+└── AGENTS.md                 # Project context for AI agents
 ```
 
 **Directory naming:** Use the topic as the project-id, converting to lowercase and replacing spaces with hyphens. Example: "agent memory mechanisms" → `agent-memory-mechanisms/`.
 
 **Working directory:** Create the workspace in the current directory or ask user for preferred location if unclear.
 
-### 2. Generate CLAUDE.md
+### 2. Generate AGENTS.md
 
-Create `CLAUDE.md` with:
+Create `AGENTS.md` with:
 
 **Header:** Project metadata and context
 ```yaml
@@ -167,7 +167,7 @@ After workspace creation, present interactive menu:
 
 ```
 ✓ Workspace created at ./{project-id}/
-✓ CLAUDE.md generated with project context
+✓ AGENTS.md generated with project context
 ✓ Directory structure initialized
 
 What's your first action?
@@ -186,7 +186,7 @@ Choose [1-5] or describe your intent:
 ## Implementation Notes
 
 **Topic handling:**
-- Preserve original topic capitalization in `CLAUDE.md` header
+- Preserve original topic capitalization in `AGENTS.md` header
 - Use lowercase-hyphenated form for directory name
 - Extract keywords from topic for metadata
 
@@ -212,7 +212,7 @@ User: /omr-bootstrap "agent memory mechanisms"
 System: ✓ Creating workspace for "agent memory mechanisms"...
 
         ✓ Workspace created at ./agent-memory-mechanisms/
-        ✓ CLAUDE.md generated
+        ✓ AGENTS.md generated
         ✓ Directory structure initialized
         ✓ Index placeholders created
 
@@ -255,14 +255,14 @@ System: ✓ Creating workspace...
 ## What NOT to Do
 
 - Do NOT prompt for pattern selection at bootstrap (patterns emerge later)
-- Do NOT create any artifacts beyond structure and CLAUDE.md
+- Do NOT create any artifacts beyond structure and AGENTS.md
 - Do NOT invoke other skills automatically (wait for user choice)
 - Do NOT generate research questions or decisions (those are later skills)
 
 ## Success Criteria
 
 - [ ] Workspace directory created with full structure
-- [ ] CLAUDE.md generated with correct metadata
+- [ ] AGENTS.md generated with correct metadata
 - [ ] Skill tree displayed showing available next steps
 - [ ] User prompted for first action choice
 - [ ] No errors in directory creation

@@ -39,7 +39,7 @@ Skills must be installed in dependency order:
 
 **omr-bootstrap** initializes:
 - Project directory structure (raw/, docs/, wiki/, src/)
-- CLAUDE.md with research context
+- AGENTS.md with research context
 - Skill tree state
 - Artifacts index
 
@@ -87,7 +87,7 @@ Install based on your research pattern needs:
 
 **This creates**:
 - `my-research-topic/` directory with full structure
-- `CLAUDE.md` with project context and skill tree
+- `AGENTS.md` with project context and skill tree
 - Infrastructure initialized by omr-core
 
 ### 3. Install Domain Skills

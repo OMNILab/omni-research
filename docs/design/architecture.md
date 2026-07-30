@@ -63,7 +63,7 @@ Each research project creates an isolated workspace:
 │   ├── README.md             # Auto-generated index
 │   └── <concept>.md          # Interlinked concept pages
 │
-└── CLAUDE.md                 # Project context for AI agents
+└── AGENTS.md                 # Project context for AI agents
 ```
 
 ## Directory Purposes

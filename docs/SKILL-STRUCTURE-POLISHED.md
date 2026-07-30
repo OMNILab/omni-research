@@ -128,7 +128,7 @@ omr-bootstrap/
 │   ├── bootstrap_workspace.py ✓
 │   └── runtime_utils.py ✓ (proxy stub → omr-core/scripts/)
 ├── assets/
-│   └── CLAUDE.md.template ✓
+│   └── AGENTS.md.template ✓
 
 omr-collection/
 ├── SKILL.md ✓

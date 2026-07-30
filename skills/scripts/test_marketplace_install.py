@@ -209,11 +209,11 @@ def test_skill_installation(skill_file: Path,
 
                 # Verify workspace structure
                 test_project = test_workspace / 'test-project'
-                claude_md = test_project / 'CLAUDE.md'
-                if claude_md.exists():
-                    results['details'].append(f"✓ CLAUDE.md generated")
+                agents_md = test_project / 'AGENTS.md'
+                if agents_md.exists():
+                    results['details'].append(f"✓ AGENTS.md generated")
                 else:
-                    results['issues'].append("CLAUDE.md not generated")
+                    results['issues'].append("AGENTS.md not generated")
             else:
                 results['issues'].append(f"Bootstrap failed: {result.stderr}")
 

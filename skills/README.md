@@ -1,8 +1,24 @@
-# Skills Directory Structure
+# Skills Directory
 
-**Reorganized**: 2026-04-12
+**OmniResearch** — A suite of 9 AI agent skills for accelerating scientific innovation. Each skill is self-contained with its own assets, scripts, and SKILL.md specification. Shared infrastructure lives in `skills/shared/`.
 
-**Philosophy**: Each skill is self-contained with its own assets (schemas, scripts, templates). Shared infrastructure lives in `skills/shared/`.
+---
+
+## Skill Overview
+
+| Skill | Version | Category | Phase | Description |
+|-------|---------|----------|-------|-------------|
+| omr-core | 1.0.0 | infrastructure | 1.0 | Foundation: contracts, dependency resolver, skill tree, patterns |
+| omr-bootstrap | 1.0.0 | project-setup | 1.0 | Workspace creation + AGENTS.md generation |
+| omr-collection | 1.1.0 | research-logistics | 2.1 | Material collection (papers, repos, web pages) |
+| omr-analyze | 2.0.0 | evidence-analysis | 2.2–2.3 | Evidence extraction, judgment, research planning |
+| omr-decision | 1.0.0 | architecture-decisions | 2.4 | Architecture decisions with alternatives & rationale |
+| omr-evaluation | 1.0.0 | experiment-execution | 2.5 | Experiment design & prototype validation |
+| omr-synthesis | 2.0.0 | findings-documentation | 3.1 | Findings writeback + living wiki generation |
+| omr-idea-note | 1.0.0 | idea-capture | 3.3 | Speculative idea capture (Idea-First pattern) |
+| omr-reconcile | 2.0.0 | state-management | 3.4 | Contradiction handling + state archiving |
+
+**Merged skills (v2.0.0):** omr-evidence + omr-research-plan → **omr-analyze**; omr-synthesis + omr-wiki → **omr-synthesis**; omr-reconcile + omr-research-archive → **omr-reconcile**.
 
 ---
 
@@ -11,60 +27,73 @@
 ```
 skills/
 ├── shared/                     # Shared infrastructure (used by all skills)
-│   ├── contracts/              # Skill contract definitions (11 JSON files)
+│   ├── contracts/              # 8 skill contract definitions (JSON)
 │   ├── schemas/                # Contract schema validation
+│   │   └── contract.schema.json
 │   ├── tree/                   # Skill tree state tracking
-│   ├── validate_contract.py    # Contract validation script
 │   ├── dependency_resolver.py  # Prerequisite checking
-│   └── skill_tree.py           # Tree visualization
+│   ├── detect_pattern.py       # Research pattern detection
+│   ├── runtime_utils.py        # Shared runtime utilities
+│   ├── skill_tree.py           # Tree visualization
+│   ├── validate_contract.py    # Contract validation
+│   └── test_e2e.py             # End-to-end tests
 │
-├── omr-bootstrap/              # Bootstrap skill (workspace creation)
-│   ├── SKILL.md                # Skill specification
-│   ├── scripts/                # Bootstrap implementation scripts
-│   │   └ bootstrap_workspace.py
-│   └── templates/              # CLAUDE.md template
-│       └── CLAUDE.md.template
+├── omr-core/                   # Foundation infrastructure (Phase 1.0)
+│   ├── SKILL.md
+│   ├── contracts/              # Canonical contract copies (8 JSON)
+│   ├── patterns/               # 5 research pattern definitions
+│   ├── schemas/                # Contract schema
+│   ├── scripts/                # Infrastructure scripts
+│   └── tree/                   # Skill tree state
 │
-├── omr-collection/             # Material collection skill
-│   ├── SKILL.md                # Skill specification (Phase 2.1 architecture)
-│   ├── handlers/               # 4 core handlers
-│   │   ├── __init__.py
-│   │   ├── base_handler.py
-│   │   ├── generic_web_handler.py
-│   │   ├── paper_handler.py
-│   │   ├── github_handler.py
-│   │   └── huggingface_handler.py
-│   └── input_router.py         # Input type detection and routing
+├── omr-bootstrap/              # Workspace creation (Phase 1.0)
+│   ├── SKILL.md
+│   ├── assets/
+│   │   └── AGENTS.md.template  # Project instructions template
+│   └── scripts/
+│       └── bootstrap_workspace.py
 │
-├── omr-evidence/               # Evidence extraction skill (Phase 2.2)
+├── omr-collection/             # Material collection (Phase 2.1)
+│   ├── SKILL.md
+│   ├── handlers/               # 4 content handlers
+│   ├── scripts/                # CLI, router, orchestrator, search
+│   ├── utils/                  # Runtime utilities
+│   └── tests/
+│
+├── omr-analyze/                 # Evidence + planning (Phase 2.2–2.3)
 │   └── SKILL.md
 │
-├── omr-research-plan/          # Judgment + planning skill (Phase 2.3)
-│   └── SKILL.md
+├── omr-decision/               # Architecture decisions (Phase 2.4)
+│   ├── SKILL.md
+│   └── scripts/
+│       └── make_decision.py
 │
-├── omr-decision/               # Architecture decision skill (Phase 2.4)
-│   └── SKILL.md
+├── omr-evaluation/             # Experiment execution (Phase 2.5)
+│   ├── SKILL.md
+│   └── scripts/
+│       └── run_evaluation.py
 │
-├── omr-evaluation/             # Experiment execution skill (Phase 2.5)
-│   └── SKILL.md
+├── omr-synthesis/              # Findings + wiki (Phase 3.1)
+│   ├── SKILL.md
+│   └── scripts/
+│       └── synthesize_findings.py
 │
-├── omr-synthesis/              # Synthesis writeback skill (Phase 3.1)
-│   └── SKILL.md
+├── omr-idea-note/              # Idea capture (Phase 3.3)
+│   ├── SKILL.md
+│   └── scripts/
+│       └── capture_idea.py
 │
-├── omr-wiki/                   # Wiki generation skill (Phase 3.2)
-│   └── SKILL.md
+├── omr-reconcile/              # Reconciliation + archive (Phase 3.4)
+│   ├── SKILL.md
+│   └── scripts/
+│       └── reconcile_evidence.py
 │
-├── omr-idea-note/              # Idea capture skill (Phase 3.3)
-│   └── SKILL.md
-│
-├── omr-reconcile/              # Reconciliation skill (Phase 3.4)
-│   └── SKILL.md
-│
-├── omr-research-archive/       # Archive skill (Phase 3.5)
-│   └── SKILL.md
-│
-└── patterns/                   # Pattern definitions (Phase 4)
-    └── (future pattern JSON files)
+├── patterns/                   # Symlink to omr-core/patterns
+├── scripts/                    # Packaging & testing utilities
+│   ├── package_all_skills.py
+│   ├── simple_package_skill.py
+│   └── test_marketplace_install.py
+└── tree-state.json             # Symlink to omr-core/tree/tree-state.json
 ```
 
 ---
@@ -74,67 +103,55 @@ skills/
 ### Modular Skill Structure
 
 Each skill directory contains:
-- **SKILL.md**: Skill specification, usage, examples
+- **SKILL.md**: Skill specification, usage, and examples
 - **scripts/**: Implementation scripts (CLI entry points, handlers, utilities)
-- **handlers/**: Skill-specific handlers (if applicable)
-- **templates/**: Templates for skill outputs (if applicable)
-- **schemas/**: Artifact schemas for skill outputs (if applicable)
+- **assets/**: Templates and static resources (if applicable)
+- **handlers/**: Skill-specific content handlers (if applicable)
 
 **Benefits**:
-- Skills are self-contained
+- Skills are self-contained and independently packageable
 - Easy to test individually
 - Clear separation of concerns
-- Can be packaged independently
-
----
 
 ### Shared Infrastructure
 
 `skills/shared/` contains infrastructure used across all skills:
-- **Contract definitions**: Artifact-bound dependencies for all 11 skills
+- **Contract definitions**: Artifact-bound dependencies for 8 skills
 - **Contract schema**: JSON schema for validating contracts
 - **Contract validation**: Script to validate all contracts
 - **Dependency resolver**: Prerequisite checking before skill invocation
 - **Skill tree state**: Tracks unlocked/ready/locked/completed skills
-- **Skill tree visualization**: ASCII forward/reverse views
-
-**Benefits**:
-- Centralized contract management
-- Single source of truth for dependency resolution
-- Shared skill tree state across all skills
-- Consistent validation across skills
+- **Pattern detection**: Identifies research pattern from collected materials
+- **Runtime utilities**: Shared helper functions (canonical copy in `omr-core/scripts/`)
 
 ---
 
-## File Manifest
+## Quality Gates
 
-**Shared Infrastructure** (8 files):
-- `shared/contracts/*.json` (11 contract files)
-- `shared/schemas/contract.schema.json`
-- `shared/validate_contract.py`
-- `shared/dependency_resolver.py`
-- `shared/skill_tree.py`
-- `shared/tree/tree-state.json`
+The research pipeline is governed by 4 quality gates:
 
-**omr-bootstrap** (3 files):
-- `SKILL.md`
-- `scripts/bootstrap_workspace.py`
-- `templates/CLAUDE.md.template`
+| Gate | Location | Checks |
+|------|----------|--------|
+| **A** | omr-analyze (internal, after judgment before plan) | Evidence boundaries, judgment confidence |
+| **B** | omr-decision (before evaluation) | Alternatives documented, risks identified |
+| **C** | omr-evaluation (before synthesis) | Metrics defined, reproducibility ensured |
+| **D** | omr-synthesis (before wiki generation) | Traceability complete, evidence boundaries enforced |
 
-**omr-collection** (8 files):
-- `SKILL.md`
-- `input_router.py`
-- `handlers/__init__.py`
-- `handlers/base_handler.py`
-- `handlers/generic_web_handler.py`
-- `handlers/paper_handler.py`
-- `handlers/github_handler.py`
-- `handlers/huggingface_handler.py`
+---
 
-**Remaining Skills** (11 files):
-- 11 `SKILL.md` files (specifications only, implementation pending)
+## Research Patterns
 
-**Total**: 30 files created (Phase 1 + Phase 2.1)
+Five patterns define flexible entry points into the research pipeline:
+
+| Pattern | Entry Point | Description |
+|---------|-------------|-------------|
+| Evidence-First | omr-collection | Collect materials, then analyze |
+| Idea-First | omr-idea-note | Capture hypothesis, then validate |
+| Decision-First | omr-decision | Start from architecture decision |
+| Experiment-First | omr-evaluation | Begin with prototype experiment |
+| Rapid-Prototype | omr-collection + omr-synthesis | Fast collect → synthesize loop |
+
+Pattern definitions live in `skills/omr-core/patterns/` and `skills/patterns/`.
 
 ---
 
@@ -149,7 +166,7 @@ python skills/shared/validate_contract.py
 ### Dependency Resolution
 
 ```bash
-python skills/shared/dependency_resolver.py omr-evidence --check --workspace /tmp/test-project
+python skills/shared/dependency_resolver.py omr-analyze --check --workspace /path/to/project
 ```
 
 ### Skill Tree Visualization
@@ -165,66 +182,16 @@ python skills/shared/skill_tree.py --reverse  # Reverse view
 python skills/omr-bootstrap/scripts/bootstrap_workspace.py my-project "Research question?"
 ```
 
-### Material Collection (Phase 2.1 handlers)
+### Material Collection
 
 ```bash
-python skills/omr-collection/input_router.py "https://arxiv.org/abs/2402.12345" "agent memory"
-python skills/omr-collection/handlers/paper_handler.py /tmp/test-project 2402.12345
-python skills/omr-collection/handlers/github_handler.py /tmp/test-project anthropics/anthropic-sdk-python
+python skills/omr-collection/scripts/cli.py "https://arxiv.org/abs/2402.12345" "agent memory"
+python skills/omr-collection/handlers/paper_handler.py /path/to/project 2402.12345
+python skills/omr-collection/handlers/github_handler.py /path/to/project anthropics/anthropic-sdk-python
 ```
 
----
+### Marketplace Install Test
 
-## Implementation Progress
-
-### Phase 1: Foundation ✅ Complete
-- Contract system working
-- Workspace bootstrap tested
-- Skill tree visualization functional
-- Dependency resolver validated
-
-### Phase 2.1: omr-collection 🚧 In Progress
-- SKILL.md complete (Phase 2.1 architecture)
-- Input router implemented
-- 4 handlers implemented (base + paper + github + huggingface + generic web)
-- Handlers tested individually
-- Orchestrator + CLI pending (Phase 2.1 continuation)
-
-### Phase 2.2-2.5: Remaining Skills ⏳ Pending
-- SKILL.md exists for each skill
-- Implementation pending
-
-### Phase 3-5: Future Work ⏳ Planned
-- See `implementation-plan-omr-skills.md` for complete roadmap
-
----
-
-## Next Steps
-
-1. **omr-collection completion**: Implement orchestrator + CLI entry point
-2. **omr-evidence implementation**: Phase 2.2
-3. **omr-research-plan implementation**: Phase 2.3
-4. **omr-decision implementation**: Phase 2.4
-5. **omr-evaluation implementation**: Phase 2.5
-
----
-
-## Integration Testing
-
-**Phase 1 Tests**: All passing
-- Contract validation: ✓ 11 contracts valid
-- Workspace bootstrap: ✓ Structure created
-- Skill tree visualization: ✓ Forward + reverse views working
-- Dependency resolver: ✓ Prerequisite checking functional
-
-**Phase 2.1 Tests**: Handlers tested individually
-- Input router: ✓ URL/DOI/Search detection working
-- Paper handler: Pending (needs test workspace)
-- GitHub handler: Pending (needs test workspace)
-- HuggingFace handler: Pending (needs test workspace)
-- Generic Web handler: Pending (needs test workspace)
-
----
-
-_Generated: 2026-04-12_
-_Status: Skills folder structure reorganized, Phase 1 complete, Phase 2.1 handlers implemented_
+```bash
+python skills/scripts/test_marketplace_install.py
+```

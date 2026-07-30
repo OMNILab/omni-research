@@ -27,7 +27,7 @@ Per agent skill spec, skill directories can contain:
 omr-bootstrap/
 ├── SKILL.md ✓ (required)
 ├── assets/ ✓ (renamed from templates/)
-│   └── CLAUDE.md.template ✓
+│   └── AGENTS.md.template ✓
 ├── scripts/ ✓
 │   ├── bootstrap_workspace.py ✓
 │   └── runtime_utils.py ✓ (proxy stub)
@@ -172,7 +172,7 @@ Per spec recommendation, assets/ contains static resources like templates.
 ### Assets Directory
 
 **omr-bootstrap/assets/**:
-- ✓ CLAUDE.md.template (workspace template)
+- ✓ AGENTS.md.template (workspace template)
 
 ---
 

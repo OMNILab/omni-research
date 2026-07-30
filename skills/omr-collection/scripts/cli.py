@@ -188,7 +188,7 @@ def main():
     workspace = Path(args.workspace)
 
     # Check workspace exists
-    if not (workspace / 'CLAUDE.md').exists():
+    if not (workspace / 'AGENTS.md').exists():
         print(f"❌ Error: Workspace not initialized")
         print(f"   Run: python skills/omr-bootstrap/scripts/bootstrap_workspace.py <project-name>")
         sys.exit(1)

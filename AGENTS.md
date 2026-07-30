@@ -1,6 +1,6 @@
-# CLAUDE.md
+# AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI agents working with code in this repository.
 
 ## Project Overview
 
@@ -10,12 +10,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `docs/` — Top-level documentation
 - `skills/` — Shared AI agent skills (OmniSkills)
-- `thirdparty/` — Independent research subprojects, each with their own CLAUDE.md, build system, and conventions
+- `thirdparty/` — Independent research subprojects, each with their own AGENTS.md, build system, and conventions
   - `agent-memory-survey/` — Agent Memory research (survey, prototypes, reference indexing)
 
 ## Working with Subprojects
 
-Each subproject in `thirdparty/` is self-contained with its own `CLAUDE.md`, `AGENTS.md`, build tools, and test suite. **Always consult the subproject's own `CLAUDE.md` first** when working within it.
+Each subproject in `thirdparty/` is self-contained with its own `AGENTS.md`, build tools, and test suite. **Always consult the subproject's own `AGENTS.md` first** when working within it.
 
 ### agent-memory-survey
 

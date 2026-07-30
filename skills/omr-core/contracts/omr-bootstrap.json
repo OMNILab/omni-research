@@ -7,7 +7,7 @@
       "description": "Complete project directory layout (raw/, docs/, wiki/, src/, skills/)"
     },
     {
-      "artifact": "CLAUDE.md",
+      "artifact": "AGENTS.md",
       "description": "Project instructions with skill tree state"
     }
   ],

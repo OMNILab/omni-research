@@ -343,7 +343,6 @@ Use when: Quick prototype cycle
 **Solution**: Skills may not be published yet. Package manually:
 
 ```bash
-cd skills/
 python scripts/package_all_skills.py ./dist
 ```
 
@@ -407,7 +406,6 @@ python scripts/package_all_skills.py ./dist --skills omr-collection
 
 ```bash
 # Package all skills
-cd skills/
 python scripts/package_all_skills.py ./dist
 
 # Package specific skills

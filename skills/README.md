@@ -83,12 +83,9 @@ skills/
 │   ├── SKILL.md
 │   └── scripts/
 │       └── reconcile_evidence.py
-│
-└── omr-scripts/               # Repo-level packaging & testing utilities
-    ├── package_all_skills.py
-    ├── simple_package_skill.py
-    └── test_marketplace_install.py
 ```
+
+> **Packaging & testing utilities** live at the repo root in `scripts/` (not inside `skills/`).
 
 ---
 
@@ -189,5 +186,5 @@ python skills/omr-collection/handlers/github_handler.py /path/to/project anthrop
 ### Marketplace Install Test
 
 ```bash
-python skills/omr-scripts/test_marketplace_install.py
+python scripts/test_marketplace_install.py
 ```

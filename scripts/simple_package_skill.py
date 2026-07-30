@@ -160,7 +160,7 @@ def main():
         if idx + 1 < len(sys.argv):
             skills_list = [s.strip() for s in sys.argv[idx + 1].split(',')]
 
-    skills_dir = Path(__file__).parent.parent
+    skills_dir = Path(__file__).parent / "skills"
 
     success, fail = package_all_skills(skills_dir, output_dir, skills_list)
 

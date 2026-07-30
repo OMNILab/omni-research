@@ -473,9 +473,9 @@ class PaperHandler(BaseHandler):
             metadata: Optional metadata dict with 'title' key
 
         Returns:
-            Path to markdown file in raw/paper/
+            Path to markdown file in raw/papers/
         """
-        paper_dir = self.raw_dir / "paper"
+        paper_dir = self.raw_dir / "papers"
         paper_dir.mkdir(parents=True, exist_ok=True)
 
         # Generate filename based on source type

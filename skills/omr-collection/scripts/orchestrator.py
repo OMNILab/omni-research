@@ -268,8 +268,8 @@ class CollectionOrchestrator:
         for item in collected:
             file_path = item.get('file_path', '')
             if file_path:
-                # Extract artifact pattern (e.g., 'raw/paper/')
-                if 'raw/paper/' in file_path:
+                # Extract artifact pattern (e.g., 'raw/papers/')
+                if 'raw/papers/' in file_path:
                     produced_artifacts.add('materials in raw/')
                 elif 'raw/web/' in file_path:
                     produced_artifacts.add('materials in raw/')

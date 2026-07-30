@@ -198,7 +198,7 @@ class BaseHandler(ABC):
         Get index file path for source type
 
         Args:
-            source_type: Source type (paper/web/github/dataset)
+            source_type: Source type (paper/web/github/dataset; note: directory names are plural: raw/papers/, raw/datasets/)
 
         Returns:
             Path to index JSON file

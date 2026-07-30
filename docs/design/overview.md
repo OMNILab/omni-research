@@ -43,7 +43,7 @@ Materials are classified by evidence strength:
 
 | Tier | Type | Role | Storage |
 |------|------|------|---------|
-| 1 | Peer-reviewed papers | Primary research evidence | `raw/paper/` |
+| 1 | Peer-reviewed papers | Primary research evidence | `raw/papers/` |
 | 2 | Technical blogs | Engineering supplement | `raw/web/` |
 | 3 | Deep-research reports | Leads only, not anchor evidence | `raw/deep-research/` |
 | 4 | GitHub/projects | Implementation reference | `raw/github/` |

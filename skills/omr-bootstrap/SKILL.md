@@ -3,7 +3,7 @@ name: omr-bootstrap
 description: Initialize a new omni-research project workspace. Creates complete directory structure (raw/, docs/, src/, wiki/), generates AGENTS.md with research context, and displays skill tree showing available next actions. Use whenever starting a new research project, even if user doesn't explicitly say "bootstrap" or mentions "new project", "start research", "initialize workspace", or provides a research topic they want to investigate.
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   author: OmniResearch Team
   requires_skills: omr-core
   requires_workspace: false

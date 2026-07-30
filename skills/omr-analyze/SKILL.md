@@ -1,7 +1,7 @@
 ---
 name: omr-analyze
 description: Analyze collected materials and plan research execution. Scans raw materials, extracts findings with strict evidence boundaries (proven, suggests, inferred), generates research brief and evidence map, synthesizes judgment with confidence assessment, and creates a prioritized research plan. Enforces Gate A review as an internal checkpoint before execution. Use when user asks to "analyze papers", "map evidence", "plan research", "judge evidence", or says "now what" after collecting materials. REQUIRES omr-core skill and workspace with collected materials.
-version: 2.0.0
+version: 2.0.1
 author: OmniResearch Team
 license: MIT
 metadata:
@@ -55,7 +55,7 @@ This skill has four internal phases executed sequentially:
 
 ### Phase 2: Extract Findings and Generate Evidence Artifacts
 
-For each paper in `raw/paper/`:
+For each paper in `raw/papers/`:
 1. Read abstract (from index metadata)
 2. If abstract missing, attempt to extract from PDF (using text parsing)
 3. Identify key contributions stated by authors

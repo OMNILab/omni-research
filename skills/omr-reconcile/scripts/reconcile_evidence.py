@@ -72,7 +72,7 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
 
     # Step 2: Check if new materials exist in raw/
     new_materials = False
-    for subdir in ['paper', 'web', 'github', 'dataset']:
+    for subdir in ['papers', 'web', 'github', 'datasets']:
         subdir_path = raw_dir / subdir
         if subdir_path.exists():
             # Check if directory has files

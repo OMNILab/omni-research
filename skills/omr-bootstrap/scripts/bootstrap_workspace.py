@@ -31,10 +31,10 @@ def create_workspace(project_name: str,
 
     # Create directory structure
     directories = [
-        "raw/paper",
+        "raw/papers",
         "raw/web",
         "raw/github",
-        "raw/dataset",
+        "raw/datasets",
         "raw/search",
         "raw/failed",
         "docs/index",

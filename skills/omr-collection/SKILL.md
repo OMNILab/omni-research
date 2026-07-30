@@ -4,7 +4,7 @@ description: Material collection with passive reception philosophy. User provide
 license: MIT
 compatibility: Requires Python 3.10+ and arxiv SDK
 metadata:
-  version: "1.1.0"
+  version: "1.1.1"
   author: OmniResearch Team
   requires_skills: omr-core
   requires_workspace: true
@@ -116,9 +116,9 @@ elif quoted_string(input) OR no_url_pattern(input):
 | Handler | Source Types | Retrieval Strategy | Output Format |
 |---------|--------------|-------------------|---------------|
 | **Generic Web** | HTTP/HTTPS URLs, unsupported sources | Chrome MCP → snapshot + markdown | `raw/web/url-hash.md` + `.png` |
-| **Paper** | Paper URLs, DOIs, Arxiv IDs | PDF download → markdown parser | `raw/paper/doi-hash.md` |
+| **Paper** | Paper URLs, DOIs, Arxiv IDs | PDF download → markdown parser | `raw/papers/doi-hash.md` |
 | **GitHub** | GitHub URLs | README + release info (API) | `raw/github/repo-name.md` |
-| **HuggingFace** | HF dataset/model URLs | README + card (browser + API) | `raw/dataset/hf-name.md` |
+| **HuggingFace** | HF dataset/model URLs | README + card (browser + API) | `raw/datasets/hf-name.md` |
 
 **Extensibility**: ✗ None
 
@@ -201,7 +201,7 @@ raw/
 ├── search/          # Search-specific
 │   └── query-hash-abc123/
 │       ├── query-metadata.json
-│       └── (collected papers in raw/paper/)
+│       └── (collected papers in raw/papers/)
 └── failed/          # Error artifacts (url-hash-error.md)
 
 docs/index/
@@ -238,7 +238,7 @@ docs/index/
   "source_type": "paper/web/github/dataset/search/failed",
   "collected_at": "ISO-8601",
   "collected_by": "omr-collection",
-  "file_path": "raw/source-type/artifact-name.md"
+  "file_path": "raw/papers/artifact-name.md"
 }
 ```
 
@@ -425,9 +425,9 @@ See DEPENDENCIES.md for comprehensive setup guide.
 
 | Downstream Skill | omr-collection Outputs Used |
 |------------------|----------------------------|
-| **omr-analyze** | `raw/paper/*.md`, `raw/web/*.md`, `docs/index/papers-index.json` |
-| **omr-decision** | `raw/github/*.md`, `raw/dataset/*.md` |
-| **omr-evaluation** | `raw/dataset/*` (if `--download-dataset`) |
+| **omr-analyze** | `raw/papers/*.md`, `raw/web/*.md`, `docs/index/papers-index.json` |
+| **omr-decision** | `raw/github/*.md`, `raw/datasets/*.md` |
+| **omr-evaluation** | `raw/datasets/*` (if `--download-dataset`) |
 | **omr-synthesis** | All `raw/` artifacts |
 
 ---

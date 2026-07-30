@@ -138,7 +138,7 @@ class DependencyResolver:
 
             elif 'materials in raw/' in artifact_pattern:
                 # Check if any subdirectory has content
-                for subdir in ['paper', 'web', 'github', 'dataset', 'search']:
+                for subdir in ['papers', 'web', 'github', 'datasets', 'search']:
                     subdir_path = raw_dir / subdir
                     if subdir_path.exists() and any(subdir_path.iterdir()):
                         return True
@@ -229,7 +229,7 @@ class DependencyResolver:
         if required in produced_set:
             return True
 
-        # Pattern match (e.g., 'raw/*' matches 'raw/paper/')
+        # Pattern match (e.g., 'raw/*' matches 'raw/papers/')
         for produced in produced_set:
             if '*' in required:
                 pattern = required.replace('*', '')

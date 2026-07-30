@@ -187,7 +187,7 @@ def main():
             skills_list = [s.strip() for s in skills_arg.split(',')]
 
     # Determine skills directory
-    skills_dir = Path(__file__).parent.parent  # scripts/ -> skills/
+    skills_dir = Path(__file__).parent.parent  # omr-scripts/ -> skills/
 
     if not skills_dir.exists():
         print(f"Error: Skills directory not found: {skills_dir}")

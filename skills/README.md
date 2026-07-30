@@ -1,6 +1,6 @@
 # Skills Directory
 
-**OmniResearch** — A suite of 9 AI agent skills for accelerating scientific innovation. Each skill is self-contained with its own assets, scripts, and SKILL.md specification. Shared infrastructure lives in `skills/shared/`.
+**OmniResearch** — A suite of 9 AI agent skills for accelerating scientific innovation. Each skill is self-contained with its own assets, scripts, and SKILL.md specification. Shared infrastructure lives in `omr-core/`.
 
 ---
 
@@ -26,25 +26,21 @@
 
 ```
 skills/
-├── shared/                     # Shared infrastructure (used by all skills)
-│   ├── contracts/              # 8 skill contract definitions (JSON)
-│   ├── schemas/                # Contract schema validation
-│   │   └── contract.schema.json
-│   ├── tree/                   # Skill tree state tracking
-│   ├── dependency_resolver.py  # Prerequisite checking
-│   ├── detect_pattern.py       # Research pattern detection
-│   ├── runtime_utils.py        # Shared runtime utilities
-│   ├── skill_tree.py           # Tree visualization
-│   ├── validate_contract.py    # Contract validation
-│   └── test_e2e.py             # End-to-end tests
-│
 ├── omr-core/                   # Foundation infrastructure (Phase 1.0)
 │   ├── SKILL.md
-│   ├── contracts/              # Canonical contract copies (8 JSON)
+│   ├── contracts/              # 8 skill contract definitions (JSON)
 │   ├── patterns/               # 5 research pattern definitions
 │   ├── schemas/                # Contract schema
-│   ├── scripts/                # Infrastructure scripts
-│   └── tree/                   # Skill tree state
+│   ├── scripts/                # Infrastructure scripts (canonical source)
+│   │   ├── dependency_resolver.py
+│   │   ├── detect_pattern.py
+│   │   ├── init_workspace.py
+│   │   ├── runtime_utils.py
+│   │   ├── skill_tree.py
+│   │   ├── test_e2e.py
+│   │   └── validate_contract.py
+│   └── tree/
+│       └── tree-state.json     # Initial skill tree state
 │
 ├── omr-bootstrap/              # Workspace creation (Phase 1.0)
 │   ├── SKILL.md
@@ -57,10 +53,10 @@ skills/
 │   ├── SKILL.md
 │   ├── handlers/               # 4 content handlers
 │   ├── scripts/                # CLI, router, orchestrator, search
-│   ├── utils/                  # Runtime utilities
+│   ├── utils/                  # Runtime utilities proxy
 │   └── tests/
 │
-├── omr-analyze/                 # Evidence + planning (Phase 2.2–2.3)
+├── omr-analyze/                # Evidence + planning (Phase 2.2–2.3)
 │   └── SKILL.md
 │
 ├── omr-decision/               # Architecture decisions (Phase 2.4)
@@ -68,32 +64,30 @@ skills/
 │   └── scripts/
 │       └── make_decision.py
 │
-├── omr-evaluation/             # Experiment execution (Phase 2.5)
+├── omr-evaluation/            # Experiment execution (Phase 2.5)
 │   ├── SKILL.md
 │   └── scripts/
 │       └── run_evaluation.py
 │
-├── omr-synthesis/              # Findings + wiki (Phase 3.1)
+├── omr-synthesis/             # Findings + wiki (Phase 3.1)
 │   ├── SKILL.md
 │   └── scripts/
 │       └── synthesize_findings.py
 │
-├── omr-idea-note/              # Idea capture (Phase 3.3)
+├── omr-idea-note/             # Idea capture (Phase 3.3)
 │   ├── SKILL.md
 │   └── scripts/
 │       └── capture_idea.py
 │
-├── omr-reconcile/              # Reconciliation + archive (Phase 3.4)
+├── omr-reconcile/             # Reconciliation + archive (Phase 3.4)
 │   ├── SKILL.md
 │   └── scripts/
 │       └── reconcile_evidence.py
 │
-├── patterns/                   # Symlink to omr-core/patterns
-├── scripts/                    # Packaging & testing utilities
-│   ├── package_all_skills.py
-│   ├── simple_package_skill.py
-│   └── test_marketplace_install.py
-└── tree-state.json             # Symlink to omr-core/tree/tree-state.json
+└── omr-scripts/               # Repo-level packaging & testing utilities
+    ├── package_all_skills.py
+    ├── simple_package_skill.py
+    └── test_marketplace_install.py
 ```
 
 ---
@@ -115,14 +109,16 @@ Each skill directory contains:
 
 ### Shared Infrastructure
 
-`skills/shared/` contains infrastructure used across all skills:
-- **Contract definitions**: Artifact-bound dependencies for 8 skills
-- **Contract schema**: JSON schema for validating contracts
-- **Contract validation**: Script to validate all contracts
+All shared infrastructure lives in `omr-core/` — the canonical source for:
+- **Contract definitions**: Artifact-bound dependencies for 8 skills (`contracts/`)
+- **Contract schema**: JSON schema for validating contracts (`schemas/`)
+- **Pattern definitions**: 5 research patterns (`patterns/`)
 - **Dependency resolver**: Prerequisite checking before skill invocation
 - **Skill tree state**: Tracks unlocked/ready/locked/completed skills
 - **Pattern detection**: Identifies research pattern from collected materials
-- **Runtime utilities**: Shared helper functions (canonical copy in `omr-core/scripts/`)
+- **Runtime utilities**: Shared helper functions — 1 canonical copy + 7 proxy stubs
+
+At workspace initialization, `init_workspace.py` copies these into `<workspace>/skills/shared/` for runtime use.
 
 ---
 
@@ -151,7 +147,7 @@ Five patterns define flexible entry points into the research pipeline:
 | Experiment-First | omr-evaluation | Begin with prototype experiment |
 | Rapid-Prototype | omr-collection + omr-synthesis | Fast collect → synthesize loop |
 
-Pattern definitions live in `skills/omr-core/patterns/` and `skills/patterns/`.
+Pattern definitions live in `omr-core/patterns/`.
 
 ---
 
@@ -160,20 +156,20 @@ Pattern definitions live in `skills/omr-core/patterns/` and `skills/patterns/`.
 ### Contract Validation
 
 ```bash
-python skills/shared/validate_contract.py
+python skills/omr-core/scripts/validate_contract.py
 ```
 
 ### Dependency Resolution
 
 ```bash
-python skills/shared/dependency_resolver.py omr-analyze --check --workspace /path/to/project
+python skills/omr-core/scripts/dependency_resolver.py omr-analyze --check --workspace /path/to/project
 ```
 
 ### Skill Tree Visualization
 
 ```bash
-python skills/shared/skill_tree.py            # Forward view
-python skills/shared/skill_tree.py --reverse  # Reverse view
+python skills/omr-core/scripts/skill_tree.py            # Forward view
+python skills/omr-core/scripts/skill_tree.py --reverse  # Reverse view
 ```
 
 ### Workspace Bootstrap
@@ -193,5 +189,5 @@ python skills/omr-collection/handlers/github_handler.py /path/to/project anthrop
 ### Marketplace Install Test
 
 ```bash
-python skills/scripts/test_marketplace_install.py
+python skills/omr-scripts/test_marketplace_install.py
 ```

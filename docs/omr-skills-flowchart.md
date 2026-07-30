@@ -71,7 +71,7 @@ flowchart TD
     IDEA -.->|"linked_to (later)"| EVAL
 
     %% ===== Pattern system (shared, optional flow control) =====
-    PAT["5 Research Patterns<br/>skills/patterns/*.json<br/>evidence-first · decision-first<br/>idea-first · experiment-first · rapid-prototype"]
+    PAT["5 Research Patterns<br/>omr-core/patterns/*.json<br/>evidence-first · decision-first<br/>idea-first · experiment-first · rapid-prototype"]
     CORE -- "provides" --> PAT
     PAT -.->|"override: Experiment-First skips decision prereq"| EVAL
     PAT -.->|"mode routing: E-First→survey, D-First→report, I/E-First→brief"| SYN
@@ -117,7 +117,7 @@ flowchart TD
 ### 3. Dependency Model
 
 - **Universal prerequisite**: Every skill declares `requires_skills: [omr-core]` and `requires_workspace: true` (except `omr-bootstrap`, which itself initializes the workspace).
-- **Artifact-bound contracts**: 8 JSON contracts in `skills/shared/contracts/` define each skill's `requires`/`produces`/`gates`/`modes`. The dependency resolver (`skills/shared/dependency_resolver.py`) gates invocation by checking artifact presence, yielding `unlocked`/`ready`/`locked` states tracked in `tree/tree-state.json`.
+- **Artifact-bound contracts**: 8 JSON contracts in `omr-core/contracts/` define each skill's `requires`/`produces`/`gates`/`modes`. The dependency resolver (`omr-core/scripts/dependency_resolver.py`) gates invocation by checking artifact presence, yielding `unlocked`/`ready`/`locked` states tracked in `tree/tree-state.json`.
 - **Linear forward edges** (Phase 2): collection → analyze (`papers-index.json`; produces evidence-map + brief + judgment + plan) → decision (`evidence-{id}.md` required, `judgment-{id}.md` optional) → evaluation (`decision-{id}.md` required, with Experiment-First override).
 
 ### 4. Quality Gate System
@@ -139,14 +139,14 @@ Gate failures feed back into `omr-reconcile`, enabling the system to loop rather
 
 ### 6. Pattern System (Flow Control Overlay)
 
-Five research patterns in `skills/patterns/*.json` override default control flow without changing skill structure:
+Five research patterns in `omr-core/patterns/*.json` override default control flow without changing skill structure:
 - **evidence-first** → default synthesis mode `survey` (comprehensive)
 - **decision-first** → synthesis mode `report` (structured)
 - **idea-first** → synthesis mode `brief` (quick)
 - **experiment-first** → allows `omr-evaluation` without a prior `decision-{id}.md`; synthesis mode `brief`
 - **rapid-prototype** → (fast-iteration variant)
 
-Patterns are provided by `omr-core` and detected at runtime by `skills/shared/detect_pattern.py`, routing output modes in `omr-synthesis` and relaxing prerequisites in `omr-evaluation`.
+Patterns are provided by `omr-core` and detected at runtime by `omr-core/scripts/detect_pattern.py`, routing output modes in `omr-synthesis` and relaxing prerequisites in `omr-evaluation`.
 
 ### 7. Notable Design Observations
 

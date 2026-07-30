@@ -61,7 +61,7 @@ omr-idea-note → omr-collection → omr-evaluation → omr-decision → omr-syn
 2. First action → User selects first skill
 3. Pattern detection → After 3+ invocations, system proposes pattern name
 4. Pattern save → User accepts/rejects saving as template
-5. Template library → Saved patterns stored in `skills/patterns/`
+5. Template library → Saved patterns stored in `<workspace>/skills/patterns/`
 
 ## Pattern Selection Timing
 

@@ -2,49 +2,95 @@
 
 [中文](README.md) | **English**
 
-A suite of AI agent skills for evidence-bound scientific research — collect materials, analyze evidence, make decisions, evaluate ideas, and write findings with clear provenance.
+Reusable AI agent skills for serious research: collect materials, bound evidence, decide, evaluate, and write findings back to files with clear provenance.
 
 Repository: [OMNILab/omni-research](https://github.com/OMNILab/omni-research)
 
 ---
 
-## What you get
+## Vision
 
-OmniResearch turns an AI coding agent into a research co-pilot with a structured workflow:
+**Research ≠ information gathering.** OmniResearch (OMR) turns deep research into a composable skill lifecycle:
 
-1. **Start a project** — create a minimal workspace and project context
-2. **Collect materials** — papers, repos, web pages, datasets
-3. **Analyze evidence** — map claims with strict evidence boundaries (`proven` / `suggested` / `inferred`)
-4. **Decide & evaluate** — document architecture choices and validate them
-5. **Write up** — save reports to files and get a short summary in chat
+```text
+Collect → Analyze (define · evidence · judge · plan) → Decide → Validate → Write back
+```
 
-You do not need to understand the internal skill packaging model to use it. Install the skills, bootstrap a workspace, then invoke skills as you research.
+The goal is not “dump a pile of links,” but to move an investigation forward under explicit evidence boundaries, leaving inspectable, reproducible, and revisable artifacts.
+
+---
+
+## When to use it
+
+| Scenario | How you use OMR |
+|----------|-----------------|
+| **Literature survey** | Collect papers & repos → map evidence → synthesize a survey |
+| **Idea-led exploration** | Capture a hypothesis → decide / experiment → backfill evidence |
+| **Architecture choice** | Document alternatives first → constrain with evidence & eval |
+| **Fast hypothesis check** | Prototype and evaluate early → then analyze & synthesize |
+| **Ongoing research** | Reconcile when new evidence arrives; keep versions & blast radius |
+| **Multi-agent / handoff** | All state lives in files (`.omr/`, `docs/`, `materials/`) |
+
+After install, invoke skills via slash commands in Cursor, Claude Code, Codex, and other Agent Skills–compatible environments.
+
+---
+
+## Design philosophy
+
+One line: **Skills + Tree + Gates + Patterns + Reconciliation**.
+
+| Principle | Meaning |
+|-----------|---------|
+| **Evidence boundaries** | Label claims `proven` / `suggested` / `inferred` — no over-claiming |
+| **Composable skills** | Skills are ingredients, not a fixed pipeline; patterns are saved recipes |
+| **Artifact-bound state** | Progress and conclusions live in files — no hidden memory state |
+| **Quality gates** | Gates A–D govern advancement; Gate L chooses “go deeper vs move on” |
+| **Traceable writeback** | Full reports on disk; chat returns only a short summary + paths |
+| **Iteration is normal** | New evidence triggers reconcile instead of starting from scratch |
+
+Unlike one-shot “summarize this page” tools, OMR emphasizes **boundaries, gates, patterns, and reproducible artifacts** for work that must stand up to scrutiny.
+
+More: [Overview](docs/design/overview.md) · [Principles](docs/design/principles.md)
+
+---
+
+## Install skills
+
+**Install all 9 skills in one batch** so the full lifecycle works — collection through synthesis, plus idea notes and reconciliation. Partial installs leave later stages unavailable.
+
+Full guide (three methods, per-agent paths, troubleshooting): **[Skill installation](docs/INSTALL.md)**
+
+### Method 1 — `npx skills add` (recommended)
+
+One command across Cursor / Claude Code / Codex and other agents:
+
+```bash
+npx skills add OMNILab/omni-research --skill '*' -g -y
+```
+
+### Method 2 — Claude Code marketplace
+
+```text
+/plugin marketplace add OMNILab/omni-research
+```
+
+Install the full set of `omr-*` skills from the **omniresearch** marketplace in the plugin UI.
+
+### Method 3 — Download and extract
+
+```bash
+git clone https://github.com/OMNILab/omni-research.git
+cp -R omni-research/skills/omr-* ~/.cursor/skills/   # Cursor example
+# or ~/.claude/skills/, ~/.agents/skills/, etc. — see install guide
+```
+
+You can also package `.skill` archives and unzip them into the agent skills directory (see install guide).
 
 ---
 
 ## Quick start
 
-### 1. Install skills
-
-Install foundation first, then the skills you need. See the full guide:
-
-- [Marketplace installation guide](docs/MARKETPLACE-INSTALL.md)
-
-Typical order:
-
-```text
-/find-skills omr-core
-/find-skills omr-bootstrap
-/find-skills omr-collection
-/find-skills omr-analyze
-/find-skills omr-decision
-/find-skills omr-evaluation
-/find-skills omr-synthesis
-/find-skills omr-idea-note
-/find-skills omr-reconcile
-```
-
-### 2. Bootstrap a research workspace
+### 1. Bootstrap a research workspace
 
 ```text
 /omr-bootstrap "your research topic"
@@ -57,7 +103,7 @@ This creates only:
 
 Content folders such as `materials/`, `docs/`, `wiki/`, and `src/` are created **on demand** when a skill first writes into them.
 
-### 3. Run a research loop
+### 2. Run a research loop
 
 | Goal | Invoke |
 |------|--------|
@@ -149,7 +195,7 @@ my-project/
 └── src/                   # on demand — prototypes / experiments
 ```
 
-Static skill specs stay in the installed skills (for example under `~/.agents/skills/` or `~/.claude/skills/`). Research projects keep only mutable state in `.omr/`.
+Static skill specs stay in the installed skills directory (for example `~/.cursor/skills/`, `~/.claude/skills/`, or `~/.agents/skills/`). Research projects keep only mutable state in `.omr/`.
 
 Architecture notes: [Workspace architecture](docs/design/architecture.md) · [Outputs model](docs/design/outputs.md)
 
@@ -159,7 +205,7 @@ Architecture notes: [Workspace architecture](docs/design/architecture.md) · [Ou
 
 | Audience | Links |
 |----------|-------|
-| Install & setup | [Marketplace install](docs/MARKETPLACE-INSTALL.md) |
+| Install & setup | [Skill installation](docs/INSTALL.md) |
 | Design overview | [Design docs index](docs/design/README.md) · [Overview](docs/design/overview.md) · [Principles](docs/design/principles.md) |
 | Skills & contracts | [Skills reference](docs/design/skills-reference.md) · [Agent skill spec](docs/agent-skill-spec.md) |
 | Day-to-day workflow | [Workflows](docs/design/workflows.md) · [Patterns](docs/design/patterns.md) · [Gates](docs/design/gates.md) |
@@ -169,4 +215,4 @@ Architecture notes: [Workspace architecture](docs/design/architecture.md) · [Ou
 
 ## For contributors
 
-Developer-oriented layout and packaging live under [`skills/`](skills/) and [`scripts/`](scripts/). Prefer the design docs above for system internals; end users should not need them for normal research work.
+Developer-oriented layout and packaging live under [`skills/`](skills/) and [`scripts/`](scripts/). Prefer the [install guide](docs/INSTALL.md) and design docs above for day-to-day research; end users should not need packaging details for normal work.

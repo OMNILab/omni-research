@@ -2,49 +2,95 @@
 
 **中文** | [English](README.en.md)
 
-面向科研场景的 AI Agent 技能套件：采集材料、分析证据、做架构决策、实验验证，并以可追溯方式把研究结果写入文件。
+把严谨科研方法做成可复用的 AI Agent 技能：采集材料、界定证据、做判断与决策、实验验证，并以可追溯方式把结论写入文件。
 
 仓库：[OMNILab/omni-research](https://github.com/OMNILab/omni-research)
 
 ---
 
-## 你能得到什么
+## 愿景
 
-OmniResearch 把 AI 编程助手变成有流程约束的研究搭档：
+**研究 ≠ 堆材料。** OmniResearch（OMR）把「深研」拆成可组合的技能生命周期：
 
-1. **启动项目** — 创建最小工作区与项目上下文
-2. **采集材料** — 论文、代码仓库、网页、数据集
-3. **分析证据** — 用严格证据边界标注主张（`proven` / `suggested` / `inferred`）
-4. **决策与评估** — 记录架构选择并做验证
-5. **撰写产出** — 报告落盘，聊天中只返回摘要
+```text
+采集 → 分析（界定 · 证据 · 判断 · 规划）→ 决策 → 验证 → 落盘写回
+```
 
-日常使用不必了解技能打包细节：安装技能 → bootstrap 工作区 → 按研究需要调用即可。
+目标不是替你「搜一堆链接」，而是让 Agent 在明确证据边界下推进研究，并留下可检查、可复现、可回滚的产物。
+
+---
+
+## 适用场景
+
+| 场景 | 你会怎么用 |
+|------|------------|
+| **文献调研 / Survey** | 批量收论文与仓库 → 画证据图 → 写成 survey |
+| **从想法起步** | 先记假设 → 再决策 / 实验 → 回填证据 |
+| **架构选型** | 先写下备选与取舍 → 用证据与评估约束决策 |
+| **快速验证假设** | 先做原型与评估 → 再补分析与综合 |
+| **持续迭代课题** | 新证据到来时 reconcile，保留版本与影响范围 |
+| **多人 / 多 Agent 协作** | 状态都在文件里（`.omr/`、`docs/`、`materials/`），可审查、可交接 |
+
+安装后，在 Cursor、Claude Code、Codex 等支持 Agent Skills 的环境中，用斜杠命令按需调用即可。
+
+---
+
+## 设计哲学
+
+一句话：**Skills + Tree + Gates + Patterns + Reconciliation**。
+
+| 原则 | 含义 |
+|------|------|
+| **证据边界** | 主张必须标成 `proven` / `suggested` / `inferred`，禁止过度宣称 |
+| **技能可组合** | 技能是原料，不是固定流水线；模式是可保存的配方 |
+| **产物即状态** | 进度与结论都在文件中，无隐藏内存状态 |
+| **质量门禁** | Gate A–D 约束推进；Gate L 支持「再挖一层 vs 往前走」 |
+| **可追溯写回** | 综合报告落盘；聊天只给摘要与路径 |
+| **迭代是常态** | 新证据触发 reconcile，而非推倒重来 |
+
+与「一键总结网页」类工具的差别：OMR 强调**边界、门禁、模式与可复现产物**，适合需要严肃论证的科研与工程研究。
+
+更多：[概述](docs/design/overview.md) · [原则](docs/design/principles.md)
+
+---
+
+## 安装技能
+
+**建议一次性装齐全部 9 个技能**，才能走完采集 → 分析 → 决策 → 评估 → 综合（以及灵感记录、证据调和）的完整能力。只装一部分会导致后续阶段不可用。
+
+完整说明（三种方式、各 Agent 路径、排错）：**[技能安装指南](docs/INSTALL.md)**
+
+### 方式 1 — `npx skills add`（推荐）
+
+跨 Cursor / Claude Code / Codex 等 Agent，一条命令批量安装：
+
+```bash
+npx skills add OMNILab/omni-research --skill '*' -g -y
+```
+
+### 方式 2 — Claude Code Marketplace
+
+```text
+/plugin marketplace add OMNILab/omni-research
+```
+
+在插件界面安装 **omniresearch** 下的全部 `omr-*` 技能。
+
+### 方式 3 — 下载解压
+
+```bash
+git clone https://github.com/OMNILab/omni-research.git
+cp -R omni-research/skills/omr-* ~/.cursor/skills/   # Cursor 示例
+# 或 ~/.claude/skills/、~/.agents/skills/ 等，见安装指南
+```
+
+也可打包为 `.skill` 后再解压到对应目录（见安装指南）。
 
 ---
 
 ## 快速开始
 
-### 1. 安装技能
-
-先装基础设施，再装你需要的领域技能。完整说明见：
-
-- [Marketplace 安装指南](docs/MARKETPLACE-INSTALL.md)
-
-常用安装顺序：
-
-```text
-/find-skills omr-core
-/find-skills omr-bootstrap
-/find-skills omr-collection
-/find-skills omr-analyze
-/find-skills omr-decision
-/find-skills omr-evaluation
-/find-skills omr-synthesis
-/find-skills omr-idea-note
-/find-skills omr-reconcile
-```
-
-### 2. 初始化研究工作区
+### 1. 初始化研究工作区
 
 ```text
 /omr-bootstrap "你的研究主题"
@@ -55,9 +101,9 @@ OmniResearch 把 AI 编程助手变成有流程约束的研究搭档：
 - `AGENTS.md` — 给 Agent 的项目说明
 - `.omr/tree-state.json` — 技能进度状态
 
-`materials/`、`docs/`、`wiki/`、`src/` 等目录会在对应技能**首次写入时**按需创建。
+`materials/`、`docs/`、`wiki/`、`src/` 等目录在对应技能**首次写入时**按需创建。
 
-### 3. 进入研究循环
+### 2. 进入研究循环
 
 | 目标 | 调用 |
 |------|------|
@@ -147,7 +193,7 @@ my-project/
 └── src/                   # 按需 — 原型 / 实验
 ```
 
-静态技能规范保留在已安装技能目录（如 `~/.agents/skills/` 或 `~/.claude/skills/`）。研究项目只在 `.omr/` 保存可变状态。
+静态技能规范保留在已安装技能目录（如 `~/.cursor/skills/`、`~/.claude/skills/`、`~/.agents/skills/`）。研究项目只在 `.omr/` 保存可变状态。
 
 结构说明：[工作区架构](docs/design/architecture.md) · [产出模型](docs/design/outputs.md)
 
@@ -157,7 +203,7 @@ my-project/
 
 | 用途 | 链接 |
 |------|------|
-| 安装与配置 | [Marketplace 安装](docs/MARKETPLACE-INSTALL.md) |
+| 安装与配置 | [技能安装指南](docs/INSTALL.md) |
 | 设计总览 | [设计文档索引](docs/design/README.md) · [概述](docs/design/overview.md) · [原则](docs/design/principles.md) |
 | 技能与契约 | [技能参考](docs/design/skills-reference.md) · [Agent Skill 规范](docs/agent-skill-spec.md) |
 | 日常流程 | [工作流](docs/design/workflows.md) · [模式](docs/design/patterns.md) · [门禁](docs/design/gates.md) |
@@ -167,4 +213,4 @@ my-project/
 
 ## 贡献者说明
 
-面向开发的目录布局与打包脚本见 [`skills/`](skills/) 与 [`scripts/`](scripts/)。普通研究使用请优先阅读上文；深入实现细节可进入设计文档。
+面向开发的目录布局与打包脚本见 [`skills/`](skills/) 与 [`scripts/`](scripts/)。普通研究使用请优先阅读上文与 [安装指南](docs/INSTALL.md)；深入实现细节可进入设计文档。

@@ -7,6 +7,21 @@ import re
 from pathlib import Path
 
 
+def yaml_scalar(value) -> str:
+    """Render a frontmatter value, quoting it when a plain scalar would be ambiguous.
+
+    A plain YAML scalar cannot contain ": " or " #", and cannot end with ":", because
+    those read as a mapping separator or a comment. Values that are already quoted or
+    are flow collections ([...] / {...}) are passed through untouched.
+    """
+    text = str(value)
+    if not text or text[0] in "'\"[{":
+        return text
+    if ": " not in text and " #" not in text and not text.endswith(":"):
+        return text
+    return "'" + text.replace("'", "''") + "'"
+
+
 def polish_frontmatter(skill_dir: Path):
     """Polish SKILL.md frontmatter to match agent skill spec"""
 
@@ -80,30 +95,27 @@ def polish_frontmatter(skill_dir: Path):
     polished_lines = ["---"]
 
     # Required fields first
-    polished_lines.append(f"name: {frontmatter.get('name', skill_dir.name)}")
+    polished_lines.append(f"name: {yaml_scalar(frontmatter.get('name', skill_dir.name))}")
 
     # Description (ensure <1024 chars)
     desc = frontmatter.get("description", "")
     if len(desc) > 1024:
         desc = desc[:1020] + "..."
-    polished_lines.append(f"description: {desc}")
+    polished_lines.append(f"description: {yaml_scalar(desc)}")
 
     # Optional: license
     if "license" in frontmatter:
-        polished_lines.append(f"license: {frontmatter['license']}")
+        polished_lines.append(f"license: {yaml_scalar(frontmatter['license'])}")
 
     # Optional: compatibility
     if "compatibility" in frontmatter:
-        polished_lines.append(f"compatibility: {frontmatter['compatibility']}")
+        polished_lines.append(f"compatibility: {yaml_scalar(frontmatter['compatibility'])}")
 
     # Optional: metadata
     if "metadata" in frontmatter and frontmatter["metadata"]:
         polished_lines.append("metadata:")
         for key, value in sorted(frontmatter["metadata"].items()):
-            if isinstance(value, str):
-                polished_lines.append(f"  {key}: {value}")
-            else:
-                polished_lines.append(f"  {key}: {value}")
+            polished_lines.append(f"  {key}: {yaml_scalar(value)}")
 
     polished_lines.append("---")
 

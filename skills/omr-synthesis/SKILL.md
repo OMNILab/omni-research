@@ -1,6 +1,6 @@
 ---
 name: omr-synthesis
-description: ALWAYS write the full synthesis report to docs/<mode>/ files, then reply to the user with a short summary only (paths, key findings, Gate D/wiki status). Never paste full chapters into chat. Configurable modes: survey, report, manuscript, brief. Enforces evidence boundaries and Gate D. Auto-generates wiki unless --no-wiki. Use for "write up findings", "document results", "create survey", "publish research", or "generate wiki". REQUIRES omr-core and a completed research workspace.
+description: 'ALWAYS write the full synthesis report to docs/<mode>/ files, then reply to the user with a short summary only (paths, key findings, Gate D/wiki status). Never paste full chapters into chat. Configurable modes: survey, report, manuscript, brief. Enforces evidence boundaries and Gate D. Auto-generates wiki unless --no-wiki. Use for "write up findings", "document results", "create survey", "publish research", or "generate wiki". REQUIRES omr-core and a completed research workspace.'
 version: 2.2.0
 author: OmniResearch Team
 license: MIT

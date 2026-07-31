@@ -27,7 +27,7 @@ Skills must be installed in dependency order:
 - Contract system (8 skill dependency definitions)
 - Dependency resolver (prerequisite checking)
 - Skill tree tracking (progression state)
-- Pattern definitions (5 research workflow patterns)
+- Pattern definitions (6 research workflow patterns)
 
 **Size**: ~90KB
 
@@ -207,17 +207,19 @@ omr-core.skill (~90KB)
 │   └── omr-reconcile.json
 ├── schemas/
 │   └── contract.schema.json
-├── patterns/           # 5 research pattern definitions
+├── patterns/           # 6 research pattern definitions
 │   ├── evidence-first.json
 │   ├── idea-first.json
 │   ├── decision-first.json
 │   ├── experiment-first.json
-│   └── rapid-prototype.json
+│   ├── rapid-prototype.json
+│   └── loop.json
 ├── scripts/
 │   ├── dependency_resolver.py
 │   ├── skill_tree.py
 │   ├── validate_contract.py
 │   ├── detect_pattern.py
+│   ├── loop_state.py
 │   ├── runtime_utils.py      # Canonical shared module
 │   └── init_workspace.py
 └── tree/
@@ -282,7 +284,7 @@ OmniResearch enforces strict evidence boundaries:
 
 ## Research Patterns
 
-OmniResearch recognizes 5 workflow patterns:
+OmniResearch recognizes 6 workflow patterns:
 
 ### 1. Evidence-First
 
@@ -329,7 +331,17 @@ idea → collection → evaluation → decision → synthesis
 
 Use when: Quick prototype cycle
 
-**Pattern detection**: After 3+ skill invocations, OmniResearch identifies your pattern and optimizes skill recommendations.
+### 6. Loop
+
+Intentional deepening with Gate L (iterate vs advance):
+```
+idea-dev:      idea-note ⟲ Gate L → decision → …
+deep-analyze:  collection → analyze ⟲ Gate L → Gate A → decision → …
+```
+
+Use when: Refining ideas or digging into evidence gaps before committing to a plan
+
+**Pattern detection**: After 3+ skill invocations, OmniResearch identifies your pattern and optimizes skill recommendations. Repeated idea-note or collection↔analyze cycles boost Loop detection.
 
 ## Troubleshooting
 

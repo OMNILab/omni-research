@@ -17,7 +17,7 @@ metadata:
 
 **Purpose**: AI-logistics mechanism that delivers research-ready materials for downstream skills. NOT a research skill — pure logistics with minimal parsing.
 
-**Philosophy**: Passive Reception (user expertise respected), Minimal Parsing (format access + metadata only), Pattern Neutrality (works for all 5 research patterns equally).
+**Philosophy**: Passive Reception (user expertise respected), Minimal Parsing (format access + metadata only), Pattern Neutrality (works for all 6 research patterns equally).
 
 ---
 
@@ -32,7 +32,7 @@ metadata:
 
 **Why Passive?**
 - Users ARE domain experts
-- Works equally for Evidence-First, Idea-First, Decision-First, Experiment-First patterns
+- Works equally for Evidence-First, Idea-First, Decision-First, Experiment-First, Rapid-Prototype, and Loop patterns
 - Minimal parsing boundary respected
 
 ---
@@ -442,6 +442,10 @@ See DEPENDENCIES.md for comprehensive setup guide.
 ## Gates
 
 None (collection can happen anytime)
+
+**Loop pattern note:** When Loop mode is `deep-analyze` and `.omr/loop-state.json` lists `gaps`, prefer collecting sources that fill those gaps (still user-directed — suggest gap-aligned searches/URLs, do not invent sources). After collection, next step is typically `/omr-analyze` for another Gate L cycle.
+
+Helper: `omr-core/scripts/loop_state.py` → `get_gaps(workspace)`.
 
 ---
 

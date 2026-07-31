@@ -448,6 +448,19 @@ Cross-reference in new artifacts:
 
 None (reconciliation is iterative process, no gates)
 
+## Loop vs Reconcile
+
+Do **not** merge these behaviors:
+
+| | **Loop** (pattern + Gate L) | **Reconcile** (this skill) |
+|--|----------------------------|----------------------------|
+| Intent | Intentional deepening | Reactive repair |
+| Trigger | User chooses to refine ideas / dig into evidence gaps | New evidence contradicts artifacts, or Gate A/B/C/D fails |
+| Control | Gate L: iterate / advance / park | Blast-radius options + archive |
+| State | `.omr/loop-state.json` | Version history + `docs/archive/` |
+
+If the user asks to "loop" or "deepen" without a contradiction, route to Loop (idea-note / analyze + Gate L), not this skill.
+
 ## Can Call
 
 - `omr-analyze` (re-map evidence and re-plan judgment)

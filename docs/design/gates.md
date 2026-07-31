@@ -8,6 +8,30 @@
 | **B** | Before `omr-decision` | Architecture decision sound? | research-brief.md, evidence-map.md, judgment-summary.md (optional) |
 | **C** | Before `omr-evaluation` | Experiment design valid? | architecture-decision.md |
 | **D** | Before `omr-synthesis` | Results traceable, no over-claiming? | evaluation-report.md OR judgment-summary.md |
+| **L** | Within `omr-analyze` (after judgment, before Gate A) or `omr-idea-note` (after note write) | Iterate deeper or advance? | `.omr/loop-state.json` (Loop active) |
+
+## Gate L: Iterate or Advance (Loop pattern)
+
+Gate L is the **Loop control surface**. It is presented only when the Loop pattern is active **or** `.omr/loop-state.json` has `active: true`. Other patterns skip Gate L.
+
+**Position:**
+- `omr-analyze`: `after_judgment_before_gate_a` — deepen evidence before planning
+- `omr-idea-note`: `after_note_write` — refine ideas before decision/collection
+
+**Review Criteria:**
+- [ ] Focus question still productive
+- [ ] New material / tighter question available for next cycle
+- [ ] Confidence / coverage improved since last iteration
+- [ ] Ready to exit loop into the next stage
+
+**Outcomes:**
+- **Iterate** — stay in cycle (collection / re-analyze / another idea note); update loop-state
+- **Advance** — deactivate loop; proceed to Gate A (analyze path) or decision/collection (idea-dev)
+- **Stop / park** — save state, do not unlock next stage
+
+**Helper:** `omr-core/scripts/loop_state.py`
+
+**Relationship to Gate A:** Gate L asks “keep digging?”; Gate A asks “evidence good enough to plan?” Advancing from Gate L still requires Gate A on the deep-analyze path.
 
 ## Gate A: Within omr-analyze (Internal Checkpoint)
 
@@ -77,6 +101,7 @@ gates_passed:
 Patterns can override gate enforcement:
 - Experiment-First: Gate C still applies, but `omr-evaluation` can run without prior decision
 - Rapid-Prototype: All gates disabled
+- Loop: Gate L required on `omr-idea-note` / `omr-analyze`; Gate A still applies after Advance on deep-analyze path
 
 ## Gate Failure → Reconciliation
 

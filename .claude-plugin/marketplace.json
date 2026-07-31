@@ -10,7 +10,7 @@
   },
   "metadata": {
     "version": "2.0.0",
-    "description": "OmniResearch - A suite of 9 AI agent skills for accelerating scientific innovation. Provides evidence-bound, traceable research workflow with contract system, dependency resolution, and skill tree progression. Supports 5 research patterns: Evidence-First, Idea-First, Decision-First, Experiment-First, and Rapid-Prototype.",
+    "description": "OmniResearch - A suite of 9 AI agent skills for accelerating scientific innovation. Provides evidence-bound, traceable research workflow with contract system, dependency resolution, and skill tree progression. Supports 6 research patterns: Evidence-First, Idea-First, Decision-First, Experiment-First, Rapid-Prototype, and Loop (Gate L).",
     "keywords": [
       "agent-skills",
       "scientific-research",
@@ -36,7 +36,7 @@
     {
       "name": "omr-core",
       "path": "skills/omr-core",
-      "description": "Foundation infrastructure for OmniResearch skills system. Provides contract system, dependency resolver, skill tree tracking, and pattern definitions. MUST install this before any other omr-* skills. Use when setting up OmniResearch environment or when skills report missing infrastructure dependencies.",
+      "description": "Foundation infrastructure for OmniResearch skills system. Provides contract system, dependency resolver, skill tree tracking, pattern definitions (including Loop + Gate L), and loop-state helpers. MUST install this before any other omr-* skills. Use when setting up OmniResearch environment or when skills report missing infrastructure dependencies.",
       "version": "1.0.0",
       "category": "infrastructure",
       "tags": [
@@ -83,7 +83,7 @@
     {
       "name": "omr-analyze",
       "path": "skills/omr-analyze",
-      "description": "Analyze collected materials and plan research execution. Scans raw materials, extracts findings with strict evidence boundaries (proven, suggests, inferred), generates research brief and evidence map, synthesizes judgment with confidence assessment, and creates a prioritized research plan. Enforces Gate A review as an internal checkpoint before execution. Merged from omr-evidence + omr-research-plan. Use when ready to analyze collected papers and materials. REQUIRES omr-core skill and workspace with collected materials.",
+      "description": "Analyze collected materials and plan research execution. Scans raw materials, extracts findings with strict evidence boundaries (proven, suggests, inferred), generates research brief and evidence map, synthesizes judgment with confidence assessment, and creates a prioritized research plan. Enforces Gate L (Loop: iterate vs advance) when Loop is active, then Gate A before plan generation. Merged from omr-evidence + omr-research-plan. Use when ready to analyze collected papers and materials. REQUIRES omr-core skill and workspace with collected materials.",
       "version": "2.0.0",
       "category": "evidence-analysis",
       "tags": [

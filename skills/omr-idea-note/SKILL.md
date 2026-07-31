@@ -212,6 +212,8 @@ docs/ideas/
 
 ### 5. Offer Next Actions
 
+**If Loop is active** (pattern Loop or `.omr/loop-state.json` has `active: true`), present **Gate L** instead of the generic menu (see Gates). Otherwise prompt:
+
 **Prompt user for next steps:**
 
 ```
@@ -227,8 +229,9 @@ What's next?
 [3] Create decision from idea (Idea-First pattern)
 [4] Create hypothesis for experiment (Experiment-First pattern)
 [5] Just save (return to research)
+[6] Enter Loop (idea-dev) — refine via Gate L cycles
 
-Choose [1-5] or describe intent:
+Choose [1-6] or describe intent:
 ```
 
 **If user chooses:**
@@ -345,7 +348,26 @@ omr-bootstrap ✓
 
 ## Gates
 
-None (idea capture is lightweight, no gates)
+**Gate L: Iterate or advance?** (Loop pattern / idea-dev only)
+
+**When:** Pattern is Loop, `.omr/loop-state.json` has `active: true`, or user chose "Enter Loop (idea-dev)"
+**Position:** After idea note write (`after_note_write`)
+**Checks:**
+1. Focus question still productive
+2. Another idea refinement or critique cycle warranted
+3. Confidence or clarity improved since last iteration
+4. Ready to exit loop into decision or collection
+
+**Outcomes:**
+- `[Iterate]` → `record_iteration` then another `/omr-idea-note` (or light critique pass)
+- `[Advance]` → `advance_loop`; route to `/omr-decision` or `/omr-collection` per `exit_target` / user choice
+- `[Stop / park]` → `park_loop`; keep notes, no unlock
+
+**Helper:** `omr-core/scripts/loop_state.py`
+
+On first Loop entry from this skill, call `activate_loop(workspace, mode="idea-dev", focus_question=..., exit_target="omr-decision")`.
+
+Skipped for non-Loop Idea-First / ad-hoc captures.
 
 ## Can Call
 
@@ -354,7 +376,7 @@ None (standalone skill)
 ## Can Be Called By
 
 - Any skill (available anytime)
-- `omr-bootstrap`: Suggests Idea-First pattern via idea note
+- `omr-bootstrap`: Suggests Idea-First or Loop (idea-dev) via idea note
 - `omr-decision`: May link to idea for inspiration
 - `omr-evaluation`: May link to idea for hypothesis
 

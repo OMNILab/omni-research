@@ -411,13 +411,52 @@ gate_a_passed: null
 ## Next Steps
 
 Proceed to Gate A review before plan generation.
+
+**If Loop is active** (pattern name is Loop, or `.omr/loop-state.json` has `active: true`): present **Gate L** after judgment and **before** Gate A. See Gates section.
 ```
+
+### Phase 4a: Gate L Review (Loop pattern only)
+
+**When:** Loop pattern active OR `.omr/loop-state.json` has `active: true`
+**Position:** After judgment synthesis, before Gate A (`after_judgment_before_gate_a`)
+**Purpose:** Decide whether to deepen further or advance into planning
+
+**Activation:** Use `omr-core` `scripts/loop_state.py` — `is_loop_active(workspace)`. If inactive, skip this phase entirely.
+
+**Gate L checks:**
+- [ ] Focus question still productive?
+- [ ] New material or tighter question available for next cycle?
+- [ ] Confidence / coverage improved since last iteration (or first pass)?
+- [ ] Ready to exit loop into Gate A / next stage?
+
+**Gate L review process:**
+
+1. Load `.omr/loop-state.json` (create/activate with mode `deep-analyze` if Loop pattern but no state yet)
+2. Display judgment summary, current `focus_question`, `iteration`, and `gaps`
+3. Ask user:
+   ```
+   ⚠️  GATE L: Iterate or advance?
+
+   Mode: deep-analyze | Iteration: N
+   Focus: {focus_question}
+   Gaps: {gaps}
+
+   [1] Iterate — collect more / re-analyze with tighter questions
+   [2] Advance — proceed to Gate A (planning)
+   [3] Stop / park — save loop state, do not unlock decision
+
+   Choose [1-3]:
+   ```
+
+4. **Iterate:** Call `record_iteration(...)`; update `gaps` from evidence map; route to `/omr-collection` (fill gaps) and/or re-run analyze Phases 1–3. Do **not** run Gate A yet.
+5. **Advance:** Call `advance_loop(...)`; set `active: false`; proceed to Phase 4 (Gate A).
+6. **Stop / park:** Call `park_loop(...)`; end skill without unlocking `omr-decision`.
 
 ### Phase 4: Gate A Review and Research Plan Generation
 
 **Gate A: Before Research Planning**
 
-**Position:** Internal checkpoint — after judgment synthesis, before plan execution
+**Position:** Internal checkpoint — after judgment synthesis (and after Gate L advance when Loop active), before plan execution
 **Purpose:** Ensure evidence sufficient for planning
 
 **Gate A checks:**
@@ -638,9 +677,23 @@ Next step: `/omr-decision` to make architecture decision
 
 ## Gates
 
+**Gate L: Iterate or advance?** (Loop pattern only)
+
+**When:** Pattern is Loop, or `.omr/loop-state.json` has `active: true`
+**Position:** After judgment, before Gate A
+**Checks:**
+1. Focus question still productive
+2. New material or tighter question available for next cycle
+3. Confidence / coverage improved since last iteration
+4. Ready to exit loop into Gate A / next stage
+
+**Outcomes:** `[Iterate]` → collection and/or re-analyze | `[Advance]` → Gate A | `[Stop / park]` → save state, no unlock
+
+**Helper:** `omr-core/scripts/loop_state.py`
+
 **Gate A: Evidence sufficient for planning?**
 
-**Position:** Internal checkpoint — after judgment synthesis, before plan generation
+**Position:** Internal checkpoint — after judgment synthesis (and after Gate L advance when Loop active), before plan generation
 **Checks:**
 1. Evidence coverage adequate (≥3 primary evidence or explicit user approval)
 2. Research question clear (defined in brief, user confirmed)
@@ -984,6 +1037,8 @@ If estimated timeline > 7 days:
 - If new materials added later, `omr-reconcile` may call this skill to update evidence map and re-plan
 
 **Pattern flexibility:**
-- Evidence-First: Gate A required (default path through all 4 phases)
+- Evidence-First: Gate A required (default path through all 4 phases); Gate L skipped
 - Idea-First: Gate A skipped (no prior evidence, early-exit before Phase 1)
 - Experiment-First: Gate A may be relaxed
+- Loop (`deep-analyze`): Gate L required after judgment; Advance → Gate A → plan → decision
+- Loop vs Reconcile: Loop is intentional deepening; Reconcile is reactive repair on contradiction / gate failure

@@ -7,5 +7,18 @@
       "description": "Captured speculative idea note"
     }
   ],
-  "gates": []
+  "gates": [
+    {
+      "id": "gate_l",
+      "checks": [
+        "Focus question still productive",
+        "Another idea refinement or critique cycle warranted",
+        "Confidence or clarity improved since last iteration",
+        "Ready to exit loop into decision or collection"
+      ],
+      "enforcement": "user-confirm",
+      "description": "Loop checkpoint: refine another idea or advance. Skipped unless Loop pattern is active or .omr/loop-state.json has active: true",
+      "position": "after_note_write"
+    }
+  ]
 }

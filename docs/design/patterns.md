@@ -55,6 +55,27 @@ omr-idea-note → omr-collection → omr-evaluation → omr-decision → omr-syn
 - Synthesis mode: brief
 - Best for: Hackathons, time-boxed exploration
 
+### Loop
+Intentional deepening for idea development and deep materials analysis. Cyclic until Gate L says advance.
+```
+Entry: omr-idea-note | omr-collection
+
+idea-dev:
+  omr-idea-note ⟲ Gate L → advance → omr-decision (or omr-collection)
+
+deep-analyze:
+  omr-collection → omr-analyze (judgment) ⟲ Gate L
+    iterate → collection and/or re-analyze
+    advance → Gate A → plan → omr-decision → …
+```
+- Gates: L (iterate vs advance); after exit: A (deep-analyze path), B, C, D
+- Synthesis mode: brief
+- Best for: Idea refinement, filling evidence gaps, re-analysis with tighter questions
+- State: `.omr/loop-state.json` (`active`, `mode`, `iteration`, `focus_question`, `gaps`, `history`)
+- Distinct from Reconcile: Loop is intentional deepening; Reconcile is reactive repair on contradiction
+
+**Cyclic graphs:** Loop patterns declare `graph.cycles[]` with `id`, `nodes`, `gate`, `exit_to`. Linear patterns remain DAGs.
+
 ## Pattern Emergence
 
 1. Bootstrap → Workspace created, no pattern forced

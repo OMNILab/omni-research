@@ -65,8 +65,8 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Gate identifier (e.g., 'gate_a', 'gate_b')",
-            "pattern": "^gate_[a-d]$"
+            "description": "Gate identifier (e.g., 'gate_a', 'gate_b', 'gate_l')",
+            "pattern": "^gate_[a-dl]$"
           },
           "checks": {
             "type": "array",
@@ -85,8 +85,13 @@
           "description": {
             "type": "string",
             "description": "Human-readable gate purpose"
+          },
+          "position": {
+            "type": "string",
+            "description": "Optional position hint within the skill workflow (e.g., after_judgment_before_plan)"
           }
-        }
+        },
+        "additionalProperties": false
       },
       "default": []
     },
@@ -100,6 +105,13 @@
     "default_mode": {
       "type": "string",
       "description": "Default mode if skill is configurable"
+    },
+    "merged_skills": {
+      "type": "array",
+      "description": "Optional list of prior skill names merged into this contract",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "additionalProperties": false

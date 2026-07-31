@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 import tempfile
 import shutil
+from typing import Dict
 
 def test_evidence_first_workflow():
     """
@@ -243,6 +244,121 @@ def test_experiment_first_workflow():
         if temp_dir.exists():
             shutil.rmtree(temp_dir)
 
+
+def test_loop_pattern_smoke():
+    """
+    Smoke test: Loop pattern loads, gate_l validates, loop_state + detect work.
+
+    Returns:
+        Dict with test results
+    """
+    print("=" * 80)
+    print("TEST: Loop Pattern + Gate L Smoke")
+    print("=" * 80)
+
+    core_dir = Path(__file__).parent.parent
+    temp_dir = Path(tempfile.mkdtemp())
+    workspace = temp_dir / 'loop-workspace'
+
+    try:
+        import json
+        import importlib.util
+
+        # Load Loop pattern
+        print("\n[1] Load patterns/loop.json...")
+        loop_path = core_dir / 'patterns' / 'loop.json'
+        assert loop_path.exists(), "Missing patterns/loop.json"
+        loop = json.loads(loop_path.read_text())
+        assert loop['name'] == 'Loop'
+        assert 'cycles' in loop['graph']
+        assert set(loop.get('loop_modes', [])) == {'idea-dev', 'deep-analyze'}
+        assert loop['skill_gates'].get('omr-analyze') == 'gate_l'
+        print("✓ Loop pattern loaded")
+
+        # Validate contracts including gate_l
+        print("\n[2] Validate contracts (gate_l)...")
+        vc_spec = importlib.util.spec_from_file_location(
+            'validate_contract', core_dir / 'scripts' / 'validate_contract.py'
+        )
+        vc_mod = importlib.util.module_from_spec(vc_spec)
+        vc_spec.loader.exec_module(vc_mod)
+
+        schema_path = core_dir / 'schemas' / 'contract.schema.json'
+        for name in ('omr-analyze.json', 'omr-idea-note.json'):
+            ok, err = vc_mod.validate_contract(core_dir / 'contracts' / name, schema_path)
+            assert ok, f"{name}: {err}"
+            contract = json.loads((core_dir / 'contracts' / name).read_text())
+            gate_ids = [g['id'] for g in contract['gates']]
+            assert 'gate_l' in gate_ids, f"{name} missing gate_l"
+            print(f"  ✓ {name}")
+
+        # loop_state helper
+        print("\n[3] Exercise loop_state.py...")
+        spec = importlib.util.spec_from_file_location(
+            'loop_state', core_dir / 'scripts' / 'loop_state.py'
+        )
+        loop_state = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(loop_state)
+
+        workspace.mkdir(parents=True)
+        (workspace / '.omr').mkdir()
+        state = loop_state.activate_loop(
+            workspace, mode='deep-analyze', focus_question='lifecycle gaps'
+        )
+        assert state['active'] is True
+        assert loop_state.is_loop_active(workspace) is True
+        state = loop_state.record_iteration(
+            workspace, last_delta='filled gap G1', gaps=['G2']
+        )
+        assert state['iteration'] == 1
+        assert loop_state.get_gaps(workspace) == ['G2']
+        state = loop_state.advance_loop(workspace)
+        assert state['active'] is False
+        print("✓ loop_state activate / iterate / advance")
+
+        # Pattern detection boost for cyclic sequence
+        print("\n[4] Detect Loop from cyclic sequence...")
+        tree_state = {
+            'completed': [
+                'omr-collection',
+                'omr-analyze',
+                'omr-collection',
+                'omr-analyze',
+            ]
+        }
+        (workspace / '.omr' / 'tree-state.json').write_text(
+            json.dumps(tree_state, indent=2)
+        )
+
+        detect_spec = importlib.util.spec_from_file_location(
+            'detect_pattern', core_dir / 'scripts' / 'detect_pattern.py'
+        )
+        detect_mod = importlib.util.module_from_spec(detect_spec)
+        detect_spec.loader.exec_module(detect_mod)
+        result = detect_mod.detect_pattern(workspace)
+        assert result['status'] == 'detected', result
+        assert result['pattern_name'] == 'Loop', result
+        print(f"✓ Detected Loop (score={result['match_score']:.2f})")
+
+        print("\n" + "=" * 80)
+        print("TEST RESULT: ✓ LOOP SMOKE PASSED")
+        print("=" * 80)
+
+        return {'status': 'passed', 'pattern': 'Loop'}
+
+    except AssertionError as e:
+        print(f"\n✗ TEST FAILED: {str(e)}")
+        return {'status': 'failed', 'error': str(e)}
+
+    except Exception as e:
+        print(f"\n✗ TEST ERROR: {str(e)}")
+        return {'status': 'error', 'error': str(e)}
+
+    finally:
+        if temp_dir.exists():
+            shutil.rmtree(temp_dir)
+
+
 def main():
     """Run all end-to-end tests"""
     print("\nRunning all end-to-end tests...\n")
@@ -256,6 +372,10 @@ def main():
     # Test 2: Experiment-First (pattern override)
     result2 = test_experiment_first_workflow()
     results.append(('Experiment-First', result2))
+
+    # Test 3: Loop pattern + Gate L smoke
+    result3 = test_loop_pattern_smoke()
+    results.append(('Loop', result3))
 
     # Summary
     print("\n" + "=" * 80)

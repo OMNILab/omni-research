@@ -112,6 +112,38 @@
 /omr-evaluation  # Re-run experiment with updated decision
 ```
 
+## Loop Pattern — idea-dev
+
+```bash
+/omr-bootstrap "speculative topic"
+# Choose [5] Loop pattern → idea-dev
+
+/omr-idea-note "What if memory behaves like a write-ahead log?"
+# Gate L: Iterate → refine / critique
+/omr-idea-note "WAL + compaction might model evolution"
+# Gate L: Advance → decision
+/omr-decision
+/omr-evaluation
+/omr-synthesis --brief
+```
+
+## Loop Pattern — deep-analyze
+
+```bash
+/omr-bootstrap "agent memory mechanisms"
+# Choose [5] Loop pattern → deep-analyze
+
+/omr-collection https://arxiv.org/abs/2401.xxxxx
+/omr-analyze
+# Gate L: Iterate — gaps listed in .omr/loop-state.json
+/omr-collection "lifecycle formation evolution survey"
+/omr-analyze
+# Gate L: Advance → Gate A → plan
+/omr-decision
+/omr-evaluation
+/omr-synthesis --brief
+```
+
 ## Manual Archive Scenario
 
 ```bash

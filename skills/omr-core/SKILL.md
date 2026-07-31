@@ -105,7 +105,7 @@ python scripts/skill_tree.py --reverse  # Reverse producer view
 
 ### 4. Pattern Definitions
 
-**Location**: `patterns/*.json` (5 files)
+**Location**: `patterns/*.json` (6 files)
 
 **Purpose**: Define research workflow patterns that emerge from skill invocation sequences
 
@@ -115,6 +115,7 @@ python scripts/skill_tree.py --reverse  # Reverse producer view
 - `decision-first.json` - Start with architectural stance → collection → analyze → evaluation → synthesis
 - `experiment-first.json` - Start by building/testing → collection → analyze → evaluation → synthesis
 - `rapid-prototype.json` - Fast iteration: idea → collection → evaluation → decision → synthesis
+- `loop.json` - Intentional deepening: idea-dev or deep-analyze cycles with Gate L (iterate vs advance)
 
 **Pattern detection**: `scripts/detect_pattern.py`
 
@@ -213,8 +214,8 @@ python scripts/init_workspace.py /path/to/workspace
 **Contents**:
 - 8 contract JSON files (~4KB each)
 - 1 contract schema (~2KB)
-- 5 pattern JSON files (~3KB each)
-- 5 Python scripts (resolver, tree, validate, detect, runtime_utils) ~18KB total
+- 6 pattern JSON files (~3KB each)
+- 6 Python scripts (resolver, tree, validate, detect, runtime_utils, loop_state) ~20KB total
 - 1 proxy template (`_runtime_utils_proxy.py`) ~3KB
 - 1 init_workspace.py script ~8KB
 - 1 tree-state.json ~1KB

@@ -21,11 +21,12 @@ flowchart TD
     subgraph P2["Phase 2.x — Research Pipeline (linear, gate-controlled)"]
         direction TB
         COL["omr-collection<br/>research-logistics<br/>v1.1.0 · phase 2.1<br/>Passive reception, 4 handlers<br/>paper/web/github/huggingface<br/>arxiv-SDK + chrome-mcp"]
-        ANA["omr-analyze<br/>evidence-analysis + planning<br/>v2.0.0 · phase 2.2<br/>Scans materials/ → evidence-map + brief<br/>+ judgment + plan (all 4 artifacts)<br/>Gate A (internal): coverage/clar/scope"]
+        ANA["omr-analyze<br/>evidence-analysis + planning<br/>v2.0.0 · phase 2.2<br/>Scans materials/ → evidence-map + brief<br/>+ judgment + plan (all 4 artifacts)<br/>Gate L (Loop): iterate/advance<br/>Gate A (internal): coverage/clar/scope"]
         DEC["omr-decision<br/>architecture-decisions<br/>v1.0.0 · phase 2.4<br/>≥3 alternatives + rationale<br/>Gate B: alts/risks/refs"]
         EVAL["omr-evaluation<br/>experiment-execution<br/>v1.0.0 · phase 2.5<br/>Hypothesis → metrics → prototype<br/>Gate C: metrics/failure/repro"]
 
         COL -->|"materials + papers-index.json"| ANA
+        ANA -->|"Gate L iterate"| COL
         ANA -->|"Gate A passes → evidence-map + brief + judgment + plan"| DEC
         DEC -->|"decision + selected alt"| EVAL
     end
@@ -40,7 +41,7 @@ flowchart TD
     subgraph P3["Phase 3.x — Documentation & State Management"]
         direction TB
         SYN["omr-synthesis<br/>findings-documentation<br/>v2.0.0 · phase 3.1<br/>survey/report/manuscript/brief<br/>Gate D: traceable/boundaries/no-overclaim<br/>+ internal wiki gen (--no-wiki to skip)"]
-        IDEA["omr-idea-note<br/>idea-capture<br/>v1.0.0 · phase 3.3<br/>Speculative insights · standalone<br/>Idea-First pattern support"]
+        IDEA["omr-idea-note<br/>idea-capture<br/>v1.0.0 · phase 3.3<br/>Speculative insights · standalone<br/>Idea-First + Loop idea-dev<br/>Gate L: iterate/advance"]
         REC["omr-reconcile<br/>state-management + archiving<br/>v2.0.0 · phase 3.4<br/>Blast-radius analysis<br/>--archive/--rollback/--list/--review<br/>snapshot & rollback capability"]
     end
 
@@ -67,14 +68,17 @@ flowchart TD
     SYN -.->|"milestone snapshot"| REC
 
     %% Idea-note is available anytime; can feed back into decisions/experiments
-    IDEA -.->|"linked_to (later)"| DEC
+    IDEA -.->|"Gate L iterate"| IDEA
+    IDEA -.->|"Gate L advance / linked_to"| DEC
     IDEA -.->|"linked_to (later)"| EVAL
 
     %% ===== Pattern system (shared, optional flow control) =====
-    PAT["5 Research Patterns<br/>omr-core/patterns/*.json<br/>evidence-first · decision-first<br/>idea-first · experiment-first · rapid-prototype"]
+    PAT["6 Research Patterns<br/>omr-core/patterns/*.json<br/>evidence-first · decision-first<br/>idea-first · experiment-first<br/>rapid-prototype · loop"]
     CORE -- "provides" --> PAT
     PAT -.->|"override: Experiment-First skips decision prereq"| EVAL
-    PAT -.->|"mode routing: E-First→survey, D-First→report, I/E-First→brief"| SYN
+    PAT -.->|"mode routing: E-First→survey, D-First→report, I/E/Loop→brief"| SYN
+    PAT -.->|"Loop activates Gate L"| ANA
+    PAT -.->|"Loop idea-dev activates Gate L"| IDEA
 
     %% Styling
     classDef core fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#92400e;
@@ -128,23 +132,26 @@ flowchart TD
 | Gate B | omr-decision | alternatives documented, risks stated, evidence refs valid |
 | Gate C | omr-evaluation | metrics answer research question, failure conditions explicit, reproducible design |
 | Gate D | omr-synthesis | results traceable, evidence boundaries stated, no over-claiming |
+| Gate L | omr-analyze / omr-idea-note (Loop only) | iterate vs advance: focus productive, next cycle available, improvement, ready to exit |
 
-Gate failures feed back into `omr-reconcile`, enabling the system to loop rather than hard-fail.
+Gate A–D failures feed back into `omr-reconcile`. Gate L controls intentional Loop deepening (not reconcile).
 
 ### 5. Cross-Cutting Flows
 
+- **Loop deepening**: Loop pattern activates Gate L on `omr-analyze` (deep-analyze) and `omr-idea-note` (idea-dev); state in `.omr/loop-state.json`. Iterate stays in cycle; Advance exits to Gate A / decision.
 - **Reconcile loops**: New contradicting evidence (from `omr-collection`) or Gate A/B failures trigger `omr-reconcile`, which computes blast radius, archives superseded artifacts (via its internal `--archive` mode), and re-runs/updates affected downstream skills (analyze, decision, evaluation, synthesis).
-- **Idea-note anywhere**: `omr-idea-note` has no dependencies and is available at any point in the lifecycle; captured ideas may later be linked to decisions/experiments (supports the Idea-First research pattern).
+- **Idea-note anywhere**: `omr-idea-note` has no dependencies and is available at any point in the lifecycle; captured ideas may later be linked to decisions/experiments (supports the Idea-First research pattern and Loop idea-dev).
 - **Archive triggers**: manual snapshots (`--archive`), automatic during reconcile (superseded versions), pre-Gate-D safety, and post-synthesis milestone preservation — all handled internally by `omr-reconcile`.
 
 ### 6. Pattern System (Flow Control Overlay)
 
-Five research patterns in `omr-core/patterns/*.json` override default control flow without changing skill structure:
+Six research patterns in `omr-core/patterns/*.json` override default control flow without changing skill structure:
 - **evidence-first** → default synthesis mode `survey` (comprehensive)
 - **decision-first** → synthesis mode `report` (structured)
 - **idea-first** → synthesis mode `brief` (quick)
 - **experiment-first** → allows `omr-evaluation` without a prior `decision-{id}.md`; synthesis mode `brief`
 - **rapid-prototype** → (fast-iteration variant)
+- **loop** → cyclic idea-dev / deep-analyze with Gate L; synthesis mode `brief`
 
 Patterns are provided by `omr-core` and detected at runtime by `omr-core/scripts/detect_pattern.py`, routing output modes in `omr-synthesis` and relaxing prerequisites in `omr-evaluation`.
 

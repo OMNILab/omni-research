@@ -100,12 +100,17 @@ What's your first action?
 [2] I have an idea to explore — start with insight (Idea-First pattern)
 [3] I have a decision to validate — start with architecture (Decision-First pattern)
 [4] I have a hypothesis to test — start with building (Experiment-First pattern)
-[5] I'm exploring — no specific goal yet
+[5] I need to deepen ideas/evidence — Loop pattern (Gate L cycles)
+[6] I'm exploring — no specific goal yet
 
-Choose [1-5] or describe your intent:
+Choose [1-6] or describe your intent:
 ```
 
 **Pattern detection:** Note the user's choice — this will influence pattern emergence later (after 3+ skill invocations).
+
+**If user chooses [5] Loop:** Activate loop state after first skill:
+- Idea deepening → `activate_loop(..., mode="idea-dev")` then suggest `/omr-idea-note`
+- Materials deepening → `activate_loop(..., mode="deep-analyze")` then suggest `/omr-collection`
 
 ## Implementation Notes
 

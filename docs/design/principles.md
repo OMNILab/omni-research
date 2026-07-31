@@ -8,7 +8,7 @@
 | Progress model | Skill tree (game-inspired) | Visible progress, unlock-based, motivating |
 | Planning model | Reverse skill tree | Goal-driven, shortest path, deadline-friendly |
 | Patterns | Emerged from practice, saved | Flexible rigor, not rigid pipelines |
-| Gates | Skill-level (A, B, C, D) | Quality checkpoints, configurable enforcement |
+| Gates | Skill-level (A, B, C, D, L) | Quality checkpoints + Loop iterate/advance; configurable enforcement |
 | Agency | Configurable per pattern | Novice guidance + expert speed + agent automation |
 | Archive | Auto + manual trigger | Safety (auto) + control (manual) |
 | Synthesis | Configurable output modes | Context-aware (survey/report/manuscript/brief) |
@@ -19,15 +19,15 @@
 
 | Other Tools | omr |
 |-------------|-----|
-| Fixed pipeline | Flexible patterns (5 patterns, custom patterns) |
+| Fixed pipeline | Flexible patterns (6 patterns, custom patterns) |
 | No visibility into progress | Skill tree shows exact state |
-| Manual iteration | Automatic reconciliation with blast radius |
+| Manual iteration | Loop deepening (Gate L) + automatic reconciliation with blast radius |
 | One output type | Configurable synthesis (survey/report/manuscript/brief) |
-| No quality gates | 4 gates enforce rigor |
+| No quality gates | 5 gates enforce rigor (A–D advance; L iterate/advance) |
 | Artifacts scattered | Everything in structured folders with metadata |
 | No version control | Semantic versioning + history tracking |
 | No traceability | Full artifact ID system + cross-refs |
-| One research style | Multiple entry points (evidence/idea/decision/experiment) |
+| One research style | Multiple entry points (evidence/idea/decision/experiment/loop) |
 
 ## Simplest Mental Model
 
@@ -35,9 +35,9 @@
 
 1. **Skills** = tools (do one thing well)
 2. **Tree** = progress visualization (what's unlocked)
-3. **Gates** = quality checks (don't publish garbage)
-4. **Patterns** = recipes (save working sequences)
-5. **Reconciliation** = iteration support (research changes)
+3. **Gates** = quality checks (don't publish garbage); Gate L = deepen vs advance
+4. **Patterns** = recipes (save working sequences), including cyclic Loop
+5. **Reconciliation** = reactive iteration support (research changes)
 
 ## Evidence-Bound Research Philosophy
 

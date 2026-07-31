@@ -1,0 +1,55 @@
+{
+  "name": "Loop",
+  "description": "Intentional deepening for idea development and deep materials analysis. Cycles until Gate L says advance; then proceeds through normal quality gates.",
+  "loop_modes": ["idea-dev", "deep-analyze"],
+  "graph": {
+    "entry_points": ["omr-idea-note", "omr-collection"],
+    "nodes": [
+      "omr-idea-note",
+      "omr-collection",
+      "omr-analyze",
+      "omr-decision",
+      "omr-evaluation",
+      "omr-synthesis"
+    ],
+    "edges": [
+      "omr-idea-note → omr-idea-note",
+      "omr-idea-note → omr-decision",
+      "omr-idea-note → omr-collection",
+      "omr-collection → omr-analyze",
+      "omr-analyze → omr-collection",
+      "omr-analyze → omr-analyze",
+      "omr-analyze → omr-decision",
+      "omr-decision → omr-evaluation",
+      "omr-evaluation → omr-synthesis"
+    ],
+    "cycles": [
+      {
+        "id": "idea-dev",
+        "nodes": ["omr-idea-note"],
+        "gate": "gate_l",
+        "exit_to": "omr-decision"
+      },
+      {
+        "id": "deep-analyze",
+        "nodes": ["omr-collection", "omr-analyze"],
+        "gate": "gate_l",
+        "exit_to": "omr-decision"
+      }
+    ]
+  },
+  "skill_gates": {
+    "omr-idea-note": "gate_l",
+    "omr-analyze": "gate_l",
+    "omr-decision": "gate_b",
+    "omr-evaluation": "gate_c",
+    "omr-synthesis": "gate_d"
+  },
+  "contract_overrides": {},
+  "recommendations": {
+    "agency": "semi-automated",
+    "estimated_time": "2-6 days",
+    "synthesis_mode": "brief",
+    "description": "Best for idea refinement and deep materials analysis. Gate L controls iterate vs advance; Gate A still applies after exiting deep-analyze into planning."
+  }
+}

@@ -18,8 +18,9 @@ Omni-Research is a skill set for general-purpose deep research, adapted from Pro
 - **Broad input acceptance**: Web links, text snippets, GitHub projects, papers, videos, and more — all classified as raw materials
 - **Full research lifecycle**: Not just information gathering — explore, develop, validate, and writeback
 - **Dual output model**: Static documents (authoritative, evidence-bound) + living wiki (continuously updated)
-- **Pattern flexibility**: Multiple research patterns (Evidence-First, Idea-First, Decision-First, Experiment-First, Rapid-Prototype)
+- **Pattern flexibility**: Multiple research patterns (Evidence-First, Idea-First, Decision-First, Experiment-First, Rapid-Prototype, Loop)
 - **Configurable synthesis**: Survey, report, manuscript, or brief — output type defined by pattern
+- **Loop deepening**: Gate L controls intentional idea/evidence iteration before advancing
 
 ## Research Philosophy
 

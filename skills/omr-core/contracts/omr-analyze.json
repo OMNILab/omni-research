@@ -31,6 +31,18 @@
   ],
   "gates": [
     {
+      "id": "gate_l",
+      "checks": [
+        "Focus question still productive",
+        "New material or tighter question available for next cycle",
+        "Confidence or coverage improved since last iteration",
+        "Ready to exit loop into Gate A / next stage"
+      ],
+      "enforcement": "user-confirm",
+      "description": "Loop checkpoint: iterate deeper or advance to Gate A. Active only when Loop pattern is active or .omr/loop-state.json has active: true",
+      "position": "after_judgment_before_gate_a"
+    },
+    {
       "id": "gate_a",
       "checks": [
         "Evidence coverage adequate",

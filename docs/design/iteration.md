@@ -1,5 +1,16 @@
 # Iteration and Reconciliation
 
+## Loop vs Reconcile
+
+| | **Loop** (pattern + Gate L) | **Reconcile** (`omr-reconcile`) |
+|--|----------------------------|----------------------------------|
+| Intent | Intentional deepening | Reactive repair |
+| Trigger | User chooses to refine ideas / dig into evidence gaps | New evidence contradicts artifacts, or Gate A/B/C/D fails |
+| Control | Gate L: iterate / advance / park | Blast-radius options + archive |
+| State | `.omr/loop-state.json` | Version history + `docs/archive/` |
+
+Loop does **not** replace reconciliation. Use Loop to deepen; use Reconcile when something broke or was contradicted.
+
 ## When Reconciliation Triggers
 
 | Trigger | Source | Action |

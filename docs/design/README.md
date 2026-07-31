@@ -10,7 +10,7 @@ This folder contains detailed design specifications for the omni-research skill 
 | [architecture.md](architecture.md) | Repository structure, generated workspace structure |
 | [skills-reference.md](skills-reference.md) | Core skills list, contracts, detailed capabilities per skill |
 | [patterns.md](patterns.md) | Research patterns library, pattern emergence workflow |
-| [gates.md](gates.md) | Quality gates system (A, B, C, D), enforcement modes |
+| [gates.md](gates.md) | Quality gates system (A, B, C, D, L), enforcement modes |
 | [progress.md](progress.md) | Skill tree model, progress visualization, dual view mode |
 | [iteration.md](iteration.md) | Reconciliation system, archiving behavior, blast radius analysis |
 | [metadata.md](metadata.md) | Artifact metadata system, versioning, naming conventions, status workflow |
@@ -31,20 +31,22 @@ This folder contains detailed design specifications for the omni-research skill 
 8. `omr-reconcile` — Update state on evidence change + archive
 9. `omr-idea-note` — Capture insights
 
-**4 Gates:**
+**5 Gates:**
 - Gate A: Within omr-analyze (after judgment, before plan)
 - Gate B: Before decision
 - Gate C: Before evaluation
 - Gate D: Before synthesis
+- Gate L: Loop iterate vs advance (Loop pattern only)
 
-**5 Patterns:**
+**6 Patterns:**
 - Evidence-First
 - Idea-First
 - Decision-First
 - Experiment-First
 - Rapid-Prototype
+- Loop
 
 **Mental Model:**
 ```
-omr = Skills + Tree + Gates + Patterns + Reconciliation
+omr = Skills + Tree + Gates + Patterns + Reconciliation (+ Loop deepening)
 ```

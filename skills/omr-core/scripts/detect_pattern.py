@@ -121,7 +121,55 @@ def calculate_pattern_match(completed_skills: List[str], pattern: Dict) -> float
     # Combined score
     match_score = (overlap_score * 0.6 + sequence_score * 0.4)
 
-    return match_score
+    # Loop pattern: boost when sequence shows cyclic / repeated deepening
+    if pattern.get('name') == 'Loop' or graph.get('cycles'):
+        match_score = max(match_score, _loop_cycle_score(completed_skills, pattern))
+
+    return min(match_score, 1.0)
+
+
+def _loop_cycle_score(completed_skills: List[str], pattern: Dict) -> float:
+    """
+    Score Loop-like behavior: repeated idea-note, or collection↔analyze cycles.
+    """
+    if not completed_skills:
+        return 0.0
+
+    graph = pattern.get('graph', {})
+    entry_points = graph.get('entry_points', [])
+    if completed_skills[0] not in entry_points:
+        return 0.0
+
+    counts = {}
+    for skill in completed_skills:
+        counts[skill] = counts.get(skill, 0) + 1
+
+    idea_repeats = counts.get('omr-idea-note', 0)
+    collection_n = counts.get('omr-collection', 0)
+    analyze_n = counts.get('omr-analyze', 0)
+
+    # Adjacent collection↔analyze alternation
+    alternations = 0
+    for i in range(len(completed_skills) - 1):
+        pair = (completed_skills[i], completed_skills[i + 1])
+        if pair in (
+            ('omr-collection', 'omr-analyze'),
+            ('omr-analyze', 'omr-collection'),
+            ('omr-analyze', 'omr-analyze'),
+            ('omr-idea-note', 'omr-idea-note'),
+        ):
+            alternations += 1
+
+    score = 0.0
+    if idea_repeats >= 2:
+        score = max(score, 0.55 + min(idea_repeats, 4) * 0.1)
+    if collection_n >= 1 and analyze_n >= 1 and (alternations >= 1 or max(collection_n, analyze_n) >= 2):
+        score = max(score, 0.6 + min(alternations, 3) * 0.1)
+    if idea_repeats + alternations >= 3:
+        score = max(score, 0.85)
+
+    return min(score, 1.0)
+
 
 def save_pattern(workspace_root: Path, pattern_name: str, custom_sequence: List[str] = None) -> Dict:
     """

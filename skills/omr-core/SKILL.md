@@ -173,16 +173,14 @@ resolver = infra['resolver'](infra['contracts_dir'], workspace_root, infra['tree
 **What it creates**:
 ```
 <workspace>/
-├── .omr/
-│   ├── tree-state.json  # Workspace-specific skill state
-│   └── patterns/        # User-defined patterns only
-└── docs/
-    └── index/
-        ├── .gitkeep
-        ├── artifacts-index.json (empty)
-        └── versions/
-            └── .gitkeep
+└── .omr/
+    └── tree-state.json  # Workspace-specific skill state
 ```
+
+Content directories (`raw/`, `docs/`, `wiki/`, `src/`) and user-defined
+patterns under `.omr/patterns/` are created on demand by skills that write
+them. Static contracts, schemas, and built-in patterns stay in installed
+`omr-core`.
 
 **Invocation**:
 ```python

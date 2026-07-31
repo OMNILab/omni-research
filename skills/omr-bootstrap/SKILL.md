@@ -1,9 +1,9 @@
 ---
 name: omr-bootstrap
-description: Initialize a new omni-research project workspace. Creates complete directory structure (raw/, docs/, src/, wiki/), generates AGENTS.md with research context, and displays skill tree showing available next actions. Use whenever starting a new research project, even if user doesn't explicitly say "bootstrap" or mentions "new project", "start research", "initialize workspace", or provides a research topic they want to investigate.
+description: Initialize a new omni-research project workspace. Creates only AGENTS.md and .omr/tree-state.json; content directories are created on demand by later skills. Displays skill tree showing available next actions. Use whenever starting a new research project, even if user doesn't explicitly say "bootstrap" or mentions "new project", "start research", "initialize workspace", or provides a research topic they want to investigate.
 license: MIT
 metadata:
-  version: "1.0.1"
+  version: "1.1.0"
   author: OmniResearch Team
   requires_skills: omr-core
   requires_workspace: false
@@ -15,7 +15,7 @@ metadata:
 
 ## Purpose
 
-Initialize a complete omni-research project workspace with proper structure, metadata, and AI agent context. This is the entry point for all omni-research projects.
+Initialize a minimal omni-research project workspace with project context and skill-tree state. This is the entry point for all omni-research projects.
 
 ## Invocation
 
@@ -27,48 +27,29 @@ Initialize a complete omni-research project workspace with proper structure, met
 
 ## What This Skill Does
 
-### 1. Create Workspace Directory Structure
+### 1. Create Minimal Workspace Files
 
-Generate the full omni-research workspace hierarchy:
+Create only the files required at init. Do **not** pre-create empty content folders.
 
 ```
 <workspace>/<project-id>/
-├── raw/                      # Raw material layer
-│   ├── paper/                # Downloaded papers (PDF)
-│   ├── web/                  # Blogs, URLs, screenshots
-│   ├── github/               # Cloned repos
-│   ├── models/               # AI model checkpoints, configs
-│   ├── datasets/             # Benchmarks, data
-│   └── deep-research/        # AI-generated research reports
-│
-├── docs/                     # Distilled knowledge layer
-│   ├── survey/               # Broad survey chapters
-│   ├── report/               # Structured findings (industry)
-│   ├── manuscript/           # Publication-ready (academic)
-│   ├── brief/                # Executive summaries (quick)
-│   ├── plans/                # Formal, traceable artifacts
-│   ├── ideas/                # Subjective thinking, insights
-│   ├── index/                # Machine-readable indexes
-│   │   ├── artifacts-index.json
-│   │   ├── papers-index.json
-│   │   ├── papers-index.md
-│   │   ├── versions/
-│   │   └── traceability-matrix.md
-│   ├── archive/              # Archived materials
-│   └── schemas/              # JSON schemas for validation
-│
-├── src/                      # Generated code projects
-│   ├── prototype/            # Reference implementations
-│   ├── evaluation/           # Validation experiments
-│   └── tools/                # Project-specific utilities
-│
-├── wiki/                     # Living knowledge base
-│   └── README.md             # Auto-generated index
-├── .omr/                     # Workspace-local OmniResearch state
-│   └── tree-state.json       # Skill progression state
-│
-└── AGENTS.md                 # Project context for AI agents
+├── AGENTS.md                 # Project context for AI agents
+└── .omr/
+    └── tree-state.json       # Skill progression state
 ```
+
+Content directories are created on demand by skills when they first write:
+
+| Path | Created by |
+|------|------------|
+| `raw/papers\|web\|github\|datasets\|search\|failed/` | `omr-collection` |
+| `docs/index/` | `omr-collection` / `omr-idea-note` |
+| `docs/ideas/` | `omr-idea-note` |
+| `docs/plans/` | `omr-analyze` / `omr-decision` / `omr-evaluation` |
+| `docs/archive/` | `omr-reconcile` |
+| `docs/survey\|report\|manuscript\|brief/` | `omr-synthesis` |
+| `wiki/` | `omr-synthesis` |
+| `src/` | `omr-evaluation` |
 
 **Directory naming:** Use the topic as the project-id, converting to lowercase and replacing spaces with hyphens. Example: "agent memory mechanisms" → `agent-memory-mechanisms/`.
 
@@ -76,76 +57,16 @@ Generate the full omni-research workspace hierarchy:
 
 ### 2. Generate AGENTS.md
 
-Create `AGENTS.md` with:
+Create `AGENTS.md` with project metadata, skill tree state, and next-step guidance.
 
-**Header:** Project metadata and context
-```yaml
----
-id: PROJ-{timestamp}
-type: project
-topic: "{topic}"
-created_at: {ISO-8601-timestamp}
-pattern_detected: null
-workspace: ./{project-id}/
-status: initialized
----
-```
-
-**Content sections:**
-```markdown
-# {topic} Research Project
-
-## Project Overview
-This workspace is initialized for researching {topic}.
-
-## Omni-Research Integration
-This project uses omni-research skills for evidence-bound, traceable research.
-
-### Available Skills
-- omr-collection: Collect and classify materials
-- omr-analyze: Map evidence landscape and plan research
-- omr-decision: Make architectural decisions
-- omr-evaluation: Run experiments
-- omr-synthesis: Write findings + generate wiki (survey/report/manuscript/brief)
-- omr-reconcile: Update state on evidence changes + archive snapshots
-- omr-idea-note: Capture insights
-
-### Evidence Philosophy
-- All claims must be traceable to sources
-- Evidence boundaries: "proven", "suggested", "inferred"
-- Never claim "paper proves X" when it only suggests
-
-## Workspace Structure
-See docs/design/architecture.md for detailed structure explanation.
-
-## Next Steps
-Choose your research pattern:
-- Evidence-First: Start with literature collection
-- Idea-First: Start with creative insight
-- Decision-First: Start with architectural stance
-- Experiment-First: Start by building/testing
-
-Run `/omr-collection` to begin material collection.
-```
-
-### 3. Initialize Empty Index Files
-
-Create placeholder files:
-
-- `docs/index/.gitkeep` (empty file, ensures directory exists)
-- `docs/index/artifacts-index.json` (empty JSON array: `{"artifacts": []}`)
-- `docs/index/versions/.gitkeep` (empty directory)
-
-**Why empty indexes:** These will be populated as artifacts are created by subsequent skills.
-
-### 4. Display Skill Tree
+### 3. Display Skill Tree
 
 Show the current skill tree state:
 
 ```
 omr-bootstrap ✓
     │
-    ├── omr-collection ●  (locked: ready after workspace created)
+    ├── omr-collection ○  (ready)
     │       │
     │       ├── omr-analyze ●  (locked: needs materials in raw/)
     │       │
@@ -163,14 +84,15 @@ Next recommended: omr-collection
 
 **Update after this skill:** Mark `omr-bootstrap` as ✓ complete, unlock `omr-collection` to ○ ready.
 
-### 5. Prompt for First Action
+### 4. Prompt for First Action
 
 After workspace creation, present interactive menu:
 
 ```
 ✓ Workspace created at ./{project-id}/
-✓ AGENTS.md generated with project context
-✓ Directory structure initialized
+✓ AGENTS.md generated
+✓ .omr/tree-state.json initialized
+(raw/, docs/, wiki/, src/ will be created on demand)
 
 What's your first action?
 
@@ -196,10 +118,11 @@ Choose [1-5] or describe your intent:
 - Use current system time in ISO-8601 format
 - Generate project-id with timestamp suffix if duplicate exists: `agent-memory-20260411T103000/`
 
-**Schema directory:**
+**State and specs:**
 - Static contracts, schemas, and built-in patterns remain in installed `omr-core`
 - Do not copy installed skills or static OMR specifications into the workspace
 - Store mutable, self-contained OMR state under `.omr/`
+- Do not pre-create empty content directories; create parents when writing files
 
 **Error handling:**
 - If directory already exists: Ask user "Workspace exists. Overwrite, merge, or cancel?"
@@ -216,8 +139,8 @@ System: ✓ Creating workspace for "agent memory mechanisms"...
 
         ✓ Workspace created at ./agent-memory-mechanisms/
         ✓ AGENTS.md generated
-        ✓ Directory structure initialized
-        ✓ Index placeholders created
+        ✓ .omr/tree-state.json initialized
+        (raw/, docs/, wiki/, src/ will be created on demand)
 
         📊 Skill tree:
         omr-bootstrap ✓
@@ -243,31 +166,22 @@ System: ⚠️  Workspace "agent-memory" already exists.
         Choose [1-3]:
 ```
 
-### Example 3: Alternative location
-```
-User: /omr-bootstrap "quantum computing"
-
-System: ✓ Creating workspace...
-        Current directory: /Users/xiamingchen/projects/
-        Workspace created at: /Users/xiamingchen/projects/quantum-computing/
-
-        What's your first action?
-        ...
-```
-
 ## What NOT to Do
 
 - Do NOT prompt for pattern selection at bootstrap (patterns emerge later)
-- Do NOT create any artifacts beyond structure and AGENTS.md
+- Do NOT pre-create empty content directories (`raw/`, `docs/survey/`, `wiki/`, `src/`, etc.)
+- Do NOT create empty index placeholders; indexes are created when first written
+- Do NOT create any artifacts beyond `AGENTS.md` and `.omr/tree-state.json`
 - Do NOT invoke other skills automatically (wait for user choice)
 - Do NOT generate research questions or decisions (those are later skills)
 - Do NOT create a workspace `skills/` directory or copy installed skills into the project
 
 ## Success Criteria
 
-- [ ] Workspace directory created with full structure
+- [ ] Workspace contains `AGENTS.md` and `.omr/tree-state.json` only (plus parents)
+- [ ] No empty content directories created
 - [ ] AGENTS.md generated with correct metadata
-- [ ] Skill tree displayed showing available next steps
-- [ ] User prompted for first action choice
-- [ ] No errors in directory creation
+- [ ] Skill tree displayed
+- [ ] User prompted for first action
+- [ ] No other skills invoked
 - [ ] Project-id follows naming convention (lowercase-hyphenated)

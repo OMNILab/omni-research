@@ -1,7 +1,7 @@
 ---
 name: omr-synthesis
-description: Write authoritative, file-based research findings in configurable output formats (survey chapters, industry reports, academic manuscripts, or executive briefs), then give the user a concise summary with artifact paths. Ensures traceability by linking every claim to evidence, decisions, or experiments. Enforces strict evidence boundaries (proven, suggested, inferred) and Gate D review. After Gate D passes, auto-generates a living wiki unless --no-wiki is used. Use when the user wants to "write up findings", "document results", "create survey", "publish research", or "generate wiki". REQUIRES omr-core and a workspace with completed research.
-version: 2.1.0
+description: ALWAYS write the full synthesis report to docs/<mode>/ files, then reply to the user with a short summary only (paths, key findings, Gate D/wiki status). Never paste full chapters into chat. Configurable modes: survey, report, manuscript, brief. Enforces evidence boundaries and Gate D. Auto-generates wiki unless --no-wiki. Use for "write up findings", "document results", "create survey", "publish research", or "generate wiki". REQUIRES omr-core and a completed research workspace.
+version: 2.2.0
 author: OmniResearch Team
 license: MIT
 metadata:
@@ -20,19 +20,35 @@ Write authoritative research findings with configurable output format. This skil
 
 ## Non-negotiable Output Contract
 
-Every successful invocation is file-based:
+**ALWAYS file-based. ALWAYS summarize to user. NEVER dump the report in chat.**
 
-1. Write the complete synthesis to `docs/<mode>/`. Always create `index.md` plus the mode-specific chapter or section files.
-2. Treat those files—not the chat response—as the authoritative report.
-3. Verify the expected files exist before reporting completion.
-4. Respond to the user with a concise summary only. Include:
-   - selected mode;
-   - report index path and number of files written;
-   - 2–5 key findings or conclusions;
-   - Gate D and wiki status;
-   - important limitations or next action, if any.
+### Required write order
+1. Write the complete synthesis to `docs/<mode>/` (`index.md` + all chapter/section files).
+2. Optionally write `docs/<mode>/user-summary.md` with the same short summary shown to the user.
+3. Verify those files exist on disk before claiming success.
+4. Only then reply to the user.
 
-Do not paste the complete report or full chapters into chat. If file writing fails, report the failure and do not present the synthesis as complete.
+### Required user reply format
+Use this template and nothing longer:
+
+```
+✓ Synthesis written: docs/<mode>/ (<N> files)
+✓ Report index: docs/<mode>/index.md
+✓ Wiki: <generated path | skipped>
+
+Key findings:
+- <finding 1>
+- <finding 2>
+- <finding 3>
+
+Gate D: <passed | failed — reason>
+Limitations / next: <one line if any>
+```
+
+Rules:
+- Authoritative report = files under `docs/<mode>/`, not chat.
+- Chat may include at most 2–5 key findings (bullets), not chapters.
+- If file writing fails, report the failure; do not present synthesis as complete.
 
 ## Trigger
 
@@ -319,36 +335,11 @@ gate_d_passed: null
 
 **Gate D review process:**
 
-1. Write the complete draft to `docs/<mode>/`
-2. Verify `index.md` and all expected content files exist
-3. Display a concise synthesis summary with links or paths to the files
-4. Show gate criteria checklist
-5. Ask user confirmation:
-   ```
-   ⚠️  GATE D: Before Publish
-
-   Review criteria:
-   [✓] Results traceable: All claims linked to evidence/decision/experiment
-   [✓] Evidence boundaries: proven/suggests/inferred clearly stated
-   [✓] No over-claiming: P-001 says "demonstrates", not "proves"
-   [✓] Cross-references: All links valid
-
-   Example check:
-   - Chapter 2.3: P-001 "demonstrates" → correctly written as "suggests" ✓
-   - Chapter 2.2: P-003 "proves" → correctly written as "proven" ✓
-
-   Publish synthesis? [Y/n/modify]
-   ```
-
-6. If user approves:
-   - Mark `gate_d_passed: true` in metadata
-   - Update status: `published`
-   - Proceed to wiki generation
-
-7. If user rejects:
-   - Ask: "What needs modification?"
-   - Offer: [Fix traceability] [Correct boundaries] [Remove over-claiming]
-   - Loop until approved or user cancels
+1. Write the complete draft to `docs/<mode>/` (including `user-summary.md` + `index.md`)
+2. Verify expected report files exist
+3. Ask for Gate D confirmation using paths (not full chapter text)
+4. On approve: mark published, then generate wiki unless `--no-wiki`
+5. Reply to the user with ONLY the required summary template
 
 ### 8. Update Skill Tree
 
@@ -481,56 +472,41 @@ None (wiki generation is now an internal post-Gate-D step, not a separate skill 
 
 ## Examples
 
-### Example 1: Survey mode (Evidence-First pattern)
+### Example 1: Survey mode (file + summary)
 ```
 User: /omr-synthesis
 
-System: ✓ Mode: survey (Evidence-First pattern)
-        ✓ Reading evaluation report...
-        ✓ Reading decision...
-        ✓ Reading evidence map...
+System: (writes docs/survey/index.md + chapters; does not paste them)
 
-        ✓ Generating 8 chapters...
+✓ Synthesis written: docs/survey/ (9 files)
+✓ Report index: docs/survey/index.md
+✓ Wiki: wiki/ (7 pages)
 
-        Chapter 2.3: "Memory Formation with Hybrid Fusion"
-        - Evidence: P-001 demonstrates (suggests) ✓
-        - Decision: DEC-001 selects hybrid ✓
-        - Experiment: EXP-001 validates ✓
+Key findings:
+- Importance threshold proven (P-003)
+- Hybrid fusion suggested (P-001), validated in EXP-001
+- Lifecycle combination is novel relative to surveyed evidence
 
-        ⚠️  GATE D: Before Publish
-        [✓] Results traceable
-        [✓] Evidence boundaries stated
-        [✓] No over-claiming
-        [✓] Cross-references valid
-
-        Publish? [Y/n]
-
-User: Y
-
-System: ✓ Gate D passed
-        ✓ Published: docs/survey/ (8 chapters)
-
-        Generate wiki? [Y/n]
+Gate D: passed
+Limitations / next: longitudinal persistence still unvalidated
 ```
 
 ### Example 2: Brief mode (--mode override)
 ```
 User: /omr-synthesis --mode brief
 
-System: ✓ Mode: brief (user override)
-        ✓ Generating executive summary...
+System: (writes docs/brief/; replies with summary only)
 
-        Key Findings:
-        1. Importance threshold proven (P-003)
-        2. Hybrid fusion suggested (P-001)
-        3. Lifecycle mechanism novel (validated in EXP-001)
+✓ Synthesis written: docs/brief/ (6 files)
+✓ Report index: docs/brief/index.md
+✓ Wiki: skipped (--no-wiki)
 
-        ⚠️  GATE D: Before Publish
-        [✓] Traceable
-        [✓] Boundaries stated
-        [✓] No over-claiming
+Key findings:
+- Importance threshold proven (P-003)
+- Hybrid fusion suggested (P-001)
+- Lifecycle mechanism novel (EXP-001)
 
-        Publish? [Y/n]
+Gate D: passed
 ```
 
 ### Example 3: Gate D failed (over-claiming)
@@ -639,7 +615,8 @@ System: ✓ Synthesis: docs/brief/ (judgment-based)
 - Do NOT proceed without evaluation or judgment (minimum required)
 - Do NOT return the report only in chat; always write it to `docs/<mode>/`
 - Do NOT paste complete chapters or the complete report into the user response
-- Do NOT claim completion until `index.md` and all expected report files exist
+- Do NOT claim completion until `user-summary.md`, `index.md`, and all expected report files exist
+- Do NOT skip the required user-summary template after files are written
 - Do NOT skip Gate D review (user must confirm)
 - Do NOT claim "proves" when evidence only "suggests"
 - Do NOT write claims without traceability links
@@ -651,14 +628,14 @@ System: ✓ Synthesis: docs/brief/ (judgment-based)
 
 - [ ] Synthesis mode determined (from flag or pattern)
 - [ ] Complete report written to `docs/<mode>/`
-- [ ] `docs/<mode>/index.md` and all expected content files verified
+- [ ] `docs/<mode>/user-summary.md`, `index.md`, and all expected content files verified
 - [ ] Content written with traceability
 - [ ] Evidence boundaries stated explicitly
 - [ ] No over-claiming detected
 - [ ] Cross-references valid
 - [ ] Gate D passed
 - [ ] Status updated to `published`
-- [ ] User receives a concise summary with report path, key findings, Gate D/wiki status, and limitations
+- [ ] User receives ONLY the required summary template (paths, 2–5 findings, Gate D/wiki, limitations)
 - [ ] Wiki generated (unless --no-wiki flag)
   - [ ] Key concepts extracted from synthesis
   - [ ] Wiki pages generated (one per concept)

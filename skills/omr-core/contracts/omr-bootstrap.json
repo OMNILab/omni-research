@@ -4,7 +4,7 @@
   "produces": [
     {
       "artifact": "workspace structure",
-      "description": "Complete project directory layout (raw/, docs/, wiki/, src/, .omr/)"
+      "description": "Minimal workspace files (AGENTS.md, .omr/tree-state.json); content dirs created on demand"
     },
     {
       "artifact": "AGENTS.md",

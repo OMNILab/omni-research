@@ -1,191 +1,339 @@
-# OmniSkills
-A suite of AI agent capabilities designed to accelerate the pace of scientific innovation.
+# OmniResearch
 
-**OmniResearch** — A suite of 9 AI agent skills for accelerating scientific innovation. Each skill is self-contained with its own assets, scripts, and SKILL.md specification. Shared infrastructure lives in `omr-core/`.
+**English** | [中文](#omniresearch-中文)
 
----
+A suite of AI agent skills for evidence-bound scientific research — collect materials, analyze evidence, make decisions, evaluate ideas, and write findings with clear provenance.
 
-## Skill Overview
-
-| Skill | Version | Category | Phase | Description |
-|-------|---------|----------|-------|-------------|
-| omr-core | 1.0.0 | infrastructure | 1.0 | Foundation: contracts, dependency resolver, skill tree, patterns |
-| omr-bootstrap | 1.0.0 | project-setup | 1.0 | Workspace creation + AGENTS.md generation |
-| omr-collection | 1.1.0 | research-logistics | 2.1 | Material collection (papers, repos, web pages) |
-| omr-analyze | 2.0.0 | evidence-analysis | 2.2–2.3 | Evidence extraction, judgment, research planning |
-| omr-decision | 1.0.0 | architecture-decisions | 2.4 | Architecture decisions with alternatives & rationale |
-| omr-evaluation | 1.0.0 | experiment-execution | 2.5 | Experiment design & prototype validation |
-| omr-synthesis | 2.0.0 | findings-documentation | 3.1 | Findings writeback + living wiki generation |
-| omr-idea-note | 1.0.0 | idea-capture | 3.3 | Speculative idea capture (Idea-First pattern) |
-| omr-reconcile | 2.0.0 | state-management | 3.4 | Contradiction handling + state archiving |
-
-**Merged skills (v2.0.0):** omr-evidence + omr-research-plan → **omr-analyze**; omr-synthesis + omr-wiki → **omr-synthesis**; omr-reconcile + omr-research-archive → **omr-reconcile**.
+Repository: [OMNILab/omni-research](https://github.com/OMNILab/omni-research)
 
 ---
 
-## Directory Layout
+## What you get
 
-```
-skills/
-├── omr-core/                   # Foundation infrastructure (Phase 1.0)
-│   ├── SKILL.md
-│   ├── contracts/              # 8 skill contract definitions (JSON)
-│   ├── patterns/               # 5 research pattern definitions
-│   ├── schemas/                # Contract schema
-│   ├── scripts/                # Infrastructure scripts (canonical source)
-│   │   ├── dependency_resolver.py
-│   │   ├── detect_pattern.py
-│   │   ├── init_workspace.py
-│   │   ├── runtime_utils.py
-│   │   ├── skill_tree.py
-│   │   ├── test_e2e.py
-│   │   └── validate_contract.py
-│   └── tree/
-│       └── tree-state.json     # Initial skill tree state
-│
-├── omr-bootstrap/              # Workspace creation (Phase 1.0)
-│   ├── SKILL.md
-│   ├── assets/
-│   │   └── AGENTS.md.template  # Project instructions template
-│   └── scripts/
-│       └── bootstrap_workspace.py
-│
-├── omr-collection/             # Material collection (Phase 2.1)
-│   ├── SKILL.md
-│   ├── handlers/               # 4 content handlers
-│   ├── scripts/                # CLI, router, orchestrator, search
-│   ├── utils/                  # Runtime utilities proxy
-│   └── tests/
-│
-├── omr-analyze/                # Evidence + planning (Phase 2.2–2.3)
-│   └── SKILL.md
-│
-├── omr-decision/               # Architecture decisions (Phase 2.4)
-│   ├── SKILL.md
-│   └── scripts/
-│       └── make_decision.py
-│
-├── omr-evaluation/            # Experiment execution (Phase 2.5)
-│   ├── SKILL.md
-│   └── scripts/
-│       └── run_evaluation.py
-│
-├── omr-synthesis/             # Findings + wiki (Phase 3.1)
-│   ├── SKILL.md
-│   └── scripts/
-│       └── synthesize_findings.py
-│
-├── omr-idea-note/             # Idea capture (Phase 3.3)
-│   ├── SKILL.md
-│   └── scripts/
-│       └── capture_idea.py
-│
-├── omr-reconcile/             # Reconciliation + archive (Phase 3.4)
-│   ├── SKILL.md
-│   └── scripts/
-│       └── reconcile_evidence.py
-```
+OmniResearch turns an AI coding agent into a research co-pilot with a structured workflow:
 
-> **Packaging & testing utilities** live at the repo root in `scripts/` (not inside `skills/`).
+1. **Start a project** — create a minimal workspace and project context
+2. **Collect materials** — papers, repos, web pages, datasets
+3. **Analyze evidence** — map claims with strict evidence boundaries (`proven` / `suggested` / `inferred`)
+4. **Decide & evaluate** — document architecture choices and validate them
+5. **Write up** — save reports to files and get a short summary in chat
+
+You do not need to understand the internal skill packaging model to use it. Install the skills, bootstrap a workspace, then invoke skills as you research.
 
 ---
 
-## Design Philosophy
+## Quick start
 
-### Modular Skill Structure
+### 1. Install skills
 
-Each skill directory contains:
-- **SKILL.md**: Skill specification, usage, and examples
-- **scripts/**: Implementation scripts (CLI entry points, handlers, utilities)
-- **assets/**: Templates and static resources (if applicable)
-- **handlers/**: Skill-specific content handlers (if applicable)
+Install foundation first, then the skills you need. See the full guide:
 
-**Benefits**:
-- Skills are self-contained and independently packageable
-- Easy to test individually
-- Clear separation of concerns
+- [Marketplace installation guide](docs/MARKETPLACE-INSTALL.md)
 
-### Shared Infrastructure
+Typical order:
 
-All shared infrastructure lives in `omr-core/` — the canonical source for:
-- **Contract definitions**: Artifact-bound dependencies for 8 skills (`contracts/`)
-- **Contract schema**: JSON schema for validating contracts (`schemas/`)
-- **Pattern definitions**: 5 research patterns (`patterns/`)
-- **Dependency resolver**: Prerequisite checking before skill invocation
-- **Skill tree state**: Tracks unlocked/ready/locked/completed skills
-- **Pattern detection**: Identifies research pattern from collected materials
-- **Runtime utilities**: Shared helper functions — 1 canonical copy + 7 proxy stubs
+```text
+/find-skills omr-core
+/find-skills omr-bootstrap
+/find-skills omr-collection
+/find-skills omr-analyze
+/find-skills omr-decision
+/find-skills omr-evaluation
+/find-skills omr-synthesis
+/find-skills omr-idea-note
+/find-skills omr-reconcile
+```
 
-Static infrastructure remains in the installed `omr-core` skill. Workspace-specific state is stored under `<workspace>/.omr/`; installed skills and static specifications are not copied into research projects.
+### 2. Bootstrap a research workspace
+
+```text
+/omr-bootstrap "your research topic"
+```
+
+This creates only:
+
+- `AGENTS.md` — project instructions for the agent
+- `.omr/tree-state.json` — skill progress state
+
+Content folders such as `raw/`, `docs/`, `wiki/`, and `src/` are created **on demand** when a skill first writes into them.
+
+### 3. Run a research loop
+
+| Goal | Invoke |
+|------|--------|
+| Collect papers / repos / pages | `/omr-collection` |
+| Capture a speculative idea | `/omr-idea-note` |
+| Map evidence and plan next steps | `/omr-analyze` |
+| Record an architecture decision | `/omr-decision` |
+| Design and run an evaluation | `/omr-evaluation` |
+| Write findings to files + summary | `/omr-synthesis` |
+| Update when new evidence arrives | `/omr-reconcile` |
+
+**Example — Evidence-First path**
+
+```text
+/omr-bootstrap "agent memory mechanisms"
+/omr-collection "https://arxiv.org/abs/2402.12345"
+/omr-analyze
+/omr-decision
+/omr-evaluation
+/omr-synthesis --mode survey
+```
+
+Synthesis always writes the full report under `docs/<mode>/` and replies with a short summary only (paths, key findings, gate status).
 
 ---
 
-## Quality Gates
+## Skills
 
-The research pipeline is governed by 4 quality gates:
+| Skill | What it does for you | Spec |
+|-------|----------------------|------|
+| **omr-core** | Shared infrastructure (contracts, patterns, skill tree) | [SKILL.md](skills/omr-core/SKILL.md) |
+| **omr-bootstrap** | Start a research workspace | [SKILL.md](skills/omr-bootstrap/SKILL.md) |
+| **omr-collection** | Collect papers, repos, web pages, datasets | [SKILL.md](skills/omr-collection/SKILL.md) |
+| **omr-analyze** | Evidence map, judgment, research plan | [SKILL.md](skills/omr-analyze/SKILL.md) |
+| **omr-decision** | Architecture decision with alternatives | [SKILL.md](skills/omr-decision/SKILL.md) |
+| **omr-evaluation** | Experiment design and validation | [SKILL.md](skills/omr-evaluation/SKILL.md) |
+| **omr-synthesis** | File-based report + chat summary (+ wiki) | [SKILL.md](skills/omr-synthesis/SKILL.md) |
+| **omr-idea-note** | Capture speculative ideas anytime | [SKILL.md](skills/omr-idea-note/SKILL.md) |
+| **omr-reconcile** | Update research when evidence changes | [SKILL.md](skills/omr-reconcile/SKILL.md) |
 
-| Gate | Location | Checks |
-|------|----------|--------|
-| **A** | omr-analyze (internal, after judgment before plan) | Evidence boundaries, judgment confidence |
-| **B** | omr-decision (before evaluation) | Alternatives documented, risks identified |
-| **C** | omr-evaluation (before synthesis) | Metrics defined, reproducibility ensured |
-| **D** | omr-synthesis (before wiki generation) | Traceability complete, evidence boundaries enforced |
-
----
-
-## Research Patterns
-
-Five patterns define flexible entry points into the research pipeline:
-
-| Pattern | Entry Point | Description |
-|---------|-------------|-------------|
-| Evidence-First | omr-collection | Collect materials, then analyze |
-| Idea-First | omr-idea-note | Capture hypothesis, then validate |
-| Decision-First | omr-decision | Start from architecture decision |
-| Experiment-First | omr-evaluation | Begin with prototype experiment |
-| Rapid-Prototype | omr-collection + omr-synthesis | Fast collect → synthesize loop |
-
-Pattern definitions live in `omr-core/patterns/`.
+Flow overview: [OMR skills flowchart](docs/omr-skills-flowchart.md)
 
 ---
 
-## Usage
+## Research patterns
 
-### Contract Validation
+Start wherever your work already is — you do not have to begin with literature review.
 
-```bash
-python skills/omr-core/scripts/validate_contract.py
+| Pattern | Start with | Best when |
+|---------|------------|-----------|
+| Evidence-First | `/omr-collection` | Systematic survey from papers |
+| Idea-First | `/omr-idea-note` | You have a hypothesis to explore |
+| Decision-First | `/omr-decision` | Architecture choice comes first |
+| Experiment-First | `/omr-evaluation` | You want to prototype/test early |
+| Rapid-Prototype | collect → synthesize | Fast draft from available material |
+
+Details: [Research patterns](docs/design/patterns.md) · [Workflow examples](docs/design/workflows.md)
+
+---
+
+## Quality gates
+
+Gates keep claims honest and decisions reviewable:
+
+| Gate | When | Ensures |
+|------|------|---------|
+| **A** | Inside `omr-analyze` | Evidence boundaries and confidence before planning |
+| **B** | Before committing a decision | Alternatives and risks are documented |
+| **C** | Before trusting evaluation | Metrics and reproducibility are explicit |
+| **D** | Before publishing synthesis | Traceability and no over-claiming |
+
+Details: [Quality gates](docs/design/gates.md)
+
+---
+
+## Workspace layout (created as needed)
+
+```text
+my-project/
+├── AGENTS.md              # created by bootstrap
+├── .omr/
+│   └── tree-state.json    # created by bootstrap
+├── raw/                   # on demand — collected materials
+├── docs/                  # on demand — plans, reports, indexes
+├── wiki/                  # on demand — living concept pages
+└── src/                   # on demand — prototypes / experiments
 ```
 
-### Dependency Resolution
+Static skill specs stay in the installed skills (for example under `~/.agents/skills/` or `~/.claude/skills/`). Research projects keep only mutable state in `.omr/`.
 
-```bash
-python skills/omr-core/scripts/dependency_resolver.py omr-analyze --check --workspace /path/to/project
+Architecture notes: [Workspace architecture](docs/design/architecture.md) · [Outputs model](docs/design/outputs.md)
+
+---
+
+## Documentation
+
+| Audience | Links |
+|----------|-------|
+| Install & setup | [Marketplace install](docs/MARKETPLACE-INSTALL.md) |
+| Design overview | [Design docs index](docs/design/README.md) · [Overview](docs/design/overview.md) · [Principles](docs/design/principles.md) |
+| Skills & contracts | [Skills reference](docs/design/skills-reference.md) · [Agent skill spec](docs/agent-skill-spec.md) |
+| Day-to-day workflow | [Workflows](docs/design/workflows.md) · [Patterns](docs/design/patterns.md) · [Gates](docs/design/gates.md) |
+| Visual map | [Skills flowchart](docs/omr-skills-flowchart.md) |
+
+---
+
+## For contributors
+
+Developer-oriented layout and packaging live under [`skills/`](skills/) and [`scripts/`](scripts/). Prefer the design docs above for system internals; end users should not need them for normal research work.
+
+---
+
+# OmniResearch 中文
+
+[English](#omniresearch) | **中文**
+
+面向科研场景的 AI Agent 技能套件：采集材料、分析证据、做架构决策、实验验证，并以可追溯方式把研究结果写入文件。
+
+仓库：[OMNILab/omni-research](https://github.com/OMNILab/omni-research)
+
+---
+
+## 你能得到什么
+
+OmniResearch 把 AI 编程助手变成有流程约束的研究搭档：
+
+1. **启动项目** — 创建最小工作区与项目上下文
+2. **采集材料** — 论文、代码仓库、网页、数据集
+3. **分析证据** — 用严格证据边界标注主张（`proven` / `suggested` / `inferred`）
+4. **决策与评估** — 记录架构选择并做验证
+5. **撰写产出** — 报告落盘，聊天中只返回摘要
+
+日常使用不必了解技能打包细节：安装技能 → bootstrap 工作区 → 按研究需要调用即可。
+
+---
+
+## 快速开始
+
+### 1. 安装技能
+
+先装基础设施，再装你需要的领域技能。完整说明见：
+
+- [Marketplace 安装指南](docs/MARKETPLACE-INSTALL.md)
+
+常用安装顺序：
+
+```text
+/find-skills omr-core
+/find-skills omr-bootstrap
+/find-skills omr-collection
+/find-skills omr-analyze
+/find-skills omr-decision
+/find-skills omr-evaluation
+/find-skills omr-synthesis
+/find-skills omr-idea-note
+/find-skills omr-reconcile
 ```
 
-### Skill Tree Visualization
+### 2. 初始化研究工作区
 
-```bash
-python skills/omr-core/scripts/skill_tree.py            # Forward view
-python skills/omr-core/scripts/skill_tree.py --reverse  # Reverse view
+```text
+/omr-bootstrap "你的研究主题"
 ```
 
-### Workspace Bootstrap
+只会创建：
 
-```bash
-python skills/omr-bootstrap/scripts/bootstrap_workspace.py my-project "Research question?"
+- `AGENTS.md` — 给 Agent 的项目说明
+- `.omr/tree-state.json` — 技能进度状态
+
+`raw/`、`docs/`、`wiki/`、`src/` 等目录会在对应技能**首次写入时**按需创建。
+
+### 3. 进入研究循环
+
+| 目标 | 调用 |
+|------|------|
+| 采集论文 / 仓库 / 网页 | `/omr-collection` |
+| 记录灵感或假设 | `/omr-idea-note` |
+| 梳理证据并规划下一步 | `/omr-analyze` |
+| 记录架构决策 | `/omr-decision` |
+| 设计并运行评估 | `/omr-evaluation` |
+| 写报告到文件 + 聊天摘要 | `/omr-synthesis` |
+| 新证据到来后更新状态 | `/omr-reconcile` |
+
+**示例 — 证据优先路径**
+
+```text
+/omr-bootstrap "agent memory mechanisms"
+/omr-collection "https://arxiv.org/abs/2402.12345"
+/omr-analyze
+/omr-decision
+/omr-evaluation
+/omr-synthesis --mode survey
 ```
 
-### Material Collection
+`omr-synthesis` 始终把完整报告写入 `docs/<mode>/`，聊天中只返回路径、关键发现与门禁状态摘要。
 
-```bash
-python skills/omr-collection/scripts/cli.py "https://arxiv.org/abs/2402.12345" "agent memory"
-python skills/omr-collection/handlers/paper_handler.py /path/to/project 2402.12345
-python skills/omr-collection/handlers/github_handler.py /path/to/project anthropics/anthropic-sdk-python
+---
+
+## 技能一览
+
+| 技能 | 对你的作用 | 说明 |
+|------|------------|------|
+| **omr-core** | 共享基础设施（契约、模式、技能树） | [SKILL.md](skills/omr-core/SKILL.md) |
+| **omr-bootstrap** | 启动研究工作区 | [SKILL.md](skills/omr-bootstrap/SKILL.md) |
+| **omr-collection** | 采集论文、仓库、网页、数据集 | [SKILL.md](skills/omr-collection/SKILL.md) |
+| **omr-analyze** | 证据图、判断与研究计划 | [SKILL.md](skills/omr-analyze/SKILL.md) |
+| **omr-decision** | 带备选方案的架构决策 | [SKILL.md](skills/omr-decision/SKILL.md) |
+| **omr-evaluation** | 实验设计与验证 | [SKILL.md](skills/omr-evaluation/SKILL.md) |
+| **omr-synthesis** | 报告落盘 + 聊天摘要（可选 wiki） | [SKILL.md](skills/omr-synthesis/SKILL.md) |
+| **omr-idea-note** | 随时记录灵感 | [SKILL.md](skills/omr-idea-note/SKILL.md) |
+| **omr-reconcile** | 证据变化时更新研究状态 | [SKILL.md](skills/omr-reconcile/SKILL.md) |
+
+流程总览：[技能流程图](docs/omr-skills-flowchart.md)
+
+---
+
+## 研究模式
+
+可以从你当前所处阶段切入，不必总从文献综述开始。
+
+| 模式 | 入口 | 适合场景 |
+|------|------|----------|
+| Evidence-First | `/omr-collection` | 从文献系统调研 |
+| Idea-First | `/omr-idea-note` | 先有假设再验证 |
+| Decision-First | `/omr-decision` | 先有架构立场 |
+| Experiment-First | `/omr-evaluation` | 先做原型/实验 |
+| Rapid-Prototype | 采集 → 综合 | 快速形成初稿 |
+
+详见：[研究模式](docs/design/patterns.md) · [工作流示例](docs/design/workflows.md)
+
+---
+
+## 质量门禁
+
+| 门禁 | 时机 | 保证 |
+|------|------|------|
+| **A** | `omr-analyze` 内部 | 规划前证据边界与置信度清楚 |
+| **B** | 固化决策前 | 备选方案与风险已记录 |
+| **C** | 采信评估前 | 指标与可复现性明确 |
+| **D** | 发布综合报告前 | 可追溯，且无过度宣称 |
+
+详见：[质量门禁](docs/design/gates.md)
+
+---
+
+## 工作区结构（按需创建）
+
+```text
+my-project/
+├── AGENTS.md              # bootstrap 创建
+├── .omr/
+│   └── tree-state.json    # bootstrap 创建
+├── raw/                   # 按需 — 原始材料
+├── docs/                  # 按需 — 计划、报告、索引
+├── wiki/                  # 按需 — 概念页面
+└── src/                   # 按需 — 原型 / 实验
 ```
 
-### Marketplace Install Test
+静态技能规范保留在已安装技能目录（如 `~/.agents/skills/` 或 `~/.claude/skills/`）。研究项目只在 `.omr/` 保存可变状态。
 
-```bash
-python scripts/test_marketplace_install.py
-```
+结构说明：[工作区架构](docs/design/architecture.md) · [产出模型](docs/design/outputs.md)
+
+---
+
+## 文档导航
+
+| 用途 | 链接 |
+|------|------|
+| 安装与配置 | [Marketplace 安装](docs/MARKETPLACE-INSTALL.md) |
+| 设计总览 | [设计文档索引](docs/design/README.md) · [概述](docs/design/overview.md) · [原则](docs/design/principles.md) |
+| 技能与契约 | [技能参考](docs/design/skills-reference.md) · [Agent Skill 规范](docs/agent-skill-spec.md) |
+| 日常流程 | [工作流](docs/design/workflows.md) · [模式](docs/design/patterns.md) · [门禁](docs/design/gates.md) |
+| 可视化 | [技能流程图](docs/omr-skills-flowchart.md) |
+
+---
+
+## 贡献者说明
+
+面向开发的目录布局与打包脚本见 [`skills/`](skills/) 与 [`scripts/`](scripts/)。普通研究使用请优先阅读上文；深入实现细节可进入设计文档。

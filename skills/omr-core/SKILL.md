@@ -136,7 +136,7 @@ python scripts/validate_contract.py
 **Script**: `scripts/runtime_utils.py` (canonical copy)
 **Proxy template**: `scripts/_runtime_utils_proxy.py`
 
-**Purpose**: Infrastructure loader for domain skills — finds contracts, dependency resolver, and skill tree from workspace or global installation
+**Purpose**: Infrastructure loader for domain skills — loads static specifications from the installed skill and mutable state from the workspace
 
 **Architecture**:
 - The canonical `runtime_utils.py` lives in `omr-core/scripts/`
@@ -150,10 +150,10 @@ python scripts/validate_contract.py
   - `validate_contract(skill_name, workspace_root)` — contract schema check
   - `load_global_infrastructure()` — convenience for non-workspace contexts
 
-**Proxy search order**:
-1. Relative to proxy file (sibling skill in workspace/repo)
-2. Walk up from cwd to find `skills/omr-core/scripts/`
-3. Global marketplace: `~/.claude/skills/omr-core/scripts/`
+**Storage boundary**:
+- Installed `omr-core`: contracts, schemas, built-in patterns, runtime code
+- Workspace `.omr/`: tree state, user-defined patterns, and other mutable OMR state
+- Never copy installed `omr-*` skills or static specifications into a research workspace
 
 **Usage** (from any domain skill):
 ```python
@@ -173,18 +173,9 @@ resolver = infra['resolver'](infra['contracts_dir'], workspace_root, infra['tree
 **What it creates**:
 ```
 <workspace>/
-├── skills/
-│   ├── contracts/       # Copy of all 8 contract JSON files
-│   ├── schemas/         # Copy of contract validation schema
-│   ├── patterns/        # Copy of 5 pattern JSON files
-│   ├── tree/
-│   │   └── tree-state.json  # Initial skill tree state
-│   └── shared/          # Scripts directory (symlink or copy)
-│       ├── dependency_resolver.py
-│       ├── skill_tree.py
-│       ├── validate_contract.py
-│       ├── detect_pattern.py
-│       └── runtime_utils.py  # Canonical shared module
+├── .omr/
+│   ├── tree-state.json  # Workspace-specific skill state
+│   └── patterns/        # User-defined patterns only
 └── docs/
     └── index/
         ├── .gitkeep
@@ -215,6 +206,7 @@ python scripts/init_workspace.py /path/to/workspace
 2. The proxy delegates to the canonical `runtime_utils.py` in `omr-core/scripts/`
 3. Skills declare dependency via SKILL.md metadata: `requires_skills: [omr-core]`
 4. Skills use `load_infrastructure()` utility to resolve paths
+5. Workspace state must be written under `.omr/`; do not create a workspace `skills/` directory
 
 ## Marketplace Distribution
 
@@ -234,7 +226,7 @@ python scripts/init_workspace.py /path/to/workspace
 ## What NOT to Do
 
 - Do NOT invoke omr-core manually for routine research (it's infrastructure)
-- Do NOT modify contracts directly in workspace (use skill contracts)
+- Do NOT copy skills, contracts, schemas, built-in patterns, or runtime scripts into a workspace
 - Do NOT skip installing omr-core before domain skills
 - Do NOT assume workspace infrastructure exists without initialization
 

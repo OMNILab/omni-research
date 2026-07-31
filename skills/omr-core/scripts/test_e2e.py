@@ -101,7 +101,7 @@ def test_evidence_first_workflow():
 
         # Verify skill tree state
         print("\n[8] Verify skill tree...")
-        tree_state_path = workspace / 'skills' / 'tree-state.json'
+        tree_state_path = workspace / '.omr' / 'tree-state.json'
         assert tree_state_path.exists(), "Tree state missing"
 
         import json

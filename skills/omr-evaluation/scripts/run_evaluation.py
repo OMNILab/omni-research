@@ -38,6 +38,7 @@ def run_evaluation(workspace_root: Path, pattern_override: bool = False) -> Dict
     if not spec_exists:
         # Generate experiment spec
         spec = generate_experiment_spec(workspace_root, pattern_override)
+        spec_path.parent.mkdir(parents=True, exist_ok=True)
         spec_path.write_text(spec['markdown'])
 
     # Run evaluation (placeholder - would execute actual tests)
@@ -52,6 +53,7 @@ def run_evaluation(workspace_root: Path, pattern_override: bool = False) -> Dict
     )
 
     report_path = docs_dir / 'evaluation-report.md'
+    report_path.parent.mkdir(parents=True, exist_ok=True)
     report_path.write_text(report['markdown'])
 
     # Gate C: Experiment design valid?
@@ -396,7 +398,7 @@ def update_tree_state(workspace_root: Path):
     Args:
         workspace_root: Project workspace
     """
-    tree_state_path = workspace_root / 'skills' / 'tree-state.json'
+    tree_state_path = workspace_root / '.omr' / 'tree-state.json'
 
     if not tree_state_path.exists():
         return
@@ -414,6 +416,7 @@ def update_tree_state(workspace_root: Path):
         state['locked'].remove('omr-synthesis')
         state['ready'].append('omr-synthesis')
 
+    tree_state_path.parent.mkdir(parents=True, exist_ok=True)
     tree_state_path.write_text(json.dumps(state, indent=2))
 
 def main():

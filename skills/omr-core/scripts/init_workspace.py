@@ -6,7 +6,6 @@ Sets up OmniResearch skill infrastructure in project workspace
 
 import json
 import sys
-import shutil
 from pathlib import Path
 from typing import Optional
 
@@ -22,17 +21,12 @@ def init_workspace_infrastructure(workspace_path: Path,
     Returns:
         Dict with created paths and metadata
     """
-    # Find omr-core skill root (where this script lives)
-    script_path = Path(__file__).resolve()
-    omr_core_root = script_path.parent.parent
-
-    # Infrastructure directories to create
+    # Static contracts, schemas, built-in patterns, and runtime scripts remain
+    # in the installed omr-core skill. The workspace stores only mutable OMR
+    # state and user-defined patterns.
     infrastructure_dirs = [
-        "skills/contracts",
-        "skills/schemas",
-        "skills/patterns",
-        "skills/tree",
-        "skills/shared",
+        ".omr",
+        ".omr/patterns",
         "docs/index/versions"
     ]
 
@@ -45,65 +39,10 @@ def init_workspace_infrastructure(workspace_path: Path,
         full_path.mkdir(parents=True, exist_ok=True)
         created_dirs.append(str(full_path))
 
-    # Copy contract files
-    contracts_src = omr_core_root / "contracts"
-    contracts_dst = workspace_path / "skills" / "contracts"
-
     copied_contracts = []
-    for contract_file in contracts_src.glob("*.json"):
-        dst_file = contracts_dst / contract_file.name
-        if dst_file.exists() and not overwrite:
-            continue
-        shutil.copy2(contract_file, dst_file)
-        copied_contracts.append(contract_file.name)
-
-    # Copy schema files
-    schemas_src = omr_core_root / "schemas"
-    schemas_dst = workspace_path / "skills" / "schemas"
-
     copied_schemas = []
-    for schema_file in schemas_src.glob("*.json"):
-        dst_file = schemas_dst / schema_file.name
-        if dst_file.exists() and not overwrite:
-            continue
-        shutil.copy2(schema_file, dst_file)
-        copied_schemas.append(schema_file.name)
-
-    # Copy pattern files
-    patterns_src = omr_core_root / "patterns"
-    patterns_dst = workspace_path / "skills" / "patterns"
-
     copied_patterns = []
-    for pattern_file in patterns_src.glob("*.json"):
-        dst_file = patterns_dst / pattern_file.name
-        if dst_file.exists() and not overwrite:
-            continue
-        shutil.copy2(pattern_file, dst_file)
-        copied_patterns.append(pattern_file.name)
-
-    # Copy utility scripts to shared directory
-    scripts_src = omr_core_root / "scripts"
-    scripts_dst = workspace_path / "skills" / "shared"
-
-    utility_scripts = [
-        "dependency_resolver.py",
-        "skill_tree.py",
-        "validate_contract.py",
-        "detect_pattern.py",
-        "runtime_utils.py"
-    ]
-
     copied_scripts = []
-    for script_name in utility_scripts:
-        src_file = scripts_src / script_name
-        dst_file = scripts_dst / script_name
-        if not src_file.exists():
-            print(f"⚠ Warning: {script_name} not found in omr-core")
-            continue
-        if dst_file.exists() and not overwrite:
-            continue
-        shutil.copy2(src_file, dst_file)
-        copied_scripts.append(script_name)
 
     # Initialize skill tree state
     tree_state = {
@@ -113,12 +52,13 @@ def init_workspace_infrastructure(workspace_path: Path,
         "completed": []
     }
 
-    tree_state_path = workspace_path / "skills" / "tree" / "tree-state.json"
+    tree_state_path = workspace_path / ".omr" / "tree-state.json"
     if tree_state_path.exists() and not overwrite:
         # Merge mode: preserve existing tree state
         existing_state = json.loads(tree_state_path.read_text())
         tree_state = existing_state
     else:
+        tree_state_path.parent.mkdir(parents=True, exist_ok=True)
         tree_state_path.write_text(json.dumps(tree_state, indent=2))
 
     # Initialize empty artifacts index
@@ -134,9 +74,7 @@ def init_workspace_infrastructure(workspace_path: Path,
     # Create .gitkeep files for empty directories
     gitkeep_locations = [
         "docs/index/versions/.gitkeep",
-        "skills/contracts/.gitkeep",
-        "skills/schemas/.gitkeep",
-        "skills/patterns/.gitkeep"
+        ".omr/patterns/.gitkeep"
     ]
 
     for gitkeep_path in gitkeep_locations:

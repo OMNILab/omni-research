@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
 """
 Workspace Bootstrap Script
-Creates standard project directory structure and generates AGENTS.md
+Initializes workspace state files and generates AGENTS.md.
+
+Directories are created on demand: rather than pre-creating a fixed set of
+empty folders, each write ensures its own parent directories exist. Content
+subdirectories (raw/, docs/ideas, docs/survey, wiki, src, ...) are created
+by the skills that actually write into them, not by bootstrap.
 """
 
 import json
@@ -29,45 +34,25 @@ def create_workspace(project_name: str,
 
     workspace_path = output_dir / project_name
 
-    # Create directory structure
-    directories = [
-        "raw/papers",
-        "raw/web",
-        "raw/github",
-        "raw/datasets",
-        "raw/search",
-        "raw/failed",
-        "docs/index",
-        "docs/ideas",
-        "docs/archive",
-        "docs/survey",
-        "docs/report",
-        "docs/manuscript",
-        "docs/brief",
-        "wiki",
-        "src",
-        "skills/patterns",
-        "skills/contracts",
-    ]
+    def write_json(path: Path, payload: dict) -> Path:
+        """Write JSON, auto-creating parent directories on demand.
 
-    created_dirs = []
-    for dir_path in directories:
-        full_path = workspace_path / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(str(full_path))
+        This replaces the previous approach of pre-creating a fixed set of
+        empty directories. Only directories that actually receive content
+        at bootstrap time are created here; the content subdirectories
+        (raw/papers, docs/ideas, wiki, src, etc.) are created by the skills
+        that write into them when first needed.
+        """
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload, indent=2))
+        return path
 
-    # Copy contract files to workspace
+    # Static contracts and built-in patterns stay in the installed omr-core
+    # skill. Only mutable, workspace-specific OMR state belongs in .omr/.
     skills_dir = Path(__file__).parent.parent
-    contracts_src = skills_dir.parent / "shared" / "contracts"
-    contracts_dst = workspace_path / "skills" / "contracts"
-
     copied_contracts = []
-    for contract_file in contracts_src.glob("*.json"):
-        dst_file = contracts_dst / contract_file.name
-        dst_file.write_text(contract_file.read_text())
-        copied_contracts.append(contract_file.name)
 
-    # Initialize skill tree state
+    # Initialize skill tree state (creates .omr/ on demand)
     tree_state = {
         "unlocked": ["omr-bootstrap", "omr-collection", "omr-idea-note", "omr-reconcile"],
         "ready": [],
@@ -76,10 +61,12 @@ def create_workspace(project_name: str,
         "completed": ["omr-bootstrap"]
     }
 
-    tree_state_path = workspace_path / "skills" / "tree-state.json"
-    tree_state_path.write_text(json.dumps(tree_state, indent=2))
+    tree_state_path = write_json(
+        workspace_path / ".omr" / "tree-state.json",
+        tree_state,
+    )
 
-    # Initialize empty metadata indexes
+    # Initialize empty metadata indexes (creates docs/index/ on demand)
     index_files = [
         "papers-index.json",
         "blogs-index.json",
@@ -91,11 +78,13 @@ def create_workspace(project_name: str,
 
     created_indexes = []
     for index_file in index_files:
-        index_path = workspace_path / "docs" / "index" / index_file
-        index_path.write_text(json.dumps({"artifacts": [], "last_updated": datetime.now().isoformat()}, indent=2))
+        write_json(
+            workspace_path / "docs" / "index" / index_file,
+            {"artifacts": [], "last_updated": datetime.now().isoformat()},
+        )
         created_indexes.append(index_file)
 
-    # Generate AGENTS.md from template
+    # Generate AGENTS.md from template (creates workspace root on demand)
     template_path = skills_dir / "assets" / "AGENTS.md.template"
     agents_md = generate_agents_md(
         template_path=template_path,
@@ -105,11 +94,12 @@ def create_workspace(project_name: str,
     )
 
     agents_md_path = workspace_path / "AGENTS.md"
+    agents_md_path.parent.mkdir(parents=True, exist_ok=True)
     agents_md_path.write_text(agents_md)
 
     return {
         "workspace_path": str(workspace_path),
-        "created_directories": len(created_dirs),
+        "created_directories": 0,
         "copied_contracts": len(copied_contracts),
         "created_indexes": len(created_indexes),
         "agents_md_path": str(agents_md_path),

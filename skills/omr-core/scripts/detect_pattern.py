@@ -19,7 +19,7 @@ def detect_pattern(workspace_root: Path) -> Dict:
     Returns:
         Dict with detected pattern name, confidence, save recommendation
     """
-    tree_state_path = workspace_root / 'skills' / 'tree-state.json'
+    tree_state_path = workspace_root / '.omr' / 'tree-state.json'
 
     if not tree_state_path.exists():
         return {
@@ -38,16 +38,17 @@ def detect_pattern(workspace_root: Path) -> Dict:
             'message': f'Need 3+ skill invocations (current: {len(completed_skills)})'
         }
 
-    # Match against known patterns
-    patterns_dir = workspace_root / 'skills' / 'patterns'
-
-    if not patterns_dir.exists():
-        # Load from implementation directory
-        patterns_dir = Path(__file__).parent.parent / 'patterns'
+    # Built-in patterns are static omr-core specifications. Workspace-local
+    # patterns are user-created state stored under .omr/.
+    built_in_patterns_dir = Path(__file__).parent.parent / 'patterns'
+    custom_patterns_dir = workspace_root / '.omr' / 'patterns'
+    pattern_files = list(built_in_patterns_dir.glob('*.json'))
+    if custom_patterns_dir.exists():
+        pattern_files.extend(custom_patterns_dir.glob('*.json'))
 
     pattern_matches = []
 
-    for pattern_file in patterns_dir.glob('*.json'):
+    for pattern_file in pattern_files:
         pattern = json.loads(pattern_file.read_text())
 
         # Calculate match score
@@ -134,10 +135,10 @@ def save_pattern(workspace_root: Path, pattern_name: str, custom_sequence: List[
     Returns:
         Dict with saved pattern path
     """
-    patterns_dir = workspace_root / 'skills' / 'patterns'
+    patterns_dir = workspace_root / '.omr' / 'patterns'
     patterns_dir.mkdir(parents=True, exist_ok=True)
 
-    tree_state_path = workspace_root / 'skills' / 'tree-state.json'
+    tree_state_path = workspace_root / '.omr' / 'tree-state.json'
 
     if not tree_state_path.exists():
         return {
@@ -172,6 +173,7 @@ def save_pattern(workspace_root: Path, pattern_name: str, custom_sequence: List[
 
     # Save pattern
     pattern_file = patterns_dir / f'{pattern_name.lower().replace(" ", "-")}.json'
+    pattern_file.parent.mkdir(parents=True, exist_ok=True)
     pattern_file.write_text(json.dumps(pattern_def, indent=2))
 
     return {

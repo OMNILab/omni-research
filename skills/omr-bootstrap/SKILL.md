@@ -64,6 +64,8 @@ Generate the full omni-research workspace hierarchy:
 │
 ├── wiki/                     # Living knowledge base
 │   └── README.md             # Auto-generated index
+├── .omr/                     # Workspace-local OmniResearch state
+│   └── tree-state.json       # Skill progression state
 │
 └── AGENTS.md                 # Project context for AI agents
 ```
@@ -195,8 +197,9 @@ Choose [1-5] or describe your intent:
 - Generate project-id with timestamp suffix if duplicate exists: `agent-memory-20260411T103000/`
 
 **Schema directory:**
-- Copy standard schemas from omni-research source: `docs/schemas/*.schema.json`
-- These define validation rules for all artifact types
+- Static contracts, schemas, and built-in patterns remain in installed `omr-core`
+- Do not copy installed skills or static OMR specifications into the workspace
+- Store mutable, self-contained OMR state under `.omr/`
 
 **Error handling:**
 - If directory already exists: Ask user "Workspace exists. Overwrite, merge, or cancel?"
@@ -258,6 +261,7 @@ System: ✓ Creating workspace...
 - Do NOT create any artifacts beyond structure and AGENTS.md
 - Do NOT invoke other skills automatically (wait for user choice)
 - Do NOT generate research questions or decisions (those are later skills)
+- Do NOT create a workspace `skills/` directory or copy installed skills into the project
 
 ## Success Criteria
 

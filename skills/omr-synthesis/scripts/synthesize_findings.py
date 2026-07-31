@@ -35,7 +35,7 @@ def synthesize_findings(workspace_root: Path, mode: str = None) -> Dict:
     # Determine mode (from pattern config or override)
     if mode is None:
         # Check pattern config
-        pattern_config_path = workspace_root / 'skills' / 'pattern-config.json'
+        pattern_config_path = workspace_root / '.omr' / 'pattern-config.json'
         if pattern_config_path.exists():
             config = json.loads(pattern_config_path.read_text())
             mode = config.get('synthesis_mode', 'brief')  # Default to brief
@@ -50,13 +50,24 @@ def synthesize_findings(workspace_root: Path, mode: str = None) -> Dict:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Create chapters/sections
+    report_files = []
     for chapter in synthesis['chapters']:
         chapter_path = output_dir / chapter['filename']
         chapter_path.write_text(chapter['content'])
+        report_files.append(chapter_path)
 
     # Create index
     index_path = output_dir / 'index.md'
     index_path.write_text(synthesis['index'])
+    report_files.insert(0, index_path)
+
+    missing_files = [str(path) for path in report_files if not path.is_file()]
+    if missing_files:
+        return {
+            'status': 'failed',
+            'error': f"Report files were not created: {', '.join(missing_files)}",
+            'output_dir': str(output_dir),
+        }
 
     # Gate D: Synthesis ready for publication?
     gate_passed = check_gate_d(synthesis)
@@ -66,7 +77,9 @@ def synthesize_findings(workspace_root: Path, mode: str = None) -> Dict:
             'status': 'gate_failed',
             'gate': 'D',
             'message': gate_passed['message'],
-            'output_dir': str(output_dir)
+            'output_dir': str(output_dir),
+            'index_path': str(index_path),
+            'report_files': [str(path) for path in report_files],
         }
 
     # Update skill tree
@@ -76,8 +89,11 @@ def synthesize_findings(workspace_root: Path, mode: str = None) -> Dict:
         'status': 'success',
         'gate_passed': gate_passed['passed'],
         'output_dir': str(output_dir),
+        'index_path': str(index_path),
+        'report_files': [str(path) for path in report_files],
         'mode': mode,
-        'chapters': len(synthesis['chapters'])
+        'chapters': len(synthesis['chapters']),
+        'files_written': len(report_files),
     }
 
 def generate_synthesis(workspace_root: Path, mode: str) -> Dict:
@@ -689,7 +705,7 @@ def check_gate_d(synthesis: Dict) -> Dict:
 
 def update_tree_state(workspace_root: Path):
     """Update skill tree"""
-    tree_state_path = workspace_root / 'skills' / 'tree-state.json'
+    tree_state_path = workspace_root / '.omr' / 'tree-state.json'
 
     if not tree_state_path.exists():
         return
@@ -701,6 +717,7 @@ def update_tree_state(workspace_root: Path):
 
     state['completed'].append('omr-synthesis')
 
+    tree_state_path.parent.mkdir(parents=True, exist_ok=True)
     tree_state_path.write_text(json.dumps(state, indent=2))
 
 def main():
@@ -720,9 +737,9 @@ def main():
 
     if result['status'] == 'success':
         print(f"✓ Synthesis complete")
-        print(f"  Output: {result['output_dir']}")
+        print(f"  Report index: {result['index_path']}")
         print(f"  Mode: {result['mode']}")
-        print(f"  Chapters: {result['chapters']}")
+        print(f"  Files written: {result['files_written']}")
 
         if result['gate_passed']:
             print(f"\n⚠️  GATE D: Passed")

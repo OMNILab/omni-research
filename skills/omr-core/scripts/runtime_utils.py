@@ -7,9 +7,8 @@ This is the single canonical copy of runtime_utils.py, located in omr-core/scrip
 Domain skills carry a thin proxy stub that imports from this module, eliminating
 ~290 lines of duplication per skill.
 
-This utility enables domain skills to load infrastructure from:
-1. Local workspace (if bootstrapped) - workspace/skills/shared/
-2. Global installation (marketplace) - ~/.claude/skills/omr-core/
+Static infrastructure is loaded from the installed omr-core skill. Mutable,
+workspace-specific state is loaded from workspace/.omr/.
 
 Usage:
     from runtime_utils import load_infrastructure
@@ -24,7 +23,7 @@ from typing import Dict, Optional, Tuple
 
 def load_infrastructure(workspace_root: Optional[Path] = None) -> Dict:
     """
-    Load omr-core infrastructure from workspace or global installation
+    Load static infrastructure from omr-core and state from workspace/.omr
 
     Args:
         workspace_root: Path to project workspace (optional)
@@ -39,58 +38,38 @@ def load_infrastructure(workspace_root: Optional[Path] = None) -> Dict:
     Raises:
         ImportError: If omr-core infrastructure not found
     """
-    # Try workspace first (if bootstrapped project)
-    if workspace_root:
-        workspace_shared = workspace_root / 'skills' / 'shared'
-        workspace_tree = workspace_root / 'skills' / 'tree' / 'tree-state.json'
-        workspace_contracts = workspace_root / 'skills' / 'contracts'
+    local_core = Path(__file__).resolve().parent.parent
+    core_candidates = [
+        local_core,
+        Path.home() / '.agents' / 'skills' / 'omr-core',
+        Path.home() / '.claude' / 'skills' / 'omr-core',
+    ]
 
-        if workspace_shared.exists() and workspace_contracts.exists():
-            # Workspace infrastructure exists - load from there
-            sys.path.insert(0, str(workspace_shared))
+    for core_root in core_candidates:
+        scripts_dir = core_root / 'scripts'
+        contracts_dir = core_root / 'contracts'
+        if not scripts_dir.exists() or not contracts_dir.exists():
+            continue
 
-            try:
-                from dependency_resolver import DependencyResolver
-                from skill_tree import SkillTree
+        sys.path.insert(0, str(scripts_dir))
+        try:
+            from dependency_resolver import DependencyResolver
+            from skill_tree import SkillTree
 
-                return {
-                    'resolver': DependencyResolver,
-                    'tree': SkillTree,
-                    'contracts_dir': workspace_contracts,
-                    'tree_state_path': workspace_tree,
-                    'source': 'workspace'
-                }
-            finally:
-                # Remove from sys.path to avoid polluting global imports
-                sys.path.remove(str(workspace_shared))
-
-    # Try global installation (omr-core skill from marketplace)
-    # Claude Code skills directory: ~/.claude/skills/
-    global_core = Path.home() / '.claude' / 'skills' / 'omr-core'
-
-    if global_core.exists():
-        global_scripts = global_core / 'scripts'
-        global_contracts = global_core / 'contracts'
-        global_tree = global_core / 'tree' / 'tree-state.json'
-
-        if global_scripts.exists() and global_contracts.exists():
-            # Global infrastructure exists - load from omr-core skill
-            sys.path.insert(0, str(global_scripts))
-
-            try:
-                from dependency_resolver import DependencyResolver
-                from skill_tree import SkillTree
-
-                return {
-                    'resolver': DependencyResolver,
-                    'tree': SkillTree,
-                    'contracts_dir': global_contracts,
-                    'tree_state_path': global_tree,
-                    'source': 'global'
-                }
-            finally:
-                # Remove from sys.path
-                sys.path.remove(str(global_scripts))
+            tree_state_path = (
+                Path(workspace_root) / '.omr' / 'tree-state.json'
+                if workspace_root
+                else core_root / 'tree' / 'tree-state.json'
+            )
+            return {
+                'resolver': DependencyResolver,
+                'tree': SkillTree,
+                'contracts_dir': contracts_dir,
+                'tree_state_path': tree_state_path,
+                'source': 'installed',
+            }
+        finally:
+            sys.path.remove(str(scripts_dir))
 
     # Infrastructure not found
     raise ImportError(
@@ -101,7 +80,7 @@ def load_infrastructure(workspace_root: Optional[Path] = None) -> Dict:
         "  1. /find-skills omr-core\n"
         "  2. /omr-bootstrap <project-name> <research-question>\n"
         "\n"
-        "If marketplace installation not available, ensure skills/shared/ exists in workspace."
+        "Install omr-core in ~/.agents/skills or ~/.claude/skills."
     )
 
 def check_skill_dependency(skill_name: str,
@@ -172,7 +151,7 @@ def update_skill_tree(workspace_root: Path,
         resolver.update_downstream_skills(produced_artifacts)
 
         # Mark current skill as completed
-        tree_state = infra['resolver'].load_tree_state(infra['tree_state_path'])
+        tree_state = resolver.tree_state
 
         if skill_name in tree_state['unlocked']:
             tree_state['unlocked'].remove(skill_name)
@@ -184,6 +163,7 @@ def update_skill_tree(workspace_root: Path,
 
         # Save updated tree state
         import json
+        infra['tree_state_path'].parent.mkdir(parents=True, exist_ok=True)
         infra['tree_state_path'].write_text(json.dumps(tree_state, indent=2))
 
         return True
@@ -208,13 +188,9 @@ def get_skill_tree_visualization(workspace_root: Path,
         infra = load_infrastructure(workspace_root)
 
         # Load skill tree
-        tree = infra['tree'](infra['tree_state_path'])
+        tree = infra['tree'](infra['tree_state_path'], infra['contracts_dir'])
 
-        # Generate visualization
-        if mode == 'reverse':
-            return tree.visualize_reverse()
-        else:
-            return tree.visualize_forward()
+        return tree.get_visualization(reverse=(mode == 'reverse'))
 
     except Exception as e:
         return f"Error: Failed to generate skill tree visualization: {e}"

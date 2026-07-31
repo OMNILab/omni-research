@@ -19,6 +19,7 @@ if str(skill_root) not in sys.path:
 from scripts.input_router import InputRouter, InputType
 from handlers import GenericWebHandler, PaperHandler, GitHubHandler, HuggingFaceHandler
 from handlers.base_handler import BaseHandler
+from utils.runtime_utils import load_infrastructure
 
 class CollectionOrchestrator:
     """
@@ -252,16 +253,14 @@ class CollectionOrchestrator:
         if not collected:
             return
 
-        # Import dependency resolver
-        import sys
-        sys.path.insert(0, str(self.workspace_root / 'skills' / 'shared'))
-        from dependency_resolver import DependencyResolver
-
-        # Load tree state and contracts
-        tree_state_path = self.workspace_root / 'skills' / 'tree-state.json'
-        contracts_dir = self.workspace_root / 'skills' / 'shared' / 'contracts'
-
-        resolver = DependencyResolver(contracts_dir, self.workspace_root, tree_state_path)
+        # Static contracts come from installed omr-core; mutable state stays
+        # inside the research workspace.
+        infra = load_infrastructure(self.workspace_root)
+        resolver = infra['resolver'](
+            infra['contracts_dir'],
+            self.workspace_root,
+            infra['tree_state_path'],
+        )
 
         # Get produced artifacts
         produced_artifacts = set()

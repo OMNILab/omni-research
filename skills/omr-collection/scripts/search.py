@@ -373,6 +373,7 @@ class SearchCollector:
         index_data['queries'].append(query_metadata)
         index_data['last_updated'] = datetime.now().isoformat()
 
+        search_index.parent.mkdir(parents=True, exist_ok=True)
         search_index.write_text(json.dumps(index_data, indent=2))
 
         # Summary

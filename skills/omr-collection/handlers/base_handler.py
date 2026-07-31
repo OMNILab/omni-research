@@ -191,6 +191,7 @@ class BaseHandler(ABC):
         index_data['last_updated'] = datetime.now().isoformat()
 
         # Write updated index
+        index_file.parent.mkdir(parents=True, exist_ok=True)
         index_file.write_text(json.dumps(index_data, indent=2))
 
     def _get_index_file(self, source_type: str) -> Path:
@@ -298,4 +299,5 @@ class BaseHandler(ABC):
         index_data['last_updated'] = datetime.now().isoformat()
 
         # Write updated index
+        failed_index.parent.mkdir(parents=True, exist_ok=True)
         failed_index.write_text(json.dumps(index_data, indent=2))

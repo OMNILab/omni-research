@@ -116,7 +116,7 @@ All shared infrastructure lives in `omr-core/` — the canonical source for:
 - **Pattern detection**: Identifies research pattern from collected materials
 - **Runtime utilities**: Shared helper functions — 1 canonical copy + 7 proxy stubs
 
-At workspace initialization, `init_workspace.py` copies these into `<workspace>/skills/shared/` for runtime use.
+Static infrastructure remains in the installed `omr-core` skill. Workspace-specific state is stored under `<workspace>/.omr/`; installed skills and static specifications are not copied into research projects.
 
 ---
 

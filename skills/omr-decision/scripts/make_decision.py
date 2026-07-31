@@ -52,6 +52,7 @@ def make_decision(workspace_root: Path) -> Dict:
 
     # Write decision
     decision_path = docs_dir / 'architecture-decision.md'
+    decision_path.parent.mkdir(parents=True, exist_ok=True)
     decision_path.write_text(decision_doc['markdown'])
 
     # Gate B: Architecture decision sound?
@@ -373,7 +374,7 @@ def update_tree_state(workspace_root: Path):
     Args:
         workspace_root: Project workspace
     """
-    tree_state_path = workspace_root / 'skills' / 'tree-state.json'
+    tree_state_path = workspace_root / '.omr' / 'tree-state.json'
 
     if not tree_state_path.exists():
         return
@@ -391,6 +392,7 @@ def update_tree_state(workspace_root: Path):
         state['locked'].remove('omr-evaluation')
         state['ready'].append('omr-evaluation')
 
+    tree_state_path.parent.mkdir(parents=True, exist_ok=True)
     tree_state_path.write_text(json.dumps(state, indent=2))
 
 def main():

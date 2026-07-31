@@ -50,7 +50,7 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
 
     timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
     archive_session_dir = archive_dir / f'reconciliation-{timestamp}'
-    archive_session_dir.mkdir(parents=True)
+    archive_session_dir.mkdir(parents=True, exist_ok=True)
 
     archived_files = []
     for artifact in artifacts_to_reconcile:
@@ -193,7 +193,7 @@ def create_traceability_update_note(archived_files: list) -> str:
 
 def update_tree_state(workspace_root: Path):
     """Update skill tree after reconciliation"""
-    tree_state_path = workspace_root / 'skills' / 'tree-state.json'
+    tree_state_path = workspace_root / '.omr' / 'tree-state.json'
 
     if not tree_state_path.exists():
         return
@@ -203,6 +203,7 @@ def update_tree_state(workspace_root: Path):
     # Mark omr-reconcile as completed
     state['completed'].append('omr-reconcile')
 
+    tree_state_path.parent.mkdir(parents=True, exist_ok=True)
     tree_state_path.write_text(json.dumps(state, indent=2))
 
 def main():

@@ -52,6 +52,7 @@ class DependencyResolver:
 
     def save_tree_state(self):
         """Persist updated tree state"""
+        self.tree_state_path.parent.mkdir(parents=True, exist_ok=True)
         self.tree_state_path.write_text(json.dumps(self.tree_state, indent=2))
 
     def can_invoke_skill(self,
@@ -307,7 +308,7 @@ def main():
     workspace_root = Path(args.workspace)
     skills_dir = Path(__file__).parent.parent
     contracts_dir = skills_dir / "contracts"
-    tree_state_path = workspace_root / "skills" / "tree-state.json"
+    tree_state_path = workspace_root / ".omr" / "tree-state.json"
 
     # Ensure tree state exists
     if not tree_state_path.exists():

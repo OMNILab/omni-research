@@ -50,6 +50,7 @@ class SkillTree:
 
     def save_state(self):
         """Persist current state to tree-state.json"""
+        self.tree_state_path.parent.mkdir(parents=True, exist_ok=True)
         self.tree_state_path.write_text(json.dumps(self.state, indent=2))
 
     def update_tree(self, produced_artifacts: Set[str]):

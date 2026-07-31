@@ -4,13 +4,13 @@ Test Marketplace Installation for OmniResearch Skills
 Simulates marketplace install workflow and verifies packaged skills work correctly
 """
 
-import json
 import shutil
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 from typing import Dict, List, Tuple
+
 
 def test_skill_file_exists(skill_file: Path) -> bool:
     """
@@ -28,9 +28,7 @@ def test_skill_file_exists(skill_file: Path) -> bool:
 
     # Test ZIP structure
     result = subprocess.run(
-        ['unzip', '-t', str(skill_file)],
-        capture_output=True,
-        text=True
+        ["unzip", "-t", str(skill_file)], capture_output=True, text=True
     )
 
     if result.returncode != 0:
@@ -38,6 +36,7 @@ def test_skill_file_exists(skill_file: Path) -> bool:
         return False
 
     return True
+
 
 def install_skill_to_marketplace(skill_file: Path, skills_dir: Path) -> Path:
     """
@@ -60,15 +59,16 @@ def install_skill_to_marketplace(skill_file: Path, skills_dir: Path) -> Path:
     # Unzip .skill file to skill-specific directory (overwrite mode)
     skill_install_dir.mkdir(parents=True, exist_ok=True)
     result = subprocess.run(
-        ['unzip', '-q', '-o', str(skill_file), '-d', str(skill_install_dir)],
+        ["unzip", "-q", "-o", str(skill_file), "-d", str(skill_install_dir)],
         capture_output=True,
-        text=True
+        text=True,
     )
 
     if result.returncode != 0:
         raise RuntimeError(f"Failed to unzip: {result.stderr}")
 
     return skill_install_dir
+
 
 def validate_skill_structure(skill_install_dir: Path) -> Tuple[bool, List[str]]:
     """
@@ -83,41 +83,44 @@ def validate_skill_structure(skill_install_dir: Path) -> Tuple[bool, List[str]]:
     issues = []
 
     # Check SKILL.md exists
-    skill_md = skill_install_dir / 'SKILL.md'
+    skill_md = skill_install_dir / "SKILL.md"
     if not skill_md.exists():
         issues.append("SKILL.md missing")
 
     # Check SKILL.md frontmatter
     if skill_md.exists():
         content = skill_md.read_text()
-        if not content.startswith('---'):
+        if not content.startswith("---"):
             issues.append("SKILL.md missing YAML frontmatter")
-        elif 'name:' not in content or 'description:' not in content:
+        elif "name:" not in content or "description:" not in content:
             issues.append("SKILL.md missing required frontmatter fields")
-        elif 'version:' not in content:
+        elif "version:" not in content:
             issues.append("SKILL.md missing version field (marketplace requirement)")
 
     # Check for runtime_utils.py in domain skills
     skill_name = skill_install_dir.name
-    if skill_name != 'omr-core':
+    if skill_name != "omr-core":
         # Domain skills should have runtime_utils.py
         runtime_utils = None
 
         # Check in scripts/ directory (omr-bootstrap)
-        if (skill_install_dir / 'scripts' / 'runtime_utils.py').exists():
-            runtime_utils = skill_install_dir / 'scripts' / 'runtime_utils.py'
+        if (skill_install_dir / "scripts" / "runtime_utils.py").exists():
+            runtime_utils = skill_install_dir / "scripts" / "runtime_utils.py"
         # Check in skill root (other skills)
-        elif (skill_install_dir / 'runtime_utils.py').exists():
-            runtime_utils = skill_install_dir / 'runtime_utils.py'
+        elif (skill_install_dir / "runtime_utils.py").exists():
+            runtime_utils = skill_install_dir / "runtime_utils.py"
 
         if not runtime_utils:
-            issues.append("runtime_utils.py missing (required for infrastructure loading)")
+            issues.append(
+                "runtime_utils.py missing (required for infrastructure loading)"
+            )
 
     return len(issues) == 0, issues
 
-def test_skill_installation(skill_file: Path,
-                             skills_dir: Path,
-                             test_workspace: Path) -> Dict:
+
+def test_skill_installation(
+    skill_file: Path, skills_dir: Path, test_workspace: Path
+) -> Dict:
     """
     Test complete skill installation and execution
 
@@ -131,98 +134,108 @@ def test_skill_installation(skill_file: Path,
     """
     skill_name = skill_file.stem
     results = {
-        'skill_name': skill_name,
-        'file_valid': False,
-        'install_success': False,
-        'structure_valid': False,
-        'issues': [],
-        'details': []
+        "skill_name": skill_name,
+        "file_valid": False,
+        "install_success": False,
+        "structure_valid": False,
+        "issues": [],
+        "details": [],
     }
 
     print(f"\n🧪 Testing {skill_name}...")
 
     # 1. Test file validity
-    results['file_valid'] = test_skill_file_exists(skill_file)
-    if results['file_valid']:
-        results['details'].append(f"✓ .skill file valid")
+    results["file_valid"] = test_skill_file_exists(skill_file)
+    if results["file_valid"]:
+        results["details"].append("✓ .skill file valid")
 
     # 2. Install skill
     try:
         skill_install_dir = install_skill_to_marketplace(skill_file, skills_dir)
-        results['install_success'] = True
-        results['details'].append(f"✓ Installed to {skill_install_dir}")
+        results["install_success"] = True
+        results["details"].append(f"✓ Installed to {skill_install_dir}")
     except Exception as e:
-        results['issues'].append(f"Installation failed: {e}")
+        results["issues"].append(f"Installation failed: {e}")
         return results
 
     # 3. Validate structure
     is_valid, issues = validate_skill_structure(skill_install_dir)
-    results['structure_valid'] = is_valid
-    results['issues'].extend(issues)
+    results["structure_valid"] = is_valid
+    results["issues"].extend(issues)
 
     if is_valid:
-        results['details'].append(f"✓ Skill structure valid")
+        results["details"].append("✓ Skill structure valid")
 
     # 4. Skill-specific tests
-    if skill_name == 'omr-core':
+    if skill_name == "omr-core":
         # Test infrastructure initialization
-        init_script = skill_install_dir / 'scripts' / 'init_workspace.py'
+        init_script = skill_install_dir / "scripts" / "init_workspace.py"
         if init_script.exists():
             # Create test workspace
-            test_project = test_workspace / 'test-project'
+            test_project = test_workspace / "test-project"
             test_project.mkdir(parents=True, exist_ok=True)
 
             result = subprocess.run(
                 [sys.executable, str(init_script), str(test_project)],
                 capture_output=True,
                 text=True,
-                timeout=30
+                timeout=30,
             )
 
             if result.returncode == 0:
-                results['details'].append(f"✓ Infrastructure initialization successful")
+                results["details"].append("✓ Infrastructure initialization successful")
 
                 # Verify infrastructure files
-                contracts_dir = test_project / 'skills' / 'contracts'
-                if contracts_dir.exists() and len(list(contracts_dir.glob('*.json'))) > 0:
-                    results['details'].append(f"✓ Contracts installed in workspace")
+                contracts_dir = test_project / "skills" / "contracts"
+                if (
+                    contracts_dir.exists()
+                    and len(list(contracts_dir.glob("*.json"))) > 0
+                ):
+                    results["details"].append("✓ Contracts installed in workspace")
                 else:
-                    results['issues'].append("Contracts not installed in workspace")
+                    results["issues"].append("Contracts not installed in workspace")
             else:
-                results['issues'].append(f"Init failed: {result.stderr}")
+                results["issues"].append(f"Init failed: {result.stderr}")
 
-    elif skill_name == 'omr-bootstrap':
+    elif skill_name == "omr-bootstrap":
         # Test workspace creation
-        bootstrap_script = skill_install_dir / 'scripts' / 'bootstrap_workspace.py'
+        bootstrap_script = skill_install_dir / "scripts" / "bootstrap_workspace.py"
         if bootstrap_script.exists():
             result = subprocess.run(
-                [sys.executable, str(bootstrap_script),
-                 'test-project', 'Test research question?'],
+                [
+                    sys.executable,
+                    str(bootstrap_script),
+                    "test-project",
+                    "Test research question?",
+                ],
                 cwd=str(test_workspace),
                 capture_output=True,
                 text=True,
-                timeout=30
+                timeout=30,
             )
 
             if result.returncode == 0:
-                results['details'].append(f"✓ Workspace creation successful")
+                results["details"].append("✓ Workspace creation successful")
 
                 # Verify workspace structure
-                test_project = test_workspace / 'test-project'
-                agents_md = test_project / 'AGENTS.md'
+                test_project = test_workspace / "test-project"
+                agents_md = test_project / "AGENTS.md"
                 if agents_md.exists():
-                    results['details'].append(f"✓ AGENTS.md generated")
+                    results["details"].append("✓ AGENTS.md generated")
                 else:
-                    results['issues'].append("AGENTS.md not generated")
+                    results["issues"].append("AGENTS.md not generated")
             else:
-                results['issues'].append(f"Bootstrap failed: {result.stderr}")
+                results["issues"].append(f"Bootstrap failed: {result.stderr}")
 
     else:
         # Generic skill test - verify SKILL.md and runtime_utils
-        if results['structure_valid']:
-            results['details'].append(f"✓ Skill structure valid (execution test skipped)")
+        if results["structure_valid"]:
+            results["details"].append(
+                "✓ Skill structure valid (execution test skipped)"
+            )
 
     return results
+
 
 def test_marketplace_workflow(dist_dir: Path) -> bool:
     """
@@ -237,13 +250,13 @@ def test_marketplace_workflow(dist_dir: Path) -> bool:
     Returns:
         True if all tests pass, False otherwise
     """
-    print(f"\n{'='*70}")
-    print(f"MARKETPLACE INSTALLATION TEST")
-    print(f"{'='*70}")
+    print(f"\n{'=' * 70}")
+    print("MARKETPLACE INSTALLATION TEST")
+    print(f"{'=' * 70}")
     print(f"Testing skills from: {dist_dir}")
 
     # Find all .skill files
-    skill_files = sorted(dist_dir.glob('*.skill'))
+    skill_files = sorted(dist_dir.glob("*.skill"))
 
     if not skill_files:
         print("❌ No .skill files found in dist/")
@@ -254,8 +267,8 @@ def test_marketplace_workflow(dist_dir: Path) -> bool:
     # Test skills in isolated environment
     with tempfile.TemporaryDirectory() as tmpdir:
         test_dir = Path(tmpdir)
-        skills_install_dir = test_dir / '.claude' / 'skills'
-        test_workspace = test_dir / 'workspace'
+        skills_install_dir = test_dir / ".claude" / "skills"
+        test_workspace = test_dir / "workspace"
 
         skills_install_dir.mkdir(parents=True, exist_ok=True)
         test_workspace.mkdir(parents=True, exist_ok=True)
@@ -263,16 +276,22 @@ def test_marketplace_workflow(dist_dir: Path) -> bool:
         # Test each skill
         all_results = []
         for skill_file in skill_files:
-            result = test_skill_installation(skill_file, skills_install_dir, test_workspace)
+            result = test_skill_installation(
+                skill_file, skills_install_dir, test_workspace
+            )
             all_results.append(result)
 
         # Print results
-        print(f"\n{'='*70}")
-        print(f"TEST RESULTS")
-        print(f"{'='*70}")
+        print(f"\n{'=' * 70}")
+        print("TEST RESULTS")
+        print(f"{'=' * 70}")
 
-        passed = [r for r in all_results if r['structure_valid'] and len(r['issues']) == 0]
-        failed = [r for r in all_results if not r['structure_valid'] or len(r['issues']) > 0]
+        passed = [
+            r for r in all_results if r["structure_valid"] and len(r["issues"]) == 0
+        ]
+        failed = [
+            r for r in all_results if not r["structure_valid"] or len(r["issues"]) > 0
+        ]
 
         print(f"\n✓ Passed: {len(passed)}/{len(all_results)}")
         for r in passed:
@@ -282,28 +301,31 @@ def test_marketplace_workflow(dist_dir: Path) -> bool:
             print(f"\n❌ Failed: {len(failed)}/{len(all_results)}")
             for r in failed:
                 print(f"  {r['skill_name']}:")
-                for issue in r['issues']:
+                for issue in r["issues"]:
                     print(f"    - {issue}")
 
         # Print detailed results for failed skills
         if failed:
-            print(f"\n{'='*70}")
-            print(f"FAILURE DETAILS")
-            print(f"{'='*70}")
+            print(f"\n{'=' * 70}")
+            print("FAILURE DETAILS")
+            print(f"{'=' * 70}")
             for r in failed:
-                if r['details']:
+                if r["details"]:
                     print(f"\n{r['skill_name']} details:")
-                    for detail in r['details']:
+                    for detail in r["details"]:
                         print(f"  {detail}")
 
         return len(failed) == 0
+
 
 def main():
     """CLI entry point"""
     if len(sys.argv) < 2:
         print("Usage: python test_marketplace_install.py <dist-directory>")
         print("Example: python test_marketplace_install.py ./dist")
-        print("\nThis script tests that packaged .skill files can be installed and work correctly.")
+        print(
+            "\nThis script tests that packaged .skill files can be installed and work correctly."
+        )
         sys.exit(1)
 
     dist_dir = Path(sys.argv[1])
@@ -315,11 +337,12 @@ def main():
     success = test_marketplace_workflow(dist_dir)
 
     if success:
-        print(f"\n✅ All tests passed - marketplace installation verified")
+        print("\n✅ All tests passed - marketplace installation verified")
         sys.exit(0)
     else:
-        print(f"\n❌ Some tests failed - see details above")
+        print("\n❌ Some tests failed - see details above")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

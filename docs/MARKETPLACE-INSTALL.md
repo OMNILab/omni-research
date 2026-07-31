@@ -247,24 +247,32 @@ omr-collection.skill (112KB)
 
 ## Skill Tree Progression
 
-Skills unlock based on artifact production:
+Skills unlock based on artifact production. **Default visualization is Mermaid** (ASCII via `--ascii`).
 
-```
-omr-bootstrap ✓ (completed)
-    │
-    ├── omr-collection ○ (ready)
-    │       │
-    │       └── omr-analyze ● (locked: needs materials/)
-    │               │
-    │               ├── omr-decision ● (locked: needs Gate A passed in omr-analyze)
-    │               │       │
-    │               │       └── omr-evaluation ● (locked: needs decision.md)
-    │               │
-    │               └── omr-synthesis ● (locked: needs Gate A passed; wiki generated internally)
-    │
-    ├── omr-idea-note ✓ (available anytime)
-    │
-    └── omr-reconcile ✓ (available anytime; --archive/--rollback/--list/--review)
+```mermaid
+flowchart TD
+    classDef completed fill:#d4edda,stroke:#28a745,color:#155724
+    classDef ready fill:#fff3cd,stroke:#ffc107,color:#856404
+    classDef unlocked fill:#d1ecf1,stroke:#17a2b8,color:#0c5460
+    classDef locked fill:#e2e3e5,stroke:#6c757d,color:#383d41
+
+    bootstrap["omr-bootstrap ✓"]:::completed
+    collection["omr-collection ○"]:::ready
+    analyze["omr-analyze ● needs materials/"]:::locked
+    decision["omr-decision ● needs Gate A"]:::locked
+    evaluation["omr-evaluation ● needs decision.md"]:::locked
+    synthesis["omr-synthesis ●"]:::locked
+    idea["omr-idea-note ✓"]:::unlocked
+    reconcile["omr-reconcile ✓"]:::unlocked
+
+    bootstrap --> collection
+    bootstrap --> idea
+    bootstrap --> reconcile
+    collection --> analyze
+    analyze --> decision
+    decision --> evaluation
+    evaluation --> synthesis
+    idea --> decision
 ```
 
 **Legend**:

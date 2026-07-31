@@ -21,6 +21,7 @@ import sys
 from pathlib import Path
 from typing import Dict, Optional, Tuple
 
+
 def load_infrastructure(workspace_root: Optional[Path] = None) -> Dict:
     """
     Load static infrastructure from omr-core and state from workspace/.omr
@@ -41,13 +42,13 @@ def load_infrastructure(workspace_root: Optional[Path] = None) -> Dict:
     local_core = Path(__file__).resolve().parent.parent
     core_candidates = [
         local_core,
-        Path.home() / '.agents' / 'skills' / 'omr-core',
-        Path.home() / '.claude' / 'skills' / 'omr-core',
+        Path.home() / ".agents" / "skills" / "omr-core",
+        Path.home() / ".claude" / "skills" / "omr-core",
     ]
 
     for core_root in core_candidates:
-        scripts_dir = core_root / 'scripts'
-        contracts_dir = core_root / 'contracts'
+        scripts_dir = core_root / "scripts"
+        contracts_dir = core_root / "contracts"
         if not scripts_dir.exists() or not contracts_dir.exists():
             continue
 
@@ -57,16 +58,16 @@ def load_infrastructure(workspace_root: Optional[Path] = None) -> Dict:
             from skill_tree import SkillTree
 
             tree_state_path = (
-                Path(workspace_root) / '.omr' / 'tree-state.json'
+                Path(workspace_root) / ".omr" / "tree-state.json"
                 if workspace_root
-                else core_root / 'tree' / 'tree-state.json'
+                else core_root / "tree" / "tree-state.json"
             )
             return {
-                'resolver': DependencyResolver,
-                'tree': SkillTree,
-                'contracts_dir': contracts_dir,
-                'tree_state_path': tree_state_path,
-                'source': 'installed',
+                "resolver": DependencyResolver,
+                "tree": SkillTree,
+                "contracts_dir": contracts_dir,
+                "tree_state_path": tree_state_path,
+                "source": "installed",
             }
         finally:
             sys.path.remove(str(scripts_dir))
@@ -83,9 +84,10 @@ def load_infrastructure(workspace_root: Optional[Path] = None) -> Dict:
         "Install omr-core in ~/.agents/skills or ~/.claude/skills."
     )
 
-def check_skill_dependency(skill_name: str,
-                           workspace_root: Path,
-                           required_artifacts: Optional[list] = None) -> Tuple[bool, list]:
+
+def check_skill_dependency(
+    skill_name: str, workspace_root: Path, required_artifacts: Optional[list] = None
+) -> Tuple[bool, list]:
     """
     Check if skill can be invoked (prerequisites satisfied)
 
@@ -101,10 +103,8 @@ def check_skill_dependency(skill_name: str,
         infra = load_infrastructure(workspace_root)
 
         # Load dependency resolver
-        resolver = infra['resolver'](
-            infra['contracts_dir'],
-            workspace_root,
-            infra['tree_state_path']
+        resolver = infra["resolver"](
+            infra["contracts_dir"], workspace_root, infra["tree_state_path"]
         )
 
         # Check skill prerequisites
@@ -123,9 +123,10 @@ def check_skill_dependency(skill_name: str,
         # Infrastructure missing - cannot invoke
         return False, [str(e)]
 
-def update_skill_tree(workspace_root: Path,
-                      produced_artifacts: list,
-                      skill_name: str) -> bool:
+
+def update_skill_tree(
+    workspace_root: Path, produced_artifacts: list, skill_name: str
+) -> bool:
     """
     Update skill tree after successful skill execution
 
@@ -141,10 +142,8 @@ def update_skill_tree(workspace_root: Path,
         infra = load_infrastructure(workspace_root)
 
         # Load dependency resolver
-        resolver = infra['resolver'](
-            infra['contracts_dir'],
-            workspace_root,
-            infra['tree_state_path']
+        resolver = infra["resolver"](
+            infra["contracts_dir"], workspace_root, infra["tree_state_path"]
         )
 
         # Update downstream skills
@@ -153,18 +152,19 @@ def update_skill_tree(workspace_root: Path,
         # Mark current skill as completed
         tree_state = resolver.tree_state
 
-        if skill_name in tree_state['unlocked']:
-            tree_state['unlocked'].remove(skill_name)
-        if skill_name in tree_state['ready']:
-            tree_state['ready'].remove(skill_name)
+        if skill_name in tree_state["unlocked"]:
+            tree_state["unlocked"].remove(skill_name)
+        if skill_name in tree_state["ready"]:
+            tree_state["ready"].remove(skill_name)
 
-        if skill_name not in tree_state['completed']:
-            tree_state['completed'].append(skill_name)
+        if skill_name not in tree_state["completed"]:
+            tree_state["completed"].append(skill_name)
 
         # Save updated tree state
         import json
-        infra['tree_state_path'].parent.mkdir(parents=True, exist_ok=True)
-        infra['tree_state_path'].write_text(json.dumps(tree_state, indent=2))
+
+        infra["tree_state_path"].parent.mkdir(parents=True, exist_ok=True)
+        infra["tree_state_path"].write_text(json.dumps(tree_state, indent=2))
 
         return True
 
@@ -172,31 +172,37 @@ def update_skill_tree(workspace_root: Path,
         print(f"⚠ Warning: Failed to update skill tree: {e}")
         return False
 
-def get_skill_tree_visualization(workspace_root: Path,
-                                  mode: str = 'forward') -> str:
+
+def get_skill_tree_visualization(
+    workspace_root: Path, mode: str = "forward", format: str = "mermaid"
+) -> str:
     """
     Get skill tree visualization (forward or reverse view)
 
     Args:
         workspace_root: Path to project workspace
         mode: 'forward' (dependency view) or 'reverse' (producer view)
+        format: 'mermaid' (default) or 'ascii'
 
     Returns:
-        ASCII visualization string
+        Visualization string (Mermaid fenced block by default)
     """
     try:
         infra = load_infrastructure(workspace_root)
 
         # Load skill tree
-        tree = infra['tree'](infra['tree_state_path'], infra['contracts_dir'])
+        tree = infra["tree"](infra["tree_state_path"], infra["contracts_dir"])
 
-        return tree.get_visualization(reverse=(mode == 'reverse'))
+        return tree.get_visualization(
+            reverse=(mode == "reverse"),
+            format=format,
+        )
 
     except Exception as e:
         return f"Error: Failed to generate skill tree visualization: {e}"
 
-def validate_contract(skill_name: str,
-                      workspace_root: Optional[Path] = None) -> bool:
+
+def validate_contract(skill_name: str, workspace_root: Optional[Path] = None) -> bool:
     """
     Validate skill contract against schema
 
@@ -211,14 +217,14 @@ def validate_contract(skill_name: str,
         infra = load_infrastructure(workspace_root)
 
         # Find contract file
-        contract_file = infra['contracts_dir'] / f"{skill_name}.json"
+        contract_file = infra["contracts_dir"] / f"{skill_name}.json"
 
         if not contract_file.exists():
             print(f"Error: Contract not found: {contract_file}")
             return False
 
         # Import validation module
-        sys.path.insert(0, str(infra['contracts_dir'].parent / 'scripts'))
+        sys.path.insert(0, str(infra["contracts_dir"].parent / "scripts"))
         from validate_contract import validate_contract_file
 
         # Validate
@@ -234,6 +240,7 @@ def validate_contract(skill_name: str,
         print(f"Error: Failed to validate contract: {e}")
         return False
 
+
 # Convenience function for skills without workspace context
 def load_global_infrastructure() -> Dict:
     """
@@ -245,6 +252,7 @@ def load_global_infrastructure() -> Dict:
         Dict with infrastructure components
     """
     return load_infrastructure(workspace_root=None)
+
 
 if __name__ == "__main__":
     # CLI test mode
@@ -267,7 +275,7 @@ if __name__ == "__main__":
         print(f"  Tree: {infra['tree'].__name__}")
 
         if test_workspace:
-            print(f"\nSkill tree visualization:")
+            print("\nSkill tree visualization:")
             print(get_skill_tree_visualization(test_workspace))
 
     except ImportError as e:

@@ -12,8 +12,8 @@ by the skills that write into them.
 
 import json
 import sys
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 from typing import Optional
 
 
@@ -24,9 +24,9 @@ def _write_text(path: Path, content: str) -> Path:
     return path
 
 
-def create_workspace(project_name: str,
-                     research_question: Optional[str] = None,
-                     output_dir: Path = None) -> dict:
+def create_workspace(
+    project_name: str, research_question: Optional[str] = None, output_dir: Path = None
+) -> dict:
     """
     Initialize a minimal omr research workspace.
 
@@ -45,11 +45,15 @@ def create_workspace(project_name: str,
     skills_dir = Path(__file__).parent.parent
 
     tree_state = {
-        "unlocked": ["omr-bootstrap", "omr-collection", "omr-idea-note", "omr-reconcile"],
+        "unlocked": [
+            "omr-bootstrap",
+            "omr-collection",
+            "omr-idea-note",
+            "omr-reconcile",
+        ],
         "ready": [],
-        "locked": ["omr-analyze", "omr-decision",
-                   "omr-evaluation", "omr-synthesis"],
-        "completed": ["omr-bootstrap"]
+        "locked": ["omr-analyze", "omr-decision", "omr-evaluation", "omr-synthesis"],
+        "completed": ["omr-bootstrap"],
     }
 
     tree_state_path = _write_text(
@@ -73,19 +77,22 @@ def create_workspace(project_name: str,
     }
 
 
-def generate_agents_md(template_path: Path,
-                       project_name: str,
-                       research_question: str,
-                       tree_state: dict) -> str:
+def generate_agents_md(
+    template_path: Path, project_name: str, research_question: str, tree_state: dict
+) -> str:
     """Generate AGENTS.md from template with filled values"""
 
     template = template_path.read_text()
     now = datetime.now().isoformat()
 
-    unlocked = "\n".join([f"- `{skill}`" for skill in tree_state['unlocked']])
-    ready = "\n".join([f"- `{skill}`" for skill in tree_state['ready']]) if tree_state['ready'] else "None"
-    locked = "\n".join([f"- `{skill}`" for skill in tree_state['locked']])
-    completed = "\n".join([f"- `{skill}`" for skill in tree_state['completed']])
+    unlocked = "\n".join([f"- `{skill}`" for skill in tree_state["unlocked"]])
+    ready = (
+        "\n".join([f"- `{skill}`" for skill in tree_state["ready"]])
+        if tree_state["ready"]
+        else "None"
+    )
+    locked = "\n".join([f"- `{skill}`" for skill in tree_state["locked"]])
+    completed = "\n".join([f"- `{skill}`" for skill in tree_state["completed"]])
 
     next_steps = """
 Since this is a new project, here are recommended starting points:
@@ -108,7 +115,10 @@ Since this is a new project, here are recommended starting points:
     agents_md = template.replace("{{project_name}}", project_name)
     agents_md = agents_md.replace("{{research_question}}", research_question)
     agents_md = agents_md.replace("{{status}}", "initialized")
-    agents_md = agents_md.replace("{{active_pattern}}", "Not yet detected (will emerge after 3+ skill invocations)")
+    agents_md = agents_md.replace(
+        "{{active_pattern}}",
+        "Not yet detected (will emerge after 3+ skill invocations)",
+    )
     agents_md = agents_md.replace("{{created_at}}", now)
     agents_md = agents_md.replace("{{last_updated}}", now)
     agents_md = agents_md.replace("{{unlocked_skills}}", unlocked)
@@ -124,7 +134,9 @@ def main():
     """CLI entry point for bootstrap script"""
     if len(sys.argv) < 2:
         print("Usage: bootstrap_workspace.py <project-name> [research-question]")
-        print("Example: bootstrap_workspace.py agent-memory-survey 'How do AI agents manage memory?'")
+        print(
+            "Example: bootstrap_workspace.py agent-memory-survey 'How do AI agents manage memory?'"
+        )
         sys.exit(1)
 
     project_name = sys.argv[1]
@@ -142,10 +154,14 @@ def main():
     print(f"  AGENTS.md: {result['agents_md_path']}")
     print(f"  Tree state: {result['tree_state_path']}")
     print()
-    print("Directories such as materials/, docs/, wiki/, and src/ are created on demand")
+    print(
+        "Directories such as materials/, docs/, wiki/, and src/ are created on demand"
+    )
     print("by skills when they first write content.")
     print()
-    print("Next: Start collecting materials with /omr-collection or capture ideas with /omr-idea-note")
+    print(
+        "Next: Start collecting materials with /omr-collection or capture ideas with /omr-idea-note"
+    )
 
 
 if __name__ == "__main__":

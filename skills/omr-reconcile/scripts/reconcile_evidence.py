@@ -6,9 +6,10 @@ Iteration support when new evidence arrives
 
 import json
 import shutil
+from datetime import datetime
 from pathlib import Path
 from typing import Dict
-from datetime import datetime
+
 
 def reconcile_evidence(workspace_root: Path) -> Dict:
     """
@@ -22,34 +23,34 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
     Returns:
         Dict with reconciliation status
     """
-    docs_dir = workspace_root / 'docs'
-    archive_dir = docs_dir / 'archive'
-    materials_dir = workspace_root / 'materials'
+    docs_dir = workspace_root / "docs"
+    archive_dir = docs_dir / "archive"
+    materials_dir = workspace_root / "materials"
 
     # Check existing artifacts
     existing_artifacts = [
-        docs_dir / 'research-brief.md',
-        docs_dir / 'evidence-map.md',
-        docs_dir / 'judgment-summary.md',
-        docs_dir / 'research-plan.md',
-        docs_dir / 'architecture-decision.md',
-        docs_dir / 'experiment-spec.md',
-        docs_dir / 'evaluation-report.md'
+        docs_dir / "research-brief.md",
+        docs_dir / "evidence-map.md",
+        docs_dir / "judgment-summary.md",
+        docs_dir / "research-plan.md",
+        docs_dir / "architecture-decision.md",
+        docs_dir / "experiment-spec.md",
+        docs_dir / "evaluation-report.md",
     ]
 
     artifacts_to_reconcile = [a for a in existing_artifacts if a.exists()]
 
     if not artifacts_to_reconcile:
         return {
-            'status': 'no_artifacts',
-            'message': 'No existing artifacts to reconcile'
+            "status": "no_artifacts",
+            "message": "No existing artifacts to reconcile",
         }
 
     # Step 1: Archive previous versions
     archive_dir.mkdir(parents=True, exist_ok=True)
 
-    timestamp = datetime.now().strftime('%Y%m%d-%H%M%S')
-    archive_session_dir = archive_dir / f'reconciliation-{timestamp}'
+    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    archive_session_dir = archive_dir / f"reconciliation-{timestamp}"
     archive_session_dir.mkdir(parents=True, exist_ok=True)
 
     archived_files = []
@@ -60,23 +61,23 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
 
     # Create archive metadata
     archive_metadata = {
-        'archive_id': f'reconciliation-{timestamp}',
-        'created_at': datetime.now().isoformat(),
-        'reason': 'Evidence reconciliation triggered',
-        'archived_files': archived_files,
-        'total_files': len(archived_files)
+        "archive_id": f"reconciliation-{timestamp}",
+        "created_at": datetime.now().isoformat(),
+        "reason": "Evidence reconciliation triggered",
+        "archived_files": archived_files,
+        "total_files": len(archived_files),
     }
 
-    metadata_path = archive_session_dir / 'RECONCILIATION-METADATA.json'
+    metadata_path = archive_session_dir / "RECONCILIATION-METADATA.json"
     metadata_path.write_text(json.dumps(archive_metadata, indent=2))
 
     # Step 2: Check if new materials exist in materials/
     new_materials = False
-    for subdir in ['papers', 'web', 'github', 'datasets']:
+    for subdir in ["papers", "web", "github", "datasets"]:
         subdir_path = materials_dir / subdir
         if subdir_path.exists():
             # Check if directory has files
-            if any(subdir_path.glob('*.md')):
+            if any(subdir_path.glob("*.md")):
                 new_materials = True
                 break
 
@@ -87,34 +88,43 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
         # Call omr-analyze skill to re-extract evidence
         try:
             import subprocess
-            analyze_script = workspace_root.parent.parent / 'skills' / 'omr-analyze' / 'scripts' / 'analyze.py'
+
+            analyze_script = (
+                workspace_root.parent.parent
+                / "skills"
+                / "omr-analyze"
+                / "scripts"
+                / "analyze.py"
+            )
 
             if analyze_script.exists():
                 result = subprocess.run(
-                    ['python3', str(analyze_script), str(workspace_root)],
+                    ["python3", str(analyze_script), str(workspace_root)],
                     capture_output=True,
                     text=True,
-                    timeout=60
+                    timeout=60,
                 )
 
                 if result.returncode == 0:
-                    reconciliation_actions.append('evidence-extraction-updated')
+                    reconciliation_actions.append("evidence-extraction-updated")
                 else:
-                    reconciliation_actions.append(f'evidence-extraction-failed: {result.stderr}')
+                    reconciliation_actions.append(
+                        f"evidence-extraction-failed: {result.stderr}"
+                    )
             else:
-                reconciliation_actions.append('analyze-script-not-found')
+                reconciliation_actions.append("analyze-script-not-found")
 
         except Exception as e:
-            reconciliation_actions.append(f'evidence-extraction-error: {str(e)}')
+            reconciliation_actions.append(f"evidence-extraction-error: {str(e)}")
 
     # Step 4: Generate reconciliation report
     report = generate_reconciliation_report(
         archived_files=archived_files,
         actions=reconciliation_actions,
-        new_materials=new_materials
+        new_materials=new_materials,
     )
 
-    report_path = archive_session_dir / 'RECONCILIATION-REPORT.md'
+    report_path = archive_session_dir / "RECONCILIATION-REPORT.md"
     report_path.write_text(report)
 
     # Step 5: Update skill tree
@@ -122,7 +132,7 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
 
     # Step 6: Create traceability update note
     traceability_note = create_traceability_update_note(archived_files)
-    traceability_path = docs_dir / 'index' / 'reconciliation-log.md'
+    traceability_path = docs_dir / "index" / "reconciliation-log.md"
     traceability_path.parent.mkdir(parents=True, exist_ok=True)
 
     if traceability_path.exists():
@@ -132,18 +142,25 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
         traceability_path.write_text(traceability_note)
 
     return {
-        'status': 'success',
-        'archived_dir': str(archive_session_dir),
-        'archived_files': len(archived_files),
-        'actions': reconciliation_actions,
-        'new_materials': new_materials,
-        'message': f'Archived {len(archived_files)} previous versions, reconciliation complete'
+        "status": "success",
+        "archived_dir": str(archive_session_dir),
+        "archived_files": len(archived_files),
+        "actions": reconciliation_actions,
+        "new_materials": new_materials,
+        "message": f"Archived {len(archived_files)} previous versions, reconciliation complete",
     }
 
-def generate_reconciliation_report(archived_files: list, actions: list, new_materials: bool) -> str:
+
+def generate_reconciliation_report(
+    archived_files: list, actions: list, new_materials: bool
+) -> str:
     """Generate reconciliation report"""
 
-    actions_text = "\n".join([f"- {action}" for action in actions]) if actions else "- No re-extraction performed"
+    actions_text = (
+        "\n".join([f"- {action}" for action in actions])
+        if actions
+        else "- No re-extraction performed"
+    )
 
     return f"""# Reconciliation Report
 
@@ -165,9 +182,9 @@ Evidence reconciliation triggered to update research state.
 
 ## New Materials
 
-**Detected**: {'Yes' if new_materials else 'No'}
+**Detected**: {"Yes" if new_materials else "No"}
 
-{'Evidence extraction re-run to incorporate new materials.' if new_materials else 'No new materials detected, archived existing state only.'}
+{"Evidence extraction re-run to incorporate new materials." if new_materials else "No new materials detected, archived existing state only."}
 
 ## Next Steps
 
@@ -178,6 +195,7 @@ Evidence reconciliation triggered to update research state.
 ---
 _Generated by omr-reconcile_"""
 
+
 def create_traceability_update_note(archived_files: list) -> str:
     """Create traceability update note"""
 
@@ -185,15 +203,16 @@ def create_traceability_update_note(archived_files: list) -> str:
 
 **Archived files**: {len(archived_files)}
 
-**Files**: {', '.join(archived_files)}
+**Files**: {", ".join(archived_files)}
 
 **Note**: Previous versions preserved in archive directory for rollback if needed.
 
 ---"""
 
+
 def update_tree_state(workspace_root: Path):
     """Update skill tree after reconciliation"""
-    tree_state_path = workspace_root / '.omr' / 'tree-state.json'
+    tree_state_path = workspace_root / ".omr" / "tree-state.json"
 
     if not tree_state_path.exists():
         return
@@ -201,10 +220,11 @@ def update_tree_state(workspace_root: Path):
     state = json.loads(tree_state_path.read_text())
 
     # Mark omr-reconcile as completed
-    state['completed'].append('omr-reconcile')
+    state["completed"].append("omr-reconcile")
 
     tree_state_path.parent.mkdir(parents=True, exist_ok=True)
     tree_state_path.write_text(json.dumps(state, indent=2))
+
 
 def main():
     """CLI entry point"""
@@ -219,14 +239,15 @@ def main():
     print("Reconciling existing evidence...")
     result = reconcile_evidence(workspace)
 
-    if result['status'] == 'success':
-        print(f"✓ Reconciliation complete")
+    if result["status"] == "success":
+        print("✓ Reconciliation complete")
         print(f"  Archived: {result['archived_dir']}")
         print(f"  Files: {result['archived_files']}")
         print(f"\n  {result['message']}")
 
     else:
         print(f"  {result['message']}")
+
 
 if __name__ == "__main__":
     main()

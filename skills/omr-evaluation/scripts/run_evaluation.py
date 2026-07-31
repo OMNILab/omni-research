@@ -5,9 +5,10 @@ Experiment execution + evaluation + Gate C + pattern override support
 """
 
 import json
-from pathlib import Path
-from typing import Dict, Optional
 from datetime import datetime
+from pathlib import Path
+from typing import Dict
+
 
 def run_evaluation(workspace_root: Path, pattern_override: bool = False) -> Dict:
     """
@@ -20,26 +21,26 @@ def run_evaluation(workspace_root: Path, pattern_override: bool = False) -> Dict
     Returns:
         Dict with experiment spec and evaluation report
     """
-    docs_dir = workspace_root / 'docs'
+    docs_dir = workspace_root / "docs"
 
     # Check prerequisites (can be overridden by Experiment-First pattern)
     if not pattern_override:
-        decision_path = docs_dir / 'architecture-decision.md'
+        decision_path = docs_dir / "architecture-decision.md"
         if not decision_path.exists():
             return {
-                'status': 'failed',
-                'error': 'architecture-decision.md not found. Run omr-decision first OR use pattern override for Experiment-First.'
+                "status": "failed",
+                "error": "architecture-decision.md not found. Run omr-decision first OR use pattern override for Experiment-First.",
             }
 
     # Check existing experiment spec (optional)
-    spec_path = docs_dir / 'experiment-spec.md'
+    spec_path = docs_dir / "experiment-spec.md"
     spec_exists = spec_path.exists()
 
     if not spec_exists:
         # Generate experiment spec
         spec = generate_experiment_spec(workspace_root, pattern_override)
         spec_path.parent.mkdir(parents=True, exist_ok=True)
-        spec_path.write_text(spec['markdown'])
+        spec_path.write_text(spec["markdown"])
 
     # Run evaluation (placeholder - would execute actual tests)
     evaluation = run_experiment(workspace_root)
@@ -49,36 +50,37 @@ def run_evaluation(workspace_root: Path, pattern_override: bool = False) -> Dict
         spec_path=spec_path,
         evaluation=evaluation,
         workspace_root=workspace_root,
-        pattern_override=pattern_override
+        pattern_override=pattern_override,
     )
 
-    report_path = docs_dir / 'evaluation-report.md'
+    report_path = docs_dir / "evaluation-report.md"
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text(report['markdown'])
+    report_path.write_text(report["markdown"])
 
     # Gate C: Experiment design valid?
     gate_passed = check_gate_c(report)
 
-    if not gate_passed['passed']:
+    if not gate_passed["passed"]:
         return {
-            'status': 'gate_failed',
-            'gate': 'C',
-            'message': gate_passed['message'],
-            'spec_path': str(spec_path),
-            'report_path': str(report_path)
+            "status": "gate_failed",
+            "gate": "C",
+            "message": gate_passed["message"],
+            "spec_path": str(spec_path),
+            "report_path": str(report_path),
         }
 
     # Update skill tree
     update_tree_state(workspace_root)
 
     return {
-        'status': 'success',
-        'gate_passed': gate_passed['passed'],
-        'spec_path': str(spec_path),
-        'report_path': str(report_path),
-        'hypothesis_supported': evaluation['hypothesis_supported'],
-        'pattern_override': pattern_override
+        "status": "success",
+        "gate_passed": gate_passed["passed"],
+        "spec_path": str(spec_path),
+        "report_path": str(report_path),
+        "hypothesis_supported": evaluation["hypothesis_supported"],
+        "pattern_override": pattern_override,
     }
+
 
 def generate_experiment_spec(workspace_root: Path, pattern_override: bool) -> Dict:
     """
@@ -91,27 +93,24 @@ def generate_experiment_spec(workspace_root: Path, pattern_override: bool) -> Di
     Returns:
         Dict with spec_id, markdown
     """
-    docs_dir = workspace_root / 'docs'
+    docs_dir = workspace_root / "docs"
 
     # Read decision if available
-    decision_path = docs_dir / 'architecture-decision.md'
+    decision_path = docs_dir / "architecture-decision.md"
     decision_text = ""
     if decision_path.exists():
         decision_text = decision_path.read_text()
 
-    # Read evidence map for hypothesis extraction
-    evidence_map_path = docs_dir / 'evidence-map.md'
-    evidence_text = ""
-    if evidence_map_path.exists():
-        evidence_text = evidence_map_path.read_text()
-
     # Extract hypothesis to validate (simplified)
     import re
+
     hypothesis = "Selected architecture approach meets performance requirements"
 
     if decision_text:
         # Try to extract from selected alternative description
-        selected_match = re.search(r'\*\*Selected Alternative\*\*\n\n\*\*([^*]+)\*\*', decision_text)
+        selected_match = re.search(
+            r"\*\*Selected Alternative\*\*\n\n\*\*([^*]+)\*\*", decision_text
+        )
         if selected_match:
             selected_name = selected_match.group(1)
             hypothesis = f"{selected_name} meets defined requirements and constraints"
@@ -124,13 +123,13 @@ def generate_experiment_spec(workspace_root: Path, pattern_override: bool) -> Di
 
 **Generated**: {datetime.now().isoformat()}
 
-**Mode**: {'Exploratory (Experiment-First)' if pattern_override else 'Validation (Standard)'}
+**Mode**: {"Exploratory (Experiment-First)" if pattern_override else "Validation (Standard)"}
 
 ---
 
 ## Hypothesis
 
-**Primary Hypothesis**: Selected architecture approach will meet performance requirements
+**Primary Hypothesis**: {hypothesis}
 
 **Test**: Evaluate implementation against defined metrics
 
@@ -179,10 +178,8 @@ def generate_experiment_spec(workspace_root: Path, pattern_override: bool) -> Di
 
 _Generated by omr-evaluation_"""
 
-    return {
-        'spec_id': spec_id,
-        'markdown': markdown
-    }
+    return {"spec_id": spec_id, "markdown": markdown}
+
 
 def run_experiment(workspace_root: Path) -> Dict:
     """
@@ -196,8 +193,8 @@ def run_experiment(workspace_root: Path) -> Dict:
     Returns:
         Dict with results
     """
-    docs_dir = workspace_root / 'docs'
-    src_dir = workspace_root / 'src' / 'prototype'
+    docs_dir = workspace_root / "docs"
+    src_dir = workspace_root / "src" / "prototype"
 
     # Create prototype directory
     src_dir.mkdir(parents=True, exist_ok=True)
@@ -208,47 +205,57 @@ def run_experiment(workspace_root: Path) -> Dict:
     checks_performed = []
 
     # Check 1: Evidence map exists
-    evidence_exists = (docs_dir / 'evidence-map.md').exists()
-    checks_performed.append({
-        'check': 'Evidence foundation exists',
-        'result': 'PASS' if evidence_exists else 'FAIL',
-        'details': 'Evidence map provides foundation for evaluation'
-    })
+    evidence_exists = (docs_dir / "evidence-map.md").exists()
+    checks_performed.append(
+        {
+            "check": "Evidence foundation exists",
+            "result": "PASS" if evidence_exists else "FAIL",
+            "details": "Evidence map provides foundation for evaluation",
+        }
+    )
 
     # Check 2: Decision documented (if not pattern override)
-    decision_exists = (docs_dir / 'architecture-decision.md').exists()
-    checks_performed.append({
-        'check': 'Architecture decision documented',
-        'result': 'PASS' if decision_exists else 'N/A (Experiment-First)',
-        'details': 'Decision provides validation target'
-    })
+    decision_exists = (docs_dir / "architecture-decision.md").exists()
+    checks_performed.append(
+        {
+            "check": "Architecture decision documented",
+            "result": "PASS" if decision_exists else "N/A (Experiment-First)",
+            "details": "Decision provides validation target",
+        }
+    )
 
     # Check 3: Judgment summary exists
-    judgment_exists = (docs_dir / 'judgment-summary.md').exists()
-    checks_performed.append({
-        'check': 'Judgment summary exists',
-        'result': 'PASS' if judgment_exists else 'FAIL',
-        'details': 'Judgment provides quality baseline'
-    })
+    judgment_exists = (docs_dir / "judgment-summary.md").exists()
+    checks_performed.append(
+        {
+            "check": "Judgment summary exists",
+            "result": "PASS" if judgment_exists else "FAIL",
+            "details": "Judgment provides quality baseline",
+        }
+    )
 
     # Calculate overall support
-    passed_checks = sum(1 for c in checks_performed if c['result'] == 'PASS')
+    passed_checks = sum(1 for c in checks_performed if c["result"] == "PASS")
     total_checks = len(checks_performed)
 
     # Generate metrics from checks (simplified)
     metrics = {
-        'validation_checks_passed': passed_checks,
-        'validation_checks_total': total_checks,
-        'pass_rate': round(passed_checks / total_checks * 100, 1) if total_checks > 0 else 0,
-        'execution_time': 0.5,  # Simplified check time
-        'artifacts_consistent': all(c['result'] in ['PASS', 'N/A'] for c in checks_performed)
+        "validation_checks_passed": passed_checks,
+        "validation_checks_total": total_checks,
+        "pass_rate": round(passed_checks / total_checks * 100, 1)
+        if total_checks > 0
+        else 0,
+        "execution_time": 0.5,  # Simplified check time
+        "artifacts_consistent": all(
+            c["result"] in ["PASS", "N/A"] for c in checks_performed
+        ),
     }
 
     # Hypothesis supported if key checks pass
     hypothesis_supported = passed_checks >= 2 and evidence_exists
 
     # Write simple prototype check log
-    check_log_path = src_dir / 'validation-checks.md'
+    check_log_path = src_dir / "validation-checks.md"
     check_log = "# Validation Checks Log\n\n"
     for check in checks_performed:
         check_log += f"- **{check['check']}**: {check['result']}\n"
@@ -257,20 +264,20 @@ def run_experiment(workspace_root: Path) -> Dict:
     check_log_path.write_text(check_log)
 
     results = {
-        'hypothesis_supported': hypothesis_supported,
-        'metrics': metrics,
-        'scenarios_tested': total_checks,
-        'scenarios_passed': passed_checks,
-        'checks_performed': checks_performed,
-        'validation_type': 'artifact_consistency'
+        "hypothesis_supported": hypothesis_supported,
+        "metrics": metrics,
+        "scenarios_tested": total_checks,
+        "scenarios_passed": passed_checks,
+        "checks_performed": checks_performed,
+        "validation_type": "artifact_consistency",
     }
 
     return results
 
-def generate_evaluation_report(spec_path: Path,
-                                evaluation: Dict,
-                                workspace_root: Path,
-                                pattern_override: bool) -> Dict:
+
+def generate_evaluation_report(
+    spec_path: Path, evaluation: Dict, workspace_root: Path, pattern_override: bool
+) -> Dict:
     """
     Generate evaluation report
 
@@ -285,7 +292,7 @@ def generate_evaluation_report(spec_path: Path,
     """
     report_id = "EVAL-001"
 
-    metrics = evaluation['metrics']
+    metrics = evaluation["metrics"]
 
     markdown = f"""# Evaluation Report
 
@@ -295,15 +302,15 @@ def generate_evaluation_report(spec_path: Path,
 
 **Experiment**: {spec_path.name}
 
-**Mode**: {'Exploratory' if pattern_override else 'Validation'}
+**Mode**: {"Exploratory" if pattern_override else "Validation"}
 
 ---
 
 ## Hypothesis Result
 
-**Supported**: {evaluation['hypothesis_supported']}
+**Supported**: {evaluation["hypothesis_supported"]}
 
-**Confidence**: {'High' if evaluation['scenarios_passed'] >= 12 else 'Medium'}
+**Confidence**: {"High" if evaluation["scenarios_passed"] >= 12 else "Medium"}
 
 ---
 
@@ -318,7 +325,7 @@ def generate_evaluation_report(spec_path: Path,
     markdown += "## Scenario Testing\n\n"
     markdown += f"- **Scenarios Tested**: {evaluation['scenarios_tested']}\n"
     markdown += f"- **Scenarios Passed**: {evaluation['scenarios_passed']}\n"
-    markdown += f"- **Pass Rate**: {evaluation['scenarios_passed']/evaluation['scenarios_tested']*100:.1f}%\n\n"
+    markdown += f"- **Pass Rate**: {evaluation['scenarios_passed'] / evaluation['scenarios_tested'] * 100:.1f}%\n\n"
 
     markdown += "---\n\n"
     markdown += "## Decision Validation\n\n"
@@ -333,7 +340,7 @@ def generate_evaluation_report(spec_path: Path,
     markdown += "---\n\n"
     markdown += "## Recommendations\n\n"
 
-    if evaluation['hypothesis_supported']:
+    if evaluation["hypothesis_supported"]:
         markdown += "- Proceed to synthesis (omr-synthesis)\n"
         markdown += "- Document findings in survey/report\n"
         markdown += "- Consider additional validation if confidence is medium\n\n"
@@ -344,10 +351,8 @@ def generate_evaluation_report(spec_path: Path,
 
     markdown += "\n_Generated by omr-evaluation_"
 
-    return {
-        'report_id': report_id,
-        'markdown': markdown
-    }
+    return {"report_id": report_id, "markdown": markdown}
+
 
 def check_gate_c(report: Dict) -> Dict:
     """
@@ -365,15 +370,15 @@ def check_gate_c(report: Dict) -> Dict:
         Dict with passed, message
     """
     # Check metrics defined
-    metrics_defined = 'Metric Results' in report['markdown']
+    metrics_defined = "Metric Results" in report["markdown"]
 
     # Check failure conditions (in spec)
-    failure_conditions = 'Failure Conditions' in report['markdown']  # Would check spec
+    failure_conditions = "Failure Conditions" in report["markdown"]
 
     # Check reproducible (scenarios documented)
-    reproducible = 'Scenarios Tested' in report['markdown']
+    reproducible = "Scenarios Tested" in report["markdown"]
 
-    passed = metrics_defined and reproducible
+    passed = metrics_defined and reproducible and failure_conditions
 
     if passed:
         message = "Gate C passed: Experiment design valid"
@@ -383,13 +388,13 @@ def check_gate_c(report: Dict) -> Dict:
             missing.append("Metrics not defined")
         if not reproducible:
             missing.append("Evaluation not reproducible")
+        if not failure_conditions:
+            missing.append("Failure conditions not documented")
 
         message = f"Gate C failed: {', '.join(missing)}"
 
-    return {
-        'passed': passed,
-        'message': message
-    }
+    return {"passed": passed, "message": message}
+
 
 def update_tree_state(workspace_root: Path):
     """
@@ -398,7 +403,7 @@ def update_tree_state(workspace_root: Path):
     Args:
         workspace_root: Project workspace
     """
-    tree_state_path = workspace_root / '.omr' / 'tree-state.json'
+    tree_state_path = workspace_root / ".omr" / "tree-state.json"
 
     if not tree_state_path.exists():
         return
@@ -406,18 +411,19 @@ def update_tree_state(workspace_root: Path):
     state = json.loads(tree_state_path.read_text())
 
     # Mark omr-evaluation as completed
-    if 'omr-evaluation' in state['ready']:
-        state['ready'].remove('omr-evaluation')
+    if "omr-evaluation" in state["ready"]:
+        state["ready"].remove("omr-evaluation")
 
-    state['completed'].append('omr-evaluation')
+    state["completed"].append("omr-evaluation")
 
     # Unlock omr-synthesis
-    if 'omr-synthesis' in state['locked']:
-        state['locked'].remove('omr-synthesis')
-        state['ready'].append('omr-synthesis')
+    if "omr-synthesis" in state["locked"]:
+        state["locked"].remove("omr-synthesis")
+        state["ready"].append("omr-synthesis")
 
     tree_state_path.parent.mkdir(parents=True, exist_ok=True)
     tree_state_path.write_text(json.dumps(state, indent=2))
+
 
 def main():
     """CLI entry point"""
@@ -426,43 +432,48 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: run_evaluation.py <workspace> [--pattern-override]")
         print("Example: run_evaluation.py /tmp/test-project")
-        print("         run_evaluation.py /tmp/test-project --pattern-override (Experiment-First)")
+        print(
+            "         run_evaluation.py /tmp/test-project --pattern-override (Experiment-First)"
+        )
         sys.exit(1)
 
     workspace = Path(sys.argv[1])
-    pattern_override = '--pattern-override' in sys.argv
+    pattern_override = "--pattern-override" in sys.argv
 
     if pattern_override:
-        print("Running evaluation (Experiment-First mode, no prior decision required)...")
+        print(
+            "Running evaluation (Experiment-First mode, no prior decision required)..."
+        )
     else:
         print("Running evaluation...")
 
     result = run_evaluation(workspace, pattern_override)
 
-    if result['status'] == 'success':
-        print(f"✓ Evaluation complete")
+    if result["status"] == "success":
+        print("✓ Evaluation complete")
         print(f"  Spec: {result['spec_path']}")
         print(f"  Report: {result['report_path']}")
         print(f"  Hypothesis supported: {result['hypothesis_supported']}")
         if pattern_override:
-            print(f"  Mode: Experiment-First (pattern override)")
+            print("  Mode: Experiment-First (pattern override)")
 
-        if result['gate_passed']:
-            print(f"\n⚠️  GATE C: Passed")
-            print(f"  Experiment design valid")
+        if result["gate_passed"]:
+            print("\n⚠️  GATE C: Passed")
+            print("  Experiment design valid")
 
-        print(f"\n📊 Skill tree updated")
-        print(f"  - omr-synthesis [READY]")
-        print(f"  - omr-synthesis [READY]")
+        print("\n📊 Skill tree updated")
+        print("  - omr-synthesis [READY]")
+        print("  - omr-synthesis [READY]")
 
-    elif result['status'] == 'gate_failed':
-        print(f"⚠️  GATE C FAILED")
+    elif result["status"] == "gate_failed":
+        print("⚠️  GATE C FAILED")
         print(f"  {result['message']}")
         print(f"\n  Spec: {result['spec_path']}")
         print(f"  Report draft: {result['report_path']}")
 
     else:
         print(f"✗ Error: {result['error']}")
+
 
 if __name__ == "__main__":
     main()

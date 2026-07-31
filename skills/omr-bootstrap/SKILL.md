@@ -61,26 +61,30 @@ Create `AGENTS.md` with project metadata, skill tree state, and next-step guidan
 
 ### 3. Display Skill Tree
 
-Show the current skill tree state:
+Show the current skill tree state as **Mermaid** (default):
 
+```mermaid
+flowchart TD
+    classDef completed fill:#d4edda,stroke:#28a745,color:#155724
+    classDef ready fill:#fff3cd,stroke:#ffc107,color:#856404
+    classDef unlocked fill:#d1ecf1,stroke:#17a2b8,color:#0c5460
+    classDef locked fill:#e2e3e5,stroke:#6c757d,color:#383d41
+
+    bootstrap["omr-bootstrap ✓"]:::completed
+    collection["omr-collection ○"]:::ready
+    analyze["omr-analyze ● needs materials/"]:::locked
+    idea["omr-idea-note ○"]:::unlocked
+    reconcile["omr-reconcile ○"]:::unlocked
+
+    bootstrap --> collection
+    bootstrap --> idea
+    bootstrap --> reconcile
+    collection --> analyze
 ```
-omr-bootstrap ✓
-    │
-    ├── omr-collection ○  (ready)
-    │       │
-    │       ├── omr-analyze ●  (locked: needs materials/)
-    │       │
-    │       └── omr-idea-note ✓  (can run anytime)
-    │
-    └── omr-reconcile ✓  (can run anytime)
 
-Legend:
-✓ = available (can run now)
-● = locked (missing prerequisites)
-○ = ready (prerequisites satisfied, but not run yet)
+Legend: ✓ completed · ○ ready/unlocked · ● locked
 
 Next recommended: omr-collection
-```
 
 **Update after this skill:** Mark `omr-bootstrap` as ✓ complete, unlock `omr-collection` to ○ ready.
 
@@ -148,9 +152,15 @@ System: ✓ Creating workspace for "agent memory mechanisms"...
         (materials/, docs/, wiki/, src/ will be created on demand)
 
         📊 Skill tree:
-        omr-bootstrap ✓
-        omr-collection ○ (ready)
-        omr-idea-note ✓ (anytime)
+
+        ```mermaid
+        flowchart TD
+            bootstrap["omr-bootstrap ✓"]:::completed
+            collection["omr-collection ○"]:::ready
+            idea["omr-idea-note ○"]:::unlocked
+            bootstrap --> collection
+            bootstrap --> idea
+        ```
 
         What's your first action?
         [1] I have papers to collect

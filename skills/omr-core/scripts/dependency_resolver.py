@@ -9,12 +9,15 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
+
 class DependencyResolver:
     """
     Resolves skill dependencies based on artifact requirements
     """
 
-    def __init__(self, contracts_dir: Path, workspace_root: Path, tree_state_path: Path):
+    def __init__(
+        self, contracts_dir: Path, workspace_root: Path, tree_state_path: Path
+    ):
         """
         Initialize dependency resolver
 
@@ -34,7 +37,7 @@ class DependencyResolver:
         contracts = {}
         for contract_file in self.contracts_dir.glob("*.json"):
             contract_data = json.loads(contract_file.read_text())
-            contracts[contract_data['skill']] = contract_data
+            contracts[contract_data["skill"]] = contract_data
         return contracts
 
     def load_tree_state(self) -> Dict:
@@ -42,11 +45,20 @@ class DependencyResolver:
         if not self.tree_state_path.exists():
             # Default initial state
             return {
-                "unlocked": ["omr-bootstrap", "omr-collection", "omr-idea-note", "omr-reconcile"],
+                "unlocked": [
+                    "omr-bootstrap",
+                    "omr-collection",
+                    "omr-idea-note",
+                    "omr-reconcile",
+                ],
                 "ready": [],
-                "locked": ["omr-analyze", "omr-decision",
-                           "omr-evaluation", "omr-synthesis"],
-                "completed": []
+                "locked": [
+                    "omr-analyze",
+                    "omr-decision",
+                    "omr-evaluation",
+                    "omr-synthesis",
+                ],
+                "completed": [],
             }
         return json.loads(self.tree_state_path.read_text())
 
@@ -55,9 +67,9 @@ class DependencyResolver:
         self.tree_state_path.parent.mkdir(parents=True, exist_ok=True)
         self.tree_state_path.write_text(json.dumps(self.tree_state, indent=2))
 
-    def can_invoke_skill(self,
-                          skill_name: str,
-                          pattern_overrides: Dict = None) -> Tuple[bool, List[str]]:
+    def can_invoke_skill(
+        self, skill_name: str, pattern_overrides: Dict = None
+    ) -> Tuple[bool, List[str]]:
         """
         Check if a skill can be invoked based on prerequisite artifacts
 
@@ -79,9 +91,9 @@ class DependencyResolver:
 
         # Check mandatory prerequisites
         missing = []
-        for requirement in contract.get('requires', []):
-            if not requirement['optional']:
-                artifact = requirement['artifact']
+        for requirement in contract.get("requires", []):
+            if not requirement["optional"]:
+                artifact = requirement["artifact"]
                 if not self._check_artifact_exists(artifact):
                     missing.append(artifact)
 
@@ -116,77 +128,99 @@ class DependencyResolver:
             True if artifact exists
         """
         # Handle different artifact patterns
-        if artifact_pattern.endswith('.md'):
+        if artifact_pattern.endswith(".md"):
             # Specific markdown file
             # Check docs/ directory
-            artifact_path = self.workspace_root / 'docs' / artifact_pattern
+            artifact_path = self.workspace_root / "docs" / artifact_pattern
             if artifact_path.exists():
                 return True
 
             # Check if it's a specific named file anywhere in docs/
-            for subdir in ['', 'ideas', 'archive', 'survey', 'report', 'manuscript', 'brief']:
-                potential_path = self.workspace_root / 'docs' / subdir / artifact_pattern
+            for subdir in [
+                "",
+                "ideas",
+                "archive",
+                "survey",
+                "report",
+                "manuscript",
+                "brief",
+            ]:
+                potential_path = (
+                    self.workspace_root / "docs" / subdir / artifact_pattern
+                )
                 if potential_path.exists():
                     return True
 
         elif (
-            artifact_pattern.startswith('materials/')
-            or artifact_pattern.startswith('raw/')
-            or artifact_pattern in ('materials/', 'materials/*', 'raw/*')
-            or 'materials in raw/' in artifact_pattern
+            artifact_pattern.startswith("materials/")
+            or artifact_pattern.startswith("raw/")
+            or artifact_pattern in ("materials/", "materials/*", "raw/*")
+            or "materials in raw/" in artifact_pattern
         ):
             # Prefer materials/; fall back to legacy raw/ for older workspaces
-            materials_dir = self.workspace_root / 'materials'
+            materials_dir = self.workspace_root / "materials"
             if not materials_dir.exists():
-                materials_dir = self.workspace_root / 'raw'
+                materials_dir = self.workspace_root / "raw"
 
             if not materials_dir.exists():
                 return False
 
             def _has_any_materials(root: Path) -> bool:
-                for subdir in ['papers', 'web', 'github', 'datasets', 'search',
-                               'failed', 'models', 'deep-research']:
+                for subdir in [
+                    "papers",
+                    "web",
+                    "github",
+                    "datasets",
+                    "search",
+                    "failed",
+                    "models",
+                    "deep-research",
+                ]:
                     subdir_path = root / subdir
                     if subdir_path.exists() and any(subdir_path.iterdir()):
                         return True
-                return any(p.is_file() for p in root.rglob('*'))
+                return any(p.is_file() for p in root.rglob("*"))
 
             if artifact_pattern in (
-                'materials/', 'materials/*', 'raw/*', 'materials in raw/'
+                "materials/",
+                "materials/*",
+                "raw/*",
+                "materials in raw/",
             ):
                 return _has_any_materials(materials_dir)
 
             # Specific subdirectory, e.g. materials/papers
-            parts = artifact_pattern.replace('raw/', 'materials/', 1).split('/')
-            if len(parts) >= 2 and parts[1] and parts[1] != '*':
+            parts = artifact_pattern.replace("raw/", "materials/", 1).split("/")
+            if len(parts) >= 2 and parts[1] and parts[1] != "*":
                 subdir_path = materials_dir / parts[1]
                 return subdir_path.exists() and any(subdir_path.iterdir())
 
             return _has_any_materials(materials_dir)
 
-        elif 'workspace' in artifact_pattern:
+        elif "workspace" in artifact_pattern:
             # Workspace itself exists
             return self.workspace_root.exists()
 
-        elif 'OR' in artifact_pattern:
+        elif "OR" in artifact_pattern:
             # Multiple alternatives (e.g., 'evaluation-report.md OR judgment-summary.md')
-            alternatives = [alt.strip() for alt in artifact_pattern.split('OR')]
+            alternatives = [alt.strip() for alt in artifact_pattern.split("OR")]
             return any(self._check_artifact_exists(alt) for alt in alternatives)
 
-        elif 'any' in artifact_pattern:
+        elif "any" in artifact_pattern:
             # Generic check (e.g., 'any artifact', 'any synthesis chapter')
             # Simplistic check: see if docs/ has any files
-            docs_dir = self.workspace_root / 'docs'
+            docs_dir = self.workspace_root / "docs"
             return docs_dir.exists() and any(
-                f for f in docs_dir.rglob('*.md')
-                if 'index' not in str(f)  # Exclude index files
+                f
+                for f in docs_dir.rglob("*.md")
+                if "index" not in str(f)  # Exclude index files
             )
 
         return False
 
-    def update_downstream_skills(self,
-                                  produced_artifacts: List[str],
-                                  pattern_overrides: Dict = None):
+    def update_downstream_skills(
+        self, produced_artifacts: List[str], pattern_overrides: Dict = None
+    ):
         """
         Unlock downstream skills after artifact production
 
@@ -198,25 +232,27 @@ class DependencyResolver:
 
         # Check each locked skill
         new_ready = []
-        for skill_name in self.tree_state['locked']:
+        for skill_name in self.tree_state["locked"]:
             contract = self.contracts.get(skill_name)
             if not contract:
                 continue
 
             # Apply pattern overrides
             if pattern_overrides and skill_name in pattern_overrides:
-                contract = self._apply_overrides(contract, pattern_overrides[skill_name])
+                contract = self._apply_overrides(
+                    contract, pattern_overrides[skill_name]
+                )
 
             # Check if mandatory prerequisites are now satisfied
             mandatory_reqs = [
-                req['artifact'] for req in contract.get('requires', [])
-                if not req['optional']
+                req["artifact"]
+                for req in contract.get("requires", [])
+                if not req["optional"]
             ]
 
             # Check if all mandatory requirements satisfied by produced artifacts
             satisfied = all(
-                self._matches_produced(req, produced_set)
-                for req in mandatory_reqs
+                self._matches_produced(req, produced_set) for req in mandatory_reqs
             )
 
             if satisfied:
@@ -224,8 +260,8 @@ class DependencyResolver:
 
         # Move skills from locked to ready
         for skill in new_ready:
-            self.tree_state['locked'].remove(skill)
-            self.tree_state['ready'].append(skill)
+            self.tree_state["locked"].remove(skill)
+            self.tree_state["ready"].append(skill)
 
         self.save_tree_state()
 
@@ -246,16 +282,16 @@ class DependencyResolver:
 
         # Pattern match (e.g., 'materials/*' matches 'materials/papers/')
         for produced in produced_set:
-            if '*' in required:
-                pattern = required.replace('*', '')
+            if "*" in required:
+                pattern = required.replace("*", "")
                 if pattern in produced:
                     return True
             if required in produced or produced in required:
                 return True
 
         # OR alternatives
-        if 'OR' in required:
-            alternatives = [alt.strip() for alt in required.split('OR')]
+        if "OR" in required:
+            alternatives = [alt.strip() for alt in required.split("OR")]
             return any(alt in produced_set for alt in alternatives)
 
         return False
@@ -268,14 +304,14 @@ class DependencyResolver:
             skill_name: Skill that was completed
         """
         # Remove from unlocked or ready
-        if skill_name in self.tree_state['unlocked']:
-            self.tree_state['unlocked'].remove(skill_name)
-        elif skill_name in self.tree_state['ready']:
-            self.tree_state['ready'].remove(skill_name)
+        if skill_name in self.tree_state["unlocked"]:
+            self.tree_state["unlocked"].remove(skill_name)
+        elif skill_name in self.tree_state["ready"]:
+            self.tree_state["ready"].remove(skill_name)
 
         # Add to completed
-        if skill_name not in self.tree_state['completed']:
-            self.tree_state['completed'].append(skill_name)
+        if skill_name not in self.tree_state["completed"]:
+            self.tree_state["completed"].append(skill_name)
 
         self.save_tree_state()
 
@@ -287,33 +323,39 @@ class DependencyResolver:
             List of skills and their required artifacts
         """
         unlockable = []
-        for skill_name in self.tree_state['locked']:
+        for skill_name in self.tree_state["locked"]:
             contract = self.contracts.get(skill_name)
             if not contract:
                 continue
 
             missing = [
-                req['artifact'] for req in contract.get('requires', [])
-                if not req['optional'] and not self._check_artifact_exists(req['artifact'])
+                req["artifact"]
+                for req in contract.get("requires", [])
+                if not req["optional"]
+                and not self._check_artifact_exists(req["artifact"])
             ]
 
             if missing:
-                unlockable.append({
-                    'skill': skill_name,
-                    'missing_artifacts': missing
-                })
+                unlockable.append({"skill": skill_name, "missing_artifacts": missing})
 
         return unlockable
+
 
 def main():
     """CLI entry point for dependency resolver"""
     import argparse
 
-    parser = argparse.ArgumentParser(description="Dependency resolver for skill invocation")
+    parser = argparse.ArgumentParser(
+        description="Dependency resolver for skill invocation"
+    )
     parser.add_argument("skill", help="Skill name to check or invoke")
     parser.add_argument("--workspace", help="Workspace root path", default=".")
-    parser.add_argument("--check", action="store_true", help="Check if skill can be invoked")
-    parser.add_argument("--complete", action="store_true", help="Mark skill as completed")
+    parser.add_argument(
+        "--check", action="store_true", help="Check if skill can be invoked"
+    )
+    parser.add_argument(
+        "--complete", action="store_true", help="Mark skill as completed"
+    )
     parser.add_argument("--pattern", help="Pattern name for contract overrides")
 
     args = parser.parse_args()
@@ -327,13 +369,27 @@ def main():
     # Ensure tree state exists
     if not tree_state_path.exists():
         tree_state_path.parent.mkdir(parents=True, exist_ok=True)
-        tree_state_path.write_text(json.dumps({
-            "unlocked": ["omr-bootstrap", "omr-collection", "omr-idea-note", "omr-reconcile"],
-            "ready": [],
-            "locked": ["omr-analyze", "omr-decision",
-                       "omr-evaluation", "omr-synthesis"],
-            "completed": []
-        }, indent=2))
+        tree_state_path.write_text(
+            json.dumps(
+                {
+                    "unlocked": [
+                        "omr-bootstrap",
+                        "omr-collection",
+                        "omr-idea-note",
+                        "omr-reconcile",
+                    ],
+                    "ready": [],
+                    "locked": [
+                        "omr-analyze",
+                        "omr-decision",
+                        "omr-evaluation",
+                        "omr-synthesis",
+                    ],
+                    "completed": [],
+                },
+                indent=2,
+            )
+        )
 
     resolver = DependencyResolver(contracts_dir, workspace_root, tree_state_path)
 
@@ -344,7 +400,7 @@ def main():
         pattern_file = patterns_dir / f"{args.pattern}.json"
         if pattern_file.exists():
             pattern = json.loads(pattern_file.read_text())
-            pattern_overrides = pattern.get('contract_overrides', {})
+            pattern_overrides = pattern.get("contract_overrides", {})
 
     if args.check:
         # Check if skill can be invoked
@@ -352,11 +408,11 @@ def main():
 
         if can_invoke:
             print(f"✓ Skill '{args.skill}' can be invoked")
-            print(f"  All prerequisites satisfied")
+            print("  All prerequisites satisfied")
             sys.exit(0)
         else:
             print(f"✗ Skill '{args.skill}' cannot be invoked")
-            print(f"  Missing artifacts:")
+            print("  Missing artifacts:")
             for artifact in missing:
                 print(f"    - {artifact}")
             sys.exit(1)
@@ -370,11 +426,12 @@ def main():
     else:
         # Default: show what would unlock
         unlockable = resolver.get_unlockable_skills()
-        print(f"Locked skills and their requirements:")
+        print("Locked skills and their requirements:")
         for item in unlockable:
             print(f"  {item['skill']}:")
-            for artifact in item['missing_artifacts']:
+            for artifact in item["missing_artifacts"]:
                 print(f"    - {artifact}")
+
 
 if __name__ == "__main__":
     main()

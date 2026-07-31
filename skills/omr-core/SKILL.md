@@ -95,10 +95,12 @@ resolver.update_downstream_skills(['evidence-map.md'])
 - **locked**: Hard dependencies not met
 - **completed**: Skill executed successfully
 
-**Visualization**:
+**Visualization** (Mermaid by default; ASCII opt-in):
 ```bash
-python scripts/skill_tree.py            # Forward dependency view
-python scripts/skill_tree.py --reverse  # Reverse producer view
+python scripts/skill_tree.py                 # Forward Mermaid view
+python scripts/skill_tree.py --reverse       # Reverse Mermaid view
+python scripts/skill_tree.py --ascii         # Forward ASCII view
+python scripts/skill_tree.py --format ascii  # Same as --ascii
 ```
 
 **State file**: `tree/tree-state.json`
@@ -147,7 +149,7 @@ python scripts/validate_contract.py
   - `load_infrastructure(workspace_root)` — resolves paths to contracts, resolver, tree
   - `check_skill_dependency(skill_name, workspace_root)` — prerequisite check
   - `update_skill_tree(workspace_root, artifacts, skill_name)` — post-execution update
-  - `get_skill_tree_visualization(workspace_root, mode)` — ASCII tree output
+  - `get_skill_tree_visualization(workspace_root, mode, format)` — Mermaid tree by default (`format='ascii'` opt-in)
   - `validate_contract(skill_name, workspace_root)` — contract schema check
   - `load_global_infrastructure()` — convenience for non-workspace contexts
 

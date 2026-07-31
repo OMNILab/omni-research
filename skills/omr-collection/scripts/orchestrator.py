@@ -4,22 +4,27 @@ Collection Orchestrator
 Coordinates handler execution, retry logic, fallback mechanism, and error handling
 """
 
-import time
-import json
 import sys
-from pathlib import Path
-from typing import Dict, List, Optional
+import time
 from datetime import datetime
+from pathlib import Path
+from typing import Dict, List
 
 # Setup imports for package structure
 skill_root = Path(__file__).parent.parent
 if str(skill_root) not in sys.path:
     sys.path.insert(0, str(skill_root))
 
-from scripts.input_router import InputRouter, InputType
-from handlers import GenericWebHandler, PaperHandler, GitHubHandler, HuggingFaceHandler
-from handlers.base_handler import BaseHandler
-from utils.runtime_utils import load_infrastructure
+from handlers import (  # noqa: E402
+    GenericWebHandler,
+    GitHubHandler,
+    HuggingFaceHandler,
+    PaperHandler,
+)
+from utils.runtime_utils import load_infrastructure  # noqa: E402
+
+from scripts.input_router import InputRouter  # noqa: E402
+
 
 class CollectionOrchestrator:
     """
@@ -38,17 +43,19 @@ class CollectionOrchestrator:
 
         # Initialize handlers
         self.handlers = {
-            'paper': PaperHandler(workspace_root),
-            'github': GitHubHandler(workspace_root),
-            'huggingface': HuggingFaceHandler(workspace_root),
-            'generic_web': GenericWebHandler(workspace_root)
+            "paper": PaperHandler(workspace_root),
+            "github": GitHubHandler(workspace_root),
+            "huggingface": HuggingFaceHandler(workspace_root),
+            "generic_web": GenericWebHandler(workspace_root),
         }
 
-    def collect(self,
-                sources: List[str],
-                override_flags: Dict = None,
-                max_retries: int = 2,
-                retry_delay: float = 2.0) -> Dict:
+    def collect(
+        self,
+        sources: List[str],
+        override_flags: Dict = None,
+        max_retries: int = 2,
+        retry_delay: float = 2.0,
+    ) -> Dict:
         """
         Collect materials from multiple sources with error handling
 
@@ -67,29 +74,25 @@ class CollectionOrchestrator:
         routed = self.router.route_inputs(sources)
 
         # Process each source
-        results = {
-            'collected': [],
-            'failed': [],
-            'search_triggered': None
-        }
+        results = {"collected": [], "failed": [], "search_triggered": None}
 
         # Check if search mode triggered
-        search_items = [item for item in routed if item['is_search']]
+        search_items = [item for item in routed if item["is_search"]]
         if search_items:
             # Handle search separately
-            search_query = search_items[0]['extracted_id']
-            results['search_triggered'] = search_query
+            search_query = search_items[0]["extracted_id"]
+            results["search_triggered"] = search_query
             # Note: Search collection handled separately by search.py
             return results
 
         # Process direct inputs
         for item in routed:
-            if item['is_search']:
+            if item["is_search"]:
                 continue  # Skip search items (handled above)
 
-            source = item['input']
-            handler_name = item['handler']
-            extracted_id = item['extracted_id']
+            source = item["input"]
+            handler_name = item["handler"]
+            extracted_id = item["extracted_id"]
 
             # Attempt collection with retry + fallback
             result = self._collect_single(
@@ -98,34 +101,36 @@ class CollectionOrchestrator:
                 extracted_id=extracted_id,
                 override_flags=override_flags,
                 max_retries=max_retries,
-                retry_delay=retry_delay
+                retry_delay=retry_delay,
             )
 
-            if result['status'] == 'success':
-                results['collected'].append(result)
+            if result["status"] == "success":
+                results["collected"].append(result)
             else:
-                results['failed'].append(result)
+                results["failed"].append(result)
 
         # Generate summary
-        results['summary'] = {
-            'total_sources': len(sources),
-            'collected_count': len(results['collected']),
-            'failed_count': len(results['failed']),
-            'collected_at': datetime.now().isoformat()
+        results["summary"] = {
+            "total_sources": len(sources),
+            "collected_count": len(results["collected"]),
+            "failed_count": len(results["failed"]),
+            "collected_at": datetime.now().isoformat(),
         }
 
         # Update skill tree (unlock downstream)
-        self._update_skill_tree(results['collected'])
+        self._update_skill_tree(results["collected"])
 
         return results
 
-    def _collect_single(self,
-                        source: str,
-                        handler_name: str,
-                        extracted_id: str,
-                        override_flags: Dict,
-                        max_retries: int,
-                        retry_delay: float) -> Dict:
+    def _collect_single(
+        self,
+        source: str,
+        handler_name: str,
+        extracted_id: str,
+        override_flags: Dict,
+        max_retries: int,
+        retry_delay: float,
+    ) -> Dict:
         """
         Collect single source with retry + fallback
 
@@ -144,12 +149,12 @@ class CollectionOrchestrator:
 
         if not handler:
             return {
-                'status': 'failed',
-                'source': source,
-                'error_type': 'no_handler',
-                'error_message': f"No handler for {handler_name}",
-                'retry_attempts': 0,
-                'fallback_attempted': False
+                "status": "failed",
+                "source": source,
+                "error_type": "no_handler",
+                "error_message": f"No handler for {handler_name}",
+                "retry_attempts": 0,
+                "fallback_attempted": False,
             }
 
         # Attempt primary handler with retry
@@ -168,18 +173,18 @@ class CollectionOrchestrator:
                 stored = handler.store(
                     source=source,
                     markdown_content=markdown,
-                    metadata=fetched.get('metadata', {}),
-                    **override_flags
+                    metadata=fetched.get("metadata", {}),
+                    **override_flags,
                 )
 
                 return {
-                    'status': 'success',
-                    'source': source,
-                    'handler': handler_name,
-                    'artifact_id': stored['artifact_id'],
-                    'file_path': stored['file_path'],
-                    'metadata': stored['metadata'],
-                    'retry_attempts': retry_attempts
+                    "status": "success",
+                    "source": source,
+                    "handler": handler_name,
+                    "artifact_id": stored["artifact_id"],
+                    "file_path": stored["file_path"],
+                    "metadata": stored["metadata"],
+                    "retry_attempts": retry_attempts,
                 }
 
             except Exception as e:
@@ -194,9 +199,9 @@ class CollectionOrchestrator:
         # Primary handler failed after retries
         # Try fallback (Generic Web)
         fallback_attempted = False
-        fallback_handler = self.handlers.get('generic_web')
+        fallback_handler = self.handlers.get("generic_web")
 
-        if fallback_handler and handler_name != 'generic_web':
+        if fallback_handler and handler_name != "generic_web":
             fallback_attempted = True
 
             try:
@@ -206,19 +211,19 @@ class CollectionOrchestrator:
                 stored = fallback_handler.store(
                     source=source,
                     markdown_content=markdown,
-                    metadata=fetched.get('metadata', {}),
-                    **override_flags
+                    metadata=fetched.get("metadata", {}),
+                    **override_flags,
                 )
 
                 return {
-                    'status': 'success',
-                    'source': source,
-                    'handler': 'generic_web (fallback)',
-                    'artifact_id': stored['artifact_id'],
-                    'file_path': stored['file_path'],
-                    'metadata': stored['metadata'],
-                    'retry_attempts': retry_attempts,
-                    'fallback_attempted': True
+                    "status": "success",
+                    "source": source,
+                    "handler": "generic_web (fallback)",
+                    "artifact_id": stored["artifact_id"],
+                    "file_path": stored["file_path"],
+                    "metadata": stored["metadata"],
+                    "retry_attempts": retry_attempts,
+                    "fallback_attempted": True,
                 }
 
             except Exception as fallback_error:
@@ -228,19 +233,19 @@ class CollectionOrchestrator:
         # Create error artifact
         handler.create_error_artifact(
             source=source,
-            error_type='collection_failed',
+            error_type="collection_failed",
             error_message=last_error,
             retry_attempts=retry_attempts,
-            fallback_attempted=fallback_attempted
+            fallback_attempted=fallback_attempted,
         )
 
         return {
-            'status': 'failed',
-            'source': source,
-            'error_type': 'collection_failed',
-            'error_message': last_error,
-            'retry_attempts': retry_attempts,
-            'fallback_attempted': fallback_attempted
+            "status": "failed",
+            "source": source,
+            "error_type": "collection_failed",
+            "error_message": last_error,
+            "retry_attempts": retry_attempts,
+            "fallback_attempted": fallback_attempted,
         }
 
     def _update_skill_tree(self, collected: List[Dict]):
@@ -256,24 +261,24 @@ class CollectionOrchestrator:
         # Static contracts come from installed omr-core; mutable state stays
         # inside the research workspace.
         infra = load_infrastructure(self.workspace_root)
-        resolver = infra['resolver'](
-            infra['contracts_dir'],
+        resolver = infra["resolver"](
+            infra["contracts_dir"],
             self.workspace_root,
-            infra['tree_state_path'],
+            infra["tree_state_path"],
         )
 
         # Get produced artifacts
         produced_artifacts = set()
         for item in collected:
-            file_path = item.get('file_path', '')
+            file_path = item.get("file_path", "")
             if file_path:
                 # Extract artifact pattern (e.g., 'materials/papers/')
-                if 'materials/papers/' in file_path:
-                    produced_artifacts.add('materials/')
-                elif 'materials/web/' in file_path:
-                    produced_artifacts.add('materials/')
-                elif 'materials/github/' in file_path:
-                    produced_artifacts.add('materials/')
+                if "materials/papers/" in file_path:
+                    produced_artifacts.add("materials/")
+                elif "materials/web/" in file_path:
+                    produced_artifacts.add("materials/")
+                elif "materials/github/" in file_path:
+                    produced_artifacts.add("materials/")
 
         # Update downstream skills
         resolver.update_downstream_skills(list(produced_artifacts))
@@ -285,34 +290,33 @@ class CollectionOrchestrator:
         Args:
             results: Collection results dict
         """
-        summary = results.get('summary', {})
-
         print(f"\n{'=' * 80}")
-        print(f"Collection Summary")
+        print("Collection Summary")
         print(f"{'=' * 80}\n")
 
-        if results['collected']:
+        if results["collected"]:
             print(f"✓ Collected {len(results['collected'])} artifacts")
 
             # Group by source type
             by_type = {}
-            for item in results['collected']:
-                source_type = item['metadata'].get('source_type', 'unknown')
+            for item in results["collected"]:
+                source_type = item["metadata"].get("source_type", "unknown")
                 by_type[source_type] = by_type.get(source_type, 0) + 1
 
             for source_type, count in by_type.items():
                 print(f"  - {source_type}: {count}")
 
-        if results['failed']:
+        if results["failed"]:
             print(f"\n⚠ Failed: {len(results['failed'])} sources")
-            for item in results['failed']:
+            for item in results["failed"]:
                 print(f"  - {item['source']} ({item['error_type']})")
 
-        if results['search_triggered']:
+        if results["search_triggered"]:
             print(f"\n🔍 Search triggered: '{results['search_triggered']}'")
-            print(f"  Run search collection separately")
+            print("  Run search collection separately")
 
         print(f"\n{'=' * 80}\n")
+
 
 def main():
     """Test collection orchestrator"""
@@ -320,7 +324,9 @@ def main():
 
     if len(sys.argv) < 2:
         print("Usage: orchestrator.py <workspace> <sources>")
-        print("Example: orchestrator.py /tmp/test-project 2402.12345 github.com/user/repo")
+        print(
+            "Example: orchestrator.py /tmp/test-project 2402.12345 github.com/user/repo"
+        )
         sys.exit(1)
 
     workspace = Path(sys.argv[1])
@@ -332,6 +338,7 @@ def main():
     results = orchestrator.collect(sources)
 
     orchestrator.print_summary(results)
+
 
 if __name__ == "__main__":
     main()

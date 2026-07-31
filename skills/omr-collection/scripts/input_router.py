@@ -5,11 +5,13 @@ Detects input type (URL, DOI, Arxiv ID, Search Query) and routes to appropriate 
 """
 
 import re
-from typing import Tuple, Optional
 from enum import Enum
+from typing import Optional, Tuple
+
 
 class InputType(Enum):
     """Input type classification"""
+
     URL_HTTP = "url_http"
     URL_HTTPS = "url_https"
     DOI = "doi"
@@ -20,20 +22,25 @@ class InputType(Enum):
     LOCAL_PATH = "local_path"
     UNKNOWN = "unknown"
 
+
 class InputRouter:
     """
     Routes inputs to appropriate handlers based on pattern matching
     """
 
     # Pattern definitions
-    DOI_PATTERN = re.compile(r'^10\.\d{4,9}/[-._;()/:A-Z0-9]+$', re.IGNORECASE)
-    ARXIV_ID_PATTERN = re.compile(r'^(\d{4}\.\d{4,5}|[a-z-]+/\d{7})$', re.IGNORECASE)
-    ARXIV_URL_PATTERN = re.compile(r'arxiv\.org/(abs|pdf)/(\d{4}\.\d{4,5})', re.IGNORECASE)
-    GITHUB_URL_PATTERN = re.compile(r'github\.com/([\w-]+)/([\w-]+)', re.IGNORECASE)
-    HUGGINGFACE_URL_PATTERN = re.compile(r'huggingface\.co/(datasets|models)/([\w-]+)/([\w-]+)', re.IGNORECASE)
-    PDF_URL_PATTERN = re.compile(r'https?://.*\.pdf$', re.IGNORECASE)
-    URL_PATTERN = re.compile(r'^https?://', re.IGNORECASE)
-    LOCAL_PATH_PATTERN = re.compile(r'^[./]|^[A-Za-z]:\\')  # Unix or Windows paths
+    DOI_PATTERN = re.compile(r"^10\.\d{4,9}/[-._;()/:A-Z0-9]+$", re.IGNORECASE)
+    ARXIV_ID_PATTERN = re.compile(r"^(\d{4}\.\d{4,5}|[a-z-]+/\d{7})$", re.IGNORECASE)
+    ARXIV_URL_PATTERN = re.compile(
+        r"arxiv\.org/(abs|pdf)/(\d{4}\.\d{4,5})", re.IGNORECASE
+    )
+    GITHUB_URL_PATTERN = re.compile(r"github\.com/([\w-]+)/([\w-]+)", re.IGNORECASE)
+    HUGGINGFACE_URL_PATTERN = re.compile(
+        r"huggingface\.co/(datasets|models)/([\w-]+)/([\w-]+)", re.IGNORECASE
+    )
+    PDF_URL_PATTERN = re.compile(r"https?://.*\.pdf$", re.IGNORECASE)
+    URL_PATTERN = re.compile(r"^https?://", re.IGNORECASE)
+    LOCAL_PATH_PATTERN = re.compile(r"^[./]|^[A-Za-z]:\\")  # Unix or Windows paths
 
     def classify_input(self, input_str: str) -> Tuple[InputType, Optional[str]]:
         """
@@ -55,7 +62,10 @@ class InputRouter:
         pdf_url_match = self.PDF_URL_PATTERN.search(input_str)
         if pdf_url_match:
             # Treat as paper for PDF conversion
-            return InputType.URL_HTTPS, input_str  # Will be routed to paper handler based on .pdf extension
+            return (
+                InputType.URL_HTTPS,
+                input_str,
+            )  # Will be routed to paper handler based on .pdf extension
 
         # Check for arXiv URL first (extract ID)
         arxiv_match = self.ARXIV_URL_PATTERN.search(input_str)
@@ -89,7 +99,7 @@ class InputRouter:
         # Check for URL (HTTP/HTTPS)
         url_match = self.URL_PATTERN.match(input_str)
         if url_match:
-            if input_str.startswith('https://'):
+            if input_str.startswith("https://"):
                 return InputType.URL_HTTPS, input_str
             else:
                 return InputType.URL_HTTP, input_str
@@ -115,22 +125,22 @@ class InputRouter:
             Handler name ('generic_web', 'paper', 'github', 'huggingface')
         """
         # Check if URL ends with .pdf, route to paper handler
-        if extracted_id and extracted_id.endswith('.pdf'):
-            return 'paper'
+        if extracted_id and extracted_id.endswith(".pdf"):
+            return "paper"
 
         handler_map = {
-            InputType.URL_HTTP: 'generic_web',
-            InputType.URL_HTTPS: 'generic_web',
-            InputType.DOI: 'paper',
-            InputType.ARXIV_ID: 'paper',
-            InputType.GITHUB_URL: 'github',
-            InputType.HUGGINGFACE_URL: 'huggingface',
-            InputType.LOCAL_PATH: 'generic_web',  # Will need special handling
-            InputType.SEARCH_QUERY: 'search',  # Special mode
-            InputType.UNKNOWN: 'generic_web'
+            InputType.URL_HTTP: "generic_web",
+            InputType.URL_HTTPS: "generic_web",
+            InputType.DOI: "paper",
+            InputType.ARXIV_ID: "paper",
+            InputType.GITHUB_URL: "github",
+            InputType.HUGGINGFACE_URL: "huggingface",
+            InputType.LOCAL_PATH: "generic_web",  # Will need special handling
+            InputType.SEARCH_QUERY: "search",  # Special mode
+            InputType.UNKNOWN: "generic_web",
         }
 
-        return handler_map.get(input_type, 'generic_web')
+        return handler_map.get(input_type, "generic_web")
 
     def is_search_mode(self, input_type: InputType) -> bool:
         """
@@ -160,15 +170,18 @@ class InputRouter:
             input_type, extracted_id = self.classify_input(input_str)
             handler = self.get_handler_name(input_type, extracted_id)
 
-            routed.append({
-                'input': input_str,
-                'input_type': input_type.value,
-                'handler': handler,
-                'extracted_id': extracted_id,
-                'is_search': self.is_search_mode(input_type)
-            })
+            routed.append(
+                {
+                    "input": input_str,
+                    "input_type": input_type.value,
+                    "handler": handler,
+                    "extracted_id": extracted_id,
+                    "is_search": self.is_search_mode(input_type),
+                }
+            )
 
         return routed
+
 
 def route_inputs(inputs: list[str]) -> list[dict]:
     """
@@ -187,15 +200,18 @@ def route_inputs(inputs: list[str]) -> list[dict]:
         input_type, extracted_id = router.classify_input(input_str)
         handler = router.get_handler_name(input_type, extracted_id)
 
-        routed.append({
-            'input': input_str,
-            'input_type': input_type.value,
-            'handler': handler,
-            'extracted_id': extracted_id,
-            'is_search': router.is_search_mode(input_type)
-        })
+        routed.append(
+            {
+                "input": input_str,
+                "input_type": input_type.value,
+                "handler": handler,
+                "extracted_id": extracted_id,
+                "is_search": router.is_search_mode(input_type),
+            }
+        )
 
     return routed
+
 
 def main():
     """CLI test for input router"""
@@ -203,7 +219,9 @@ def main():
 
     if len(sys.argv) < 2:
         print("Usage: input_router.py <inputs>")
-        print("Example: input_router.py 'https://arxiv.org/abs/2402.12345' '10.1234/paper' 'agent memory'")
+        print(
+            "Example: input_router.py 'https://arxiv.org/abs/2402.12345' '10.1234/paper' 'agent memory'"
+        )
         sys.exit(1)
 
     inputs = sys.argv[1:]
@@ -218,6 +236,7 @@ def main():
         print(f"  Extracted ID: {item['extracted_id']}")
         print(f"  Is Search: {item['is_search']}")
         print()
+
 
 if __name__ == "__main__":
     main()

@@ -5,22 +5,23 @@ Fetches papers from arXiv, DOI links, and converts PDFs to markdown
 """
 
 import hashlib
-import json
-import requests
+import re
+import subprocess
 import sys
+import tempfile
+from datetime import datetime
 from pathlib import Path
 from typing import Dict
-from datetime import datetime
-import subprocess
-import tempfile
-import re
+
+import requests
 
 # Setup imports for package structure
 skill_root = Path(__file__).parent.parent
 if str(skill_root) not in sys.path:
     sys.path.insert(0, str(skill_root))
 
-from .base_handler import BaseHandler
+from .base_handler import BaseHandler  # noqa: E402
+
 
 class PaperHandler(BaseHandler):
     """
@@ -46,13 +47,13 @@ class PaperHandler(BaseHandler):
             Dict with pdf_path, metadata
         """
         # Detect source type
-        if source.startswith('10.'):
+        if source.startswith("10."):
             # DOI
             return self._fetch_from_doi(source, **kwargs)
-        elif source.isdigit() or '.' in source and len(source.split('.')) == 2:
+        elif source.isdigit() or "." in source and len(source.split(".")) == 2:
             # Likely arXiv ID (e.g., "2402.12345")
             return self._fetch_from_arxiv(source, **kwargs)
-        elif source.endswith('.pdf'):
+        elif source.endswith(".pdf"):
             # Direct PDF URL
             return self._fetch_pdf_direct(source, **kwargs)
         else:
@@ -70,12 +71,12 @@ class PaperHandler(BaseHandler):
             Dict with pdf_path, metadata
         """
         # Try arxiv SDK first (enhanced reliability + rich metadata)
-        try:
-            import arxiv
+        import importlib.util
+
+        if importlib.util.find_spec("arxiv") is not None:
             return self._fetch_with_arxiv_sdk(arxiv_id, **kwargs)
-        except ImportError:
-            # Fallback: Direct HTTP download (existing implementation)
-            return self._fetch_with_arxiv_http(arxiv_id, **kwargs)
+        # Fallback: Direct HTTP download (existing implementation)
+        return self._fetch_with_arxiv_http(arxiv_id, **kwargs)
 
     def _fetch_with_arxiv_sdk(self, arxiv_id: str, **kwargs) -> Dict:
         """
@@ -91,11 +92,7 @@ class PaperHandler(BaseHandler):
         import arxiv
 
         # Configure client with retry logic
-        client = arxiv.Client(
-            page_size=1,
-            delay_seconds=3.0,
-            num_retries=3
-        )
+        client = arxiv.Client(page_size=1, delay_seconds=3.0, num_retries=3)
 
         # Search by arxiv ID
         search = arxiv.Search(id_list=[arxiv_id])
@@ -110,10 +107,7 @@ class PaperHandler(BaseHandler):
         temp_dir = Path(tempfile.mkdtemp())
         pdf_path = temp_dir / "paper.pdf"
 
-        result.download_pdf(
-            dirpath=str(pdf_path.parent),
-            filename="paper.pdf"
-        )
+        result.download_pdf(dirpath=str(pdf_path.parent), filename="paper.pdf")
 
         # Extract rich metadata (minimal parsing boundary: metadata only)
         metadata = {
@@ -124,13 +118,12 @@ class PaperHandler(BaseHandler):
             "doi": result.doi or None,
             "categories": list(result.categories) if result.categories else [],
             "source_url": result.entry_id,
-            "summary": result.summary[:200] + "..." if len(result.summary) > 200 else result.summary
+            "summary": result.summary[:200] + "..."
+            if len(result.summary) > 200
+            else result.summary,
         }
 
-        return {
-            "pdf_path": pdf_path,
-            "metadata": metadata
-        }
+        return {"pdf_path": pdf_path, "metadata": metadata}
 
     def _fetch_with_arxiv_http(self, arxiv_id: str, **kwargs) -> Dict:
         """
@@ -152,10 +145,7 @@ class PaperHandler(BaseHandler):
         # Extract minimal metadata from arXiv API
         metadata = self._fetch_arxiv_metadata(arxiv_id)
 
-        return {
-            "pdf_path": pdf_path,
-            "metadata": metadata
-        }
+        return {"pdf_path": pdf_path, "metadata": metadata}
 
     def _fetch_from_doi(self, doi: str, **kwargs) -> Dict:
         """
@@ -177,16 +167,10 @@ class PaperHandler(BaseHandler):
             final_url = response.url
 
             # Check if final URL is a PDF
-            if final_url.endswith('.pdf'):
+            if final_url.endswith(".pdf"):
                 pdf_path = self._download_pdf(final_url)
-                metadata = {
-                    "DOI": doi,
-                    "source_url": final_url
-                }
-                return {
-                    "pdf_path": pdf_path,
-                    "metadata": metadata
-                }
+                metadata = {"DOI": doi, "source_url": final_url}
+                return {"pdf_path": pdf_path, "metadata": metadata}
             else:
                 # Fall back to trying to find PDF link
                 # (Simplified - real implementation would parse HTML)
@@ -212,13 +196,10 @@ class PaperHandler(BaseHandler):
 
         metadata = {
             "source_url": pdf_url,
-            **pdf_metadata  # Merge title if available
+            **pdf_metadata,  # Merge title if available
         }
 
-        return {
-            "pdf_path": pdf_path,
-            "metadata": metadata
-        }
+        return {"pdf_path": pdf_path, "metadata": metadata}
 
     def _download_pdf(self, pdf_url: str) -> Path:
         """
@@ -237,7 +218,7 @@ class PaperHandler(BaseHandler):
             response = requests.get(pdf_url, timeout=30, stream=True)
             response.raise_for_status()
 
-            with open(pdf_path, 'wb') as f:
+            with open(pdf_path, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     f.write(chunk)
 
@@ -259,15 +240,15 @@ class PaperHandler(BaseHandler):
         try:
             import PyPDF2
 
-            with open(pdf_path, 'rb') as f:
+            with open(pdf_path, "rb") as f:
                 reader = PyPDF2.PdfReader(f)
 
                 # Try to get title from PDF metadata
                 if reader.metadata:
-                    title = reader.metadata.get('/Title', None)
+                    title = reader.metadata.get("/Title", None)
                     if title:
                         # Clean title (remove newlines, extra spaces)
-                        title = ' '.join(title.split())
+                        title = " ".join(title.split())
                         return {"title": title}
 
             return {}
@@ -288,10 +269,7 @@ class PaperHandler(BaseHandler):
         """
         # HTTP fallback provides minimal metadata
         # Rich metadata available via arxiv SDK (_fetch_with_arxiv_sdk)
-        return {
-            "arxiv_id": arxiv_id,
-            "source_url": f"https://arxiv.org/abs/{arxiv_id}"
-        }
+        return {"arxiv_id": arxiv_id, "source_url": f"https://arxiv.org/abs/{arxiv_id}"}
 
     def convert(self, fetched_data: Dict) -> str:
         """
@@ -303,8 +281,8 @@ class PaperHandler(BaseHandler):
         Returns:
             Markdown content
         """
-        pdf_path = fetched_data['pdf_path']
-        metadata = fetched_data.get('metadata', {})
+        pdf_path = fetched_data["pdf_path"]
+        metadata = fetched_data.get("metadata", {})
 
         # Try marker first (better quality)
         try:
@@ -313,7 +291,7 @@ class PaperHandler(BaseHandler):
             # Fallback to pdfplumber
             try:
                 markdown_content = self._convert_with_pdfplumber(pdf_path)
-            except Exception as e:
+            except Exception:
                 # Last fallback: simple text extraction
                 markdown_content = self._extract_text_simple(pdf_path)
 
@@ -336,10 +314,10 @@ class PaperHandler(BaseHandler):
         # Check if marker is available
         try:
             result = subprocess.run(
-                ['marker_single', str(pdf_path), '--output_format', 'markdown'],
+                ["marker_single", str(pdf_path), "--output_format", "markdown"],
                 capture_output=True,
                 text=True,
-                timeout=60
+                timeout=60,
             )
 
             if result.returncode == 0:
@@ -393,7 +371,7 @@ class PaperHandler(BaseHandler):
 
             text_lines = []
 
-            with open(pdf_path, 'rb') as f:
+            with open(pdf_path, "rb") as f:
                 reader = PyPDF2.PdfReader(f)
                 for page in reader.pages:
                     text = page.extract_text()
@@ -418,37 +396,37 @@ class PaperHandler(BaseHandler):
         """
         lines = ["# Paper", ""]
 
-        if 'title' in metadata:
+        if "title" in metadata:
             lines.append(f"**Title**: {metadata['title']}")
             lines.append("")
 
-        if 'authors' in metadata:
-            authors_str = ", ".join(metadata['authors'])
+        if "authors" in metadata:
+            authors_str = ", ".join(metadata["authors"])
             lines.append(f"**Authors**: {authors_str}")
             lines.append("")
 
-        if 'date' in metadata:
+        if "date" in metadata:
             lines.append(f"**Date**: {metadata['date']}")
             lines.append("")
 
-        if 'doi' in metadata and metadata['doi']:
+        if "doi" in metadata and metadata["doi"]:
             lines.append(f"**DOI**: {metadata['doi']}")
             lines.append("")
 
-        if 'DOI' in metadata:  # Legacy format support
+        if "DOI" in metadata:  # Legacy format support
             lines.append(f"**DOI**: {metadata['DOI']}")
             lines.append("")
 
-        if 'arxiv_id' in metadata:
+        if "arxiv_id" in metadata:
             lines.append(f"**arXiv**: {metadata['arxiv_id']}")
             lines.append("")
 
-        if 'categories' in metadata and metadata['categories']:
-            categories_str = ", ".join(metadata['categories'])
+        if "categories" in metadata and metadata["categories"]:
+            categories_str = ", ".join(metadata["categories"])
             lines.append(f"**Categories**: {categories_str}")
             lines.append("")
 
-        if 'source_url' in metadata:
+        if "source_url" in metadata:
             lines.append(f"**Source**: {metadata['source_url']}")
             lines.append("")
 
@@ -479,19 +457,19 @@ class PaperHandler(BaseHandler):
         paper_dir.mkdir(parents=True, exist_ok=True)
 
         # Generate filename based on source type
-        if source.startswith('10.'):
+        if source.startswith("10."):
             # DOI: replace slashes and dots
-            doi_slug = source.replace('/', '-').replace('.', '-')
+            doi_slug = source.replace("/", "-").replace(".", "-")
             filename = f"doi-{doi_slug}.md"
-        elif source.isdigit() or '.' in source:
+        elif source.isdigit() or "." in source:
             # arXiv ID
-            arxiv_slug = source.replace('.', '-')
+            arxiv_slug = source.replace(".", "-")
             filename = f"arxiv-{arxiv_slug}.md"
         else:
             # URL: try semantic naming first, then fallback to hash
-            if metadata and 'title' in metadata:
+            if metadata and "title" in metadata:
                 # Use title for semantic naming
-                title_slug = self._slugify_title(metadata['title'])
+                title_slug = self._slugify_title(metadata["title"])
                 filename = f"paper-{title_slug}.md"
             else:
                 # Fallback to hash-based naming
@@ -510,37 +488,34 @@ class PaperHandler(BaseHandler):
         Returns:
             Slug string (lowercase, hyphens, no special chars)
         """
-        import re
 
         # Convert to lowercase
         slug = title.lower()
 
         # Replace spaces and underscores with hyphens
-        slug = re.sub(r'[\s_]+', '-', slug)
+        slug = re.sub(r"[\s_]+", "-", slug)
 
         # Remove special characters (keep only alphanumeric and hyphens)
-        slug = re.sub(r'[^a-z0-9-]', '', slug)
+        slug = re.sub(r"[^a-z0-9-]", "", slug)
 
         # Collapse multiple hyphens
-        slug = re.sub(r'-{2,}', '-', slug)
+        slug = re.sub(r"-{2,}", "-", slug)
 
         # Trim hyphens from start/end
-        slug = slug.strip('-')
+        slug = slug.strip("-")
 
         # Limit length (max 100 chars to keep filenames manageable)
         if len(slug) > 100:
             # Truncate to exactly 100 chars, then remove trailing hyphen if present
             slug = slug[:100]
-            if slug.endswith('-'):
+            if slug.endswith("-"):
                 slug = slug[:-1]
 
         return slug
 
-    def store(self,
-              source: str,
-              markdown_content: str,
-              metadata: Dict,
-              **kwargs) -> Dict:
+    def store(
+        self, source: str, markdown_content: str, metadata: Dict, **kwargs
+    ) -> Dict:
         """
         Store markdown artifact and update index (override to pass metadata to get_output_path)
 
@@ -568,12 +543,12 @@ class PaperHandler(BaseHandler):
         # Build core metadata
         core_metadata = {
             "id": artifact_id,
-            "title": metadata.get('title', self._extract_title(markdown_content)),
+            "title": metadata.get("title", self._extract_title(markdown_content)),
             "url": source,
             "source_type": self.get_source_type(),
             "collected_at": datetime.now().isoformat(),
             "collected_by": "omr-collection",
-            "file_path": str(output_path.relative_to(self.workspace_root))
+            "file_path": str(output_path.relative_to(self.workspace_root)),
         }
 
         # Merge with source-specific metadata
@@ -586,8 +561,9 @@ class PaperHandler(BaseHandler):
             "status": "success",
             "file_path": str(output_path),
             "metadata": full_metadata,
-            "artifact_id": artifact_id
+            "artifact_id": artifact_id,
         }
+
 
 def main():
     """Test paper handler with arxiv SDK integration"""
@@ -604,45 +580,46 @@ def main():
     handler = PaperHandler(workspace)
 
     # Check if arxiv SDK available
-    try:
-        import arxiv
-        sdk_available = True
-        print(f"Using arxiv SDK (enhanced mode)")
-    except ImportError:
-        sdk_available = False
-        print(f"Using HTTP fallback (SDK not installed)")
+    import importlib.util
+
+    sdk_available = importlib.util.find_spec("arxiv") is not None
+    if sdk_available:
+        print("Using arxiv SDK (enhanced mode)")
+    else:
+        print("Using HTTP fallback (SDK not installed)")
 
     try:
         print(f"Fetching paper {arxiv_id}...")
         fetched = handler.fetch(arxiv_id)
 
-        print(f"Converting to markdown...")
+        print("Converting to markdown...")
         markdown = handler.convert(fetched)
 
-        print(f"Storing...")
+        print("Storing...")
         result = handler.store(
             source=arxiv_id,
             markdown_content=markdown,
-            metadata=fetched.get('metadata', {})
+            metadata=fetched.get("metadata", {}),
         )
 
-        print(f"✓ Paper collected")
+        print("✓ Paper collected")
         print(f"  File: {result['file_path']}")
         print(f"  ID: {result['artifact_id']}")
 
         # Show metadata richness difference
-        metadata = fetched.get('metadata', {})
+        metadata = fetched.get("metadata", {})
         if sdk_available:
             print(f"  Title: {metadata.get('title', 'N/A')}")
             print(f"  Authors: {len(metadata.get('authors', []))} authors")
             print(f"  Categories: {len(metadata.get('categories', []))} categories")
-            if metadata.get('doi'):
+            if metadata.get("doi"):
                 print(f"  DOI: {metadata['doi']}")
         else:
-            print(f"  (Basic metadata - install arxiv SDK for rich metadata)")
+            print("  (Basic metadata - install arxiv SDK for rich metadata)")
 
     except Exception as e:
         print(f"✗ Error: {str(e)}")
+
 
 if __name__ == "__main__":
     main()

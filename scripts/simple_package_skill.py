@@ -13,6 +13,7 @@ EXCLUDE_DIRS = {"__pycache__", "node_modules", "evals"}
 EXCLUDE_GLOBS = {"*.pyc"}
 EXCLUDE_FILES = {".DS_Store"}
 
+
 def should_exclude(rel_path: Path, is_root_check: bool = False) -> bool:
     """Check if path should be excluded"""
     parts = rel_path.parts
@@ -34,6 +35,7 @@ def should_exclude(rel_path: Path, is_root_check: bool = False) -> bool:
         return True
 
     return False
+
 
 def package_skill(skill_dir: Path, output_dir: Path) -> bool:
     """
@@ -63,9 +65,9 @@ def package_skill(skill_dir: Path, output_dir: Path) -> bool:
 
     # Create ZIP archive
     try:
-        with zipfile.ZipFile(skill_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        with zipfile.ZipFile(skill_file, "w", zipfile.ZIP_DEFLATED) as zipf:
             # Walk skill directory
-            for file_path in skill_dir.rglob('*'):
+            for file_path in skill_dir.rglob("*"):
                 if file_path.is_file():
                     # Get relative path from skill directory (NO skill name prefix)
                     rel_path = file_path.relative_to(skill_dir)
@@ -86,7 +88,10 @@ def package_skill(skill_dir: Path, output_dir: Path) -> bool:
         print(f"  ❌ Failed: {e}")
         return False
 
-def package_all_skills(skills_dir: Path, output_dir: Path, skills_list: list = None) -> tuple:
+
+def package_all_skills(
+    skills_dir: Path, output_dir: Path, skills_list: list = None
+) -> tuple:
     """
     Package all skills
 
@@ -100,17 +105,20 @@ def package_all_skills(skills_dir: Path, output_dir: Path, skills_list: list = N
     """
     if skills_list is None:
         # Auto-discover skills
-        skills_list = [d.name for d in skills_dir.iterdir()
-                       if d.is_dir() and d.name.startswith('omr-')]
+        skills_list = [
+            d.name
+            for d in skills_dir.iterdir()
+            if d.is_dir() and d.name.startswith("omr-")
+        ]
 
     # Sort to ensure omr-core is first
-    skills_list = sorted(skills_list, key=lambda s: (0 if s == 'omr-core' else 1, s))
+    skills_list = sorted(skills_list, key=lambda s: (0 if s == "omr-core" else 1, s))
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    print(f"\n{'='*60}")
-    print(f"PACKAGING OMNIRESEARCH SKILLS")
-    print(f"{'='*60}")
+    print(f"\n{'=' * 60}")
+    print("PACKAGING OMNIRESEARCH SKILLS")
+    print(f"{'=' * 60}")
     print(f"Skills to package: {len(skills_list)}")
     print(f"Output directory: {output_dir}")
 
@@ -127,15 +135,15 @@ def package_all_skills(skills_dir: Path, output_dir: Path, skills_list: list = N
             fail_count += 1
 
     # Summary
-    print(f"\n{'='*60}")
-    print(f"PACKAGING SUMMARY")
-    print(f"{'='*60}")
+    print(f"\n{'=' * 60}")
+    print("PACKAGING SUMMARY")
+    print(f"{'=' * 60}")
     print(f"✓ Packaged: {success_count}/{len(skills_list)}")
     print(f"❌ Failed: {fail_count}/{len(skills_list)}")
 
     # List generated files
     if success_count > 0:
-        print(f"\nGenerated .skill files:")
+        print("\nGenerated .skill files:")
         for skill_name in skills_list:
             skill_file = output_dir / f"{skill_name}.skill"
             if skill_file.exists():
@@ -144,27 +152,33 @@ def package_all_skills(skills_dir: Path, output_dir: Path, skills_list: list = N
 
     return success_count, fail_count
 
+
 def main():
     """CLI entry point"""
     if len(sys.argv) < 2:
-        print("Usage: python simple_package_skill.py <output-directory> [--skills skill1,skill2,...]")
+        print(
+            "Usage: python simple_package_skill.py <output-directory> [--skills skill1,skill2,...]"
+        )
         print("Example: python simple_package_skill.py ./dist")
-        print("         python simple_package_skill.py ./dist --skills omr-core,omr-bootstrap")
+        print(
+            "         python simple_package_skill.py ./dist --skills omr-core,omr-bootstrap"
+        )
         sys.exit(1)
 
     output_dir = Path(sys.argv[1])
     skills_list = None
 
-    if '--skills' in sys.argv:
-        idx = sys.argv.index('--skills')
+    if "--skills" in sys.argv:
+        idx = sys.argv.index("--skills")
         if idx + 1 < len(sys.argv):
-            skills_list = [s.strip() for s in sys.argv[idx + 1].split(',')]
+            skills_list = [s.strip() for s in sys.argv[idx + 1].split(",")]
 
     skills_dir = Path(__file__).parent / "skills"
 
     success, fail = package_all_skills(skills_dir, output_dir, skills_list)
 
     sys.exit(0 if fail == 0 else 1)
+
 
 if __name__ == "__main__":
     main()

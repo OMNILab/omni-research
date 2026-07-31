@@ -6,10 +6,11 @@ Abstract base class for all collection handlers
 
 import hashlib
 import json
-from pathlib import Path
-from datetime import datetime
 from abc import ABC, abstractmethod
-from typing import Dict, Optional
+from datetime import datetime
+from pathlib import Path
+from typing import Dict
+
 
 class BaseHandler(ABC):
     """
@@ -83,11 +84,9 @@ class BaseHandler(ABC):
         """
         pass
 
-    def store(self,
-              source: str,
-              markdown_content: str,
-              metadata: Dict,
-              **kwargs) -> Dict:
+    def store(
+        self, source: str, markdown_content: str, metadata: Dict, **kwargs
+    ) -> Dict:
         """
         Store markdown artifact and update index
 
@@ -115,12 +114,12 @@ class BaseHandler(ABC):
         # Build core metadata
         core_metadata = {
             "id": artifact_id,
-            "title": metadata.get('title', self._extract_title(markdown_content)),
+            "title": metadata.get("title", self._extract_title(markdown_content)),
             "url": source,
             "source_type": self.get_source_type(),
             "collected_at": datetime.now().isoformat(),
             "collected_by": "omr-collection",
-            "file_path": str(output_path.relative_to(self.workspace_root))
+            "file_path": str(output_path.relative_to(self.workspace_root)),
         }
 
         # Merge with source-specific metadata
@@ -133,7 +132,7 @@ class BaseHandler(ABC):
             "status": "success",
             "file_path": str(output_path),
             "metadata": full_metadata,
-            "artifact_id": artifact_id
+            "artifact_id": artifact_id,
         }
 
     def _generate_id(self, source: str) -> str:
@@ -160,10 +159,10 @@ class BaseHandler(ABC):
         Returns:
             Title string (first heading or 'Unknown Title')
         """
-        lines = markdown_content.split('\n')
+        lines = markdown_content.split("\n")
         for line in lines[:20]:  # Check first 20 lines
-            if line.startswith('#'):
-                return line.lstrip('#').strip()
+            if line.startswith("#"):
+                return line.lstrip("#").strip()
 
         return "Unknown Title"
 
@@ -181,14 +180,11 @@ class BaseHandler(ABC):
         if index_file.exists():
             index_data = json.loads(index_file.read_text())
         else:
-            index_data = {
-                "artifacts": [],
-                "last_updated": datetime.now().isoformat()
-            }
+            index_data = {"artifacts": [], "last_updated": datetime.now().isoformat()}
 
         # Append new artifact
-        index_data['artifacts'].append(metadata)
-        index_data['last_updated'] = datetime.now().isoformat()
+        index_data["artifacts"].append(metadata)
+        index_data["last_updated"] = datetime.now().isoformat()
 
         # Write updated index
         index_file.parent.mkdir(parents=True, exist_ok=True)
@@ -205,22 +201,24 @@ class BaseHandler(ABC):
             Path to index JSON file
         """
         index_map = {
-            'paper': 'papers-index.json',
-            'web': 'blogs-index.json',
-            'github': 'repos-index.json',
-            'dataset': 'datasets-index.json',
-            'failed': 'failed-index.json'
+            "paper": "papers-index.json",
+            "web": "blogs-index.json",
+            "github": "repos-index.json",
+            "dataset": "datasets-index.json",
+            "failed": "failed-index.json",
         }
 
-        index_name = index_map.get(source_type, 'unknown-index.json')
+        index_name = index_map.get(source_type, "unknown-index.json")
         return self.index_dir / index_name
 
-    def create_error_artifact(self,
-                               source: str,
-                               error_type: str,
-                               error_message: str,
-                               retry_attempts: int,
-                               fallback_attempted: bool) -> Dict:
+    def create_error_artifact(
+        self,
+        source: str,
+        error_type: str,
+        error_message: str,
+        retry_attempts: int,
+        fallback_attempted: bool,
+    ) -> Dict:
         """
         Create error artifact for failed collection
 
@@ -264,7 +262,7 @@ class BaseHandler(ABC):
             "fallback_attempted": fallback_attempted,
             "collected_at": datetime.now().isoformat(),
             "collected_by": "omr-collection",
-            "file_path": str(error_path.relative_to(self.workspace_root))
+            "file_path": str(error_path.relative_to(self.workspace_root)),
         }
 
         # Update failed index
@@ -273,7 +271,7 @@ class BaseHandler(ABC):
         return {
             "status": "failed",
             "file_path": str(error_path),
-            "metadata": error_metadata
+            "metadata": error_metadata,
         }
 
     def _update_error_index(self, error_metadata: Dict):
@@ -289,14 +287,11 @@ class BaseHandler(ABC):
         if failed_index.exists():
             index_data = json.loads(failed_index.read_text())
         else:
-            index_data = {
-                "artifacts": [],
-                "last_updated": datetime.now().isoformat()
-            }
+            index_data = {"artifacts": [], "last_updated": datetime.now().isoformat()}
 
         # Append error artifact
-        index_data['artifacts'].append(error_metadata)
-        index_data['last_updated'] = datetime.now().isoformat()
+        index_data["artifacts"].append(error_metadata)
+        index_data["last_updated"] = datetime.now().isoformat()
 
         # Write updated index
         failed_index.parent.mkdir(parents=True, exist_ok=True)

@@ -5,9 +5,10 @@ Configurable synthesis (survey/report/manuscript/brief) with Gate D
 """
 
 import json
+from datetime import datetime
 from pathlib import Path
 from typing import Dict
-from datetime import datetime
+
 
 def synthesize_findings(workspace_root: Path, mode: str = None) -> Dict:
     """
@@ -20,27 +21,27 @@ def synthesize_findings(workspace_root: Path, mode: str = None) -> Dict:
     Returns:
         Dict with synthesis output path and metadata
     """
-    docs_dir = workspace_root / 'docs'
+    docs_dir = workspace_root / "docs"
 
     # Check prerequisites
-    evaluation_path = docs_dir / 'evaluation-report.md'
-    judgment_path = docs_dir / 'judgment-summary.md'
+    evaluation_path = docs_dir / "evaluation-report.md"
+    judgment_path = docs_dir / "judgment-summary.md"
 
     if not evaluation_path.exists() and not judgment_path.exists():
         return {
-            'status': 'failed',
-            'error': 'Need evaluation-report.md OR judgment-summary.md'
+            "status": "failed",
+            "error": "Need evaluation-report.md OR judgment-summary.md",
         }
 
     # Determine mode (from pattern config or override)
     if mode is None:
         # Check pattern config
-        pattern_config_path = workspace_root / '.omr' / 'pattern-config.json'
+        pattern_config_path = workspace_root / ".omr" / "pattern-config.json"
         if pattern_config_path.exists():
             config = json.loads(pattern_config_path.read_text())
-            mode = config.get('synthesis_mode', 'brief')  # Default to brief
+            mode = config.get("synthesis_mode", "brief")  # Default to brief
         else:
-            mode = 'brief'  # Default mode
+            mode = "brief"  # Default mode
 
     # Generate synthesis based on mode
     synthesis = generate_synthesis(workspace_root, mode)
@@ -51,81 +52,85 @@ def synthesize_findings(workspace_root: Path, mode: str = None) -> Dict:
 
     # Create chapters/sections
     report_files = []
-    for chapter in synthesis['chapters']:
-        chapter_path = output_dir / chapter['filename']
-        chapter_path.write_text(chapter['content'])
+    for chapter in synthesis["chapters"]:
+        chapter_path = output_dir / chapter["filename"]
+        chapter_path.write_text(chapter["content"])
         report_files.append(chapter_path)
 
     # Create index
-    index_path = output_dir / 'index.md'
-    index_path.write_text(synthesis['index'])
+    index_path = output_dir / "index.md"
+    index_path.write_text(synthesis["index"])
     report_files.insert(0, index_path)
 
     key_findings = extract_key_findings(synthesis)
     user_summary = format_user_summary(
         mode=mode,
         index_path=index_path,
-        files_written=len(report_files) + 1,  # +1 for user-summary.md about to be written
+        files_written=len(report_files)
+        + 1,  # +1 for user-summary.md about to be written
         key_findings=key_findings,
-        gate_status='pending',
-        wiki_status='not run',
-        limitations='',
+        gate_status="pending",
+        wiki_status="not run",
+        limitations="",
     )
-    summary_path = output_dir / 'user-summary.md'
+    summary_path = output_dir / "user-summary.md"
     summary_path.write_text(user_summary)
     report_files.insert(0, summary_path)
 
     missing_files = [str(path) for path in report_files if not path.is_file()]
     if missing_files:
         return {
-            'status': 'failed',
-            'error': f"Report files were not created: {', '.join(missing_files)}",
-            'output_dir': str(output_dir),
+            "status": "failed",
+            "error": f"Report files were not created: {', '.join(missing_files)}",
+            "output_dir": str(output_dir),
         }
 
     # Gate D: Synthesis ready for publication?
     gate_passed = check_gate_d(synthesis)
-    gate_label = 'passed' if gate_passed['passed'] else f"failed — {gate_passed['message']}"
+    gate_label = (
+        "passed" if gate_passed["passed"] else f"failed — {gate_passed['message']}"
+    )
     user_summary = format_user_summary(
         mode=mode,
         index_path=index_path,
         files_written=len(report_files),
         key_findings=key_findings,
         gate_status=gate_label,
-        wiki_status='not run',
-        limitations='',
+        wiki_status="not run",
+        limitations="",
     )
     summary_path.write_text(user_summary)
 
-    if not gate_passed['passed']:
+    if not gate_passed["passed"]:
         return {
-            'status': 'gate_failed',
-            'gate': 'D',
-            'message': gate_passed['message'],
-            'output_dir': str(output_dir),
-            'index_path': str(index_path),
-            'summary_path': str(summary_path),
-            'user_summary': user_summary,
-            'report_files': [str(path) for path in report_files],
-            'key_findings': key_findings,
+            "status": "gate_failed",
+            "gate": "D",
+            "message": gate_passed["message"],
+            "output_dir": str(output_dir),
+            "index_path": str(index_path),
+            "summary_path": str(summary_path),
+            "user_summary": user_summary,
+            "report_files": [str(path) for path in report_files],
+            "key_findings": key_findings,
         }
 
     # Update skill tree
     update_tree_state(workspace_root)
 
     return {
-        'status': 'success',
-        'gate_passed': gate_passed['passed'],
-        'output_dir': str(output_dir),
-        'index_path': str(index_path),
-        'summary_path': str(summary_path),
-        'user_summary': user_summary,
-        'report_files': [str(path) for path in report_files],
-        'key_findings': key_findings,
-        'mode': mode,
-        'chapters': len(synthesis['chapters']),
-        'files_written': len(report_files),
+        "status": "success",
+        "gate_passed": gate_passed["passed"],
+        "output_dir": str(output_dir),
+        "index_path": str(index_path),
+        "summary_path": str(summary_path),
+        "user_summary": user_summary,
+        "report_files": [str(path) for path in report_files],
+        "key_findings": key_findings,
+        "mode": mode,
+        "chapters": len(synthesis["chapters"]),
+        "files_written": len(report_files),
     }
+
 
 def generate_synthesis(workspace_root: Path, mode: str) -> Dict:
     """
@@ -138,140 +143,144 @@ def generate_synthesis(workspace_root: Path, mode: str) -> Dict:
     Returns:
         Dict with chapters, index
     """
-    docs_dir = workspace_root / 'docs'
+    docs_dir = workspace_root / "docs"
 
     # Read inputs
-    evaluation_path = docs_dir / 'evaluation-report.md'
-    judgment_path = docs_dir / 'judgment-summary.md'
+    evaluation_path = docs_dir / "evaluation-report.md"
+    judgment_path = docs_dir / "judgment-summary.md"
 
     evaluation_content = evaluation_path.read_text() if evaluation_path.exists() else ""
     judgment_content = judgment_path.read_text() if judgment_path.exists() else ""
 
     # Generate chapters based on mode
-    if mode == 'survey':
+    if mode == "survey":
         chapters = [
             {
-                'filename': '01-introduction.md',
-                'title': 'Introduction',
-                'content': generate_introduction(judgment_content, evaluation_content)
+                "filename": "01-introduction.md",
+                "title": "Introduction",
+                "content": generate_introduction(judgment_content, evaluation_content),
             },
             {
-                'filename': '02-background.md',
-                'title': 'Background',
-                'content': generate_background(workspace_root)
+                "filename": "02-background.md",
+                "title": "Background",
+                "content": generate_background(workspace_root),
             },
             {
-                'filename': '03-methodology.md',
-                'title': 'Methodology',
-                'content': generate_methodology(evaluation_content)
+                "filename": "03-methodology.md",
+                "title": "Methodology",
+                "content": generate_methodology(evaluation_content),
             },
             {
-                'filename': '04-results.md',
-                'title': 'Results',
-                'content': generate_results(evaluation_content)
+                "filename": "04-results.md",
+                "title": "Results",
+                "content": generate_results(evaluation_content),
             },
             {
-                'filename': '05-conclusions.md',
-                'title': 'Conclusions',
-                'content': generate_conclusions(judgment_content, evaluation_content)
-            }
+                "filename": "05-conclusions.md",
+                "title": "Conclusions",
+                "content": generate_conclusions(judgment_content, evaluation_content),
+            },
         ]
 
-    elif mode == 'report':
+    elif mode == "report":
         chapters = [
             {
-                'filename': 'executive-summary.md',
-                'title': 'Executive Summary',
-                'content': generate_executive_summary(judgment_content, evaluation_content)
+                "filename": "executive-summary.md",
+                "title": "Executive Summary",
+                "content": generate_executive_summary(
+                    judgment_content, evaluation_content
+                ),
             },
             {
-                'filename': 'key-findings.md',
-                'title': 'Key Findings',
-                'content': generate_key_findings(evaluation_content)
+                "filename": "key-findings.md",
+                "title": "Key Findings",
+                "content": generate_key_findings(evaluation_content),
             },
             {
-                'filename': 'recommendations.md',
-                'title': 'Recommendations',
-                'content': generate_recommendations(evaluation_content)
-            }
+                "filename": "recommendations.md",
+                "title": "Recommendations",
+                "content": generate_recommendations(evaluation_content),
+            },
         ]
 
-    elif mode == 'manuscript':
+    elif mode == "manuscript":
         chapters = [
             {
-                'filename': 'title.md',
-                'title': 'Title Page',
-                'content': generate_title_page(workspace_root)
+                "filename": "title.md",
+                "title": "Title Page",
+                "content": generate_title_page(workspace_root),
             },
             {
-                'filename': 'abstract.md',
-                'title': 'Abstract',
-                'content': generate_abstract(judgment_content, evaluation_content)
+                "filename": "abstract.md",
+                "title": "Abstract",
+                "content": generate_abstract(judgment_content, evaluation_content),
             },
             {
-                'filename': 'introduction.md',
-                'title': 'Introduction',
-                'content': generate_introduction(judgment_content, evaluation_content)
+                "filename": "introduction.md",
+                "title": "Introduction",
+                "content": generate_introduction(judgment_content, evaluation_content),
             },
             {
-                'filename': 'methods.md',
-                'title': 'Methods',
-                'content': generate_methodology(evaluation_content)
+                "filename": "methods.md",
+                "title": "Methods",
+                "content": generate_methodology(evaluation_content),
             },
             {
-                'filename': 'results.md',
-                'title': 'Results',
-                'content': generate_results(evaluation_content)
+                "filename": "results.md",
+                "title": "Results",
+                "content": generate_results(evaluation_content),
             },
             {
-                'filename': 'discussion.md',
-                'title': 'Discussion',
-                'content': generate_discussion(judgment_content, evaluation_content)
+                "filename": "discussion.md",
+                "title": "Discussion",
+                "content": generate_discussion(judgment_content, evaluation_content),
             },
             {
-                'filename': 'references.md',
-                'title': 'References',
-                'content': generate_references(workspace_root)
-            }
+                "filename": "references.md",
+                "title": "References",
+                "content": generate_references(workspace_root),
+            },
         ]
 
-    elif mode == 'brief':
+    elif mode == "brief":
         chapters = [
             {
-                'filename': 'summary.md',
-                'title': 'Summary',
-                'content': generate_brief_summary(judgment_content, evaluation_content)
+                "filename": "summary.md",
+                "title": "Summary",
+                "content": generate_brief_summary(judgment_content, evaluation_content),
             }
         ]
 
     else:
         chapters = [
             {
-                'filename': 'output.md',
-                'title': 'Output',
-                'content': f"Synthesis in {mode} mode\n\n{judgment_content}\n\n{evaluation_content}"
+                "filename": "output.md",
+                "title": "Output",
+                "content": f"Synthesis in {mode} mode\n\n{judgment_content}\n\n{evaluation_content}",
             }
         ]
 
     # Generate index
     index = generate_index(chapters, mode)
 
-    return {
-        'chapters': chapters,
-        'index': index,
-        'mode': mode
-    }
+    return {"chapters": chapters, "index": index, "mode": mode}
+
 
 def generate_introduction(judgment: str, evaluation: str) -> str:
     """Generate introduction chapter with traceability"""
 
     # Extract quality assessment from judgment
     import re
-    quality_match = re.search(r'\*\*Quality\*\*: (\w+)', judgment)
-    quality = quality_match.group(1) if quality_match else 'Unknown'
 
-    conclusion_match = re.search(r'## Main Conclusion\n\n(.+)', judgment)
-    conclusion = conclusion_match.group(1).strip() if conclusion_match else 'Research investigation completed'
+    quality_match = re.search(r"\*\*Quality\*\*: (\w+)", judgment)
+    quality = quality_match.group(1) if quality_match else "Unknown"
+
+    conclusion_match = re.search(r"## Main Conclusion\n\n(.+)", judgment)
+    conclusion = (
+        conclusion_match.group(1).strip()
+        if conclusion_match
+        else "Research investigation completed"
+    )
 
     return f"""# Introduction
 
@@ -307,17 +316,19 @@ All claims in this synthesis link to:
 ---
 _Generated by omr-synthesis (survey mode)_"""
 
+
 def extract_questions_from_judgment(judgment: str) -> str:
     """Extract research questions from judgment"""
     # Simplified extraction
-    if 'Evidence foundation' in judgment:
+    if "Evidence foundation" in judgment:
         return "- What architecture approach best meets requirements?\n- How do proven claims support design decisions?\n- What gaps require additional investigation?"
     return "- Research questions defined in evidence mapping phase"
 
+
 def generate_background(workspace_root: Path) -> str:
     """Generate background chapter from evidence"""
-    docs_dir = workspace_root / 'docs'
-    evidence_map_path = docs_dir / 'evidence-map.md'
+    docs_dir = workspace_root / "docs"
+    evidence_map_path = docs_dir / "evidence-map.md"
 
     # Read evidence map for context
     evidence_text = ""
@@ -325,9 +336,9 @@ def generate_background(workspace_root: Path) -> str:
         evidence_text = evidence_map_path.read_text()
 
         # Extract proven claims count
-        import re
-        proven_count = evidence_text.count('**Evidence boundary**: proven')
-        suggested_count = evidence_text.count('**Evidence boundary**: suggested')
+
+        proven_count = evidence_text.count("**Evidence boundary**: proven")
+        suggested_count = evidence_text.count("**Evidence boundary**: suggested")
 
         evidence_summary = f"""
 ## Evidence Foundation
@@ -358,16 +369,18 @@ All background claims traceable to evidence sources.
 ---
 _Generated by omr-synthesis_"""
 
+
 def generate_methodology(evaluation: str) -> str:
     """Generate methodology chapter from evaluation"""
 
     # Extract validation approach from evaluation
     import re
-    validation_match = re.search(r'\*\*Validation Type\*\*: (\w+)', evaluation)
-    validation_type = validation_match.group(1) if validation_match else 'systematic'
 
-    checks_match = re.search(r'\*\*Scenarios Tested\*\*: (\d+)', evaluation)
-    scenarios_tested = checks_match.group(1) if checks_match else 'N/A'
+    validation_match = re.search(r"\*\*Validation Type\*\*: (\w+)", evaluation)
+    validation_type = validation_match.group(1) if validation_match else "systematic"
+
+    checks_match = re.search(r"\*\*Scenarios Tested\*\*: (\d+)", evaluation)
+    scenarios_tested = checks_match.group(1) if checks_match else "N/A"
 
     return f"""# Methodology
 
@@ -395,18 +408,20 @@ All methodology steps documented in:
 ---
 _Generated by omr-synthesis_"""
 
+
 def generate_results(evaluation: str) -> str:
     """Generate results chapter with evidence boundaries"""
 
     # Extract key metrics from evaluation
     import re
-    supported_match = re.search(r'\*\*Supported\*\*: (\w+)', evaluation)
-    hypothesis_supported = supported_match.group(1) if supported_match else 'Unknown'
 
-    pass_rate_match = re.search(r'\*\*Pass Rate\*\*: ([\d.]+)', evaluation)
-    pass_rate = pass_rate_match.group(1) if pass_rate_match else 'N/A'
+    supported_match = re.search(r"\*\*Supported\*\*: (\w+)", evaluation)
+    hypothesis_supported = supported_match.group(1) if supported_match else "Unknown"
 
-    evidence_boundary = 'proven' if hypothesis_supported == 'True' else 'suggested'
+    pass_rate_match = re.search(r"\*\*Pass Rate\*\*: ([\d.]+)", evaluation)
+    pass_rate = pass_rate_match.group(1) if pass_rate_match else "N/A"
+
+    evidence_boundary = "proven" if hypothesis_supported == "True" else "suggested"
 
     return f"""# Results
 
@@ -416,7 +431,7 @@ def generate_results(evaluation: str) -> str:
 
 **Evidence Boundary**: {evidence_boundary}
 
-{evaluation[:500] if evaluation else 'Results from evaluation...'}
+{evaluation[:500] if evaluation else "Results from evaluation..."}
 
 ## Key Metrics
 
@@ -433,28 +448,32 @@ Results traceable to:
 ---
 _Generated by omr-synthesis_"""
 
+
 def generate_conclusions(judgment: str, evaluation: str) -> str:
     """Generate conclusions chapter with proper boundary labels"""
 
     # Extract judgment conclusion
     import re
-    conclusion_match = re.search(r'## Main Conclusion\n\n(.+)', judgment)
-    conclusion = conclusion_match.group(1).strip() if conclusion_match else 'Research completed'
 
-    quality_match = re.search(r'\*\*Quality\*\*: (\w+)', judgment)
-    quality = quality_match.group(1) if quality_match else 'Moderate'
+    conclusion_match = re.search(r"## Main Conclusion\n\n(.+)", judgment)
+    conclusion = (
+        conclusion_match.group(1).strip() if conclusion_match else "Research completed"
+    )
+
+    quality_match = re.search(r"\*\*Quality\*\*: (\w+)", judgment)
+    quality = quality_match.group(1) if quality_match else "Moderate"
 
     # Extract hypothesis result
-    supported_match = re.search(r'\*\*Supported\*\*: (\w+)', evaluation)
-    hypothesis_supported = supported_match.group(1) if supported_match else 'Unknown'
+    supported_match = re.search(r"\*\*Supported\*\*: (\w+)", evaluation)
+    hypothesis_supported = supported_match.group(1) if supported_match else "Unknown"
 
     # Determine evidence boundary for conclusion
-    if hypothesis_supported == 'True' and quality == 'Strong':
-        evidence_boundary = 'proven'
-    elif hypothesis_supported == 'True':
-        evidence_boundary = 'suggested'
+    if hypothesis_supported == "True" and quality == "Strong":
+        evidence_boundary = "proven"
+    elif hypothesis_supported == "True":
+        evidence_boundary = "suggested"
     else:
-        evidence_boundary = 'inferred'
+        evidence_boundary = "inferred"
 
     return f"""# Conclusions
 
@@ -486,17 +505,21 @@ Recommendations for continued investigation:
 ---
 _Generated by omr-synthesis_"""
 
+
 def extract_findings_from_eval(evaluation: str) -> str:
     """Extract key findings from evaluation"""
-    if 'hypothesis_supported' in evaluation.lower():
+    if "hypothesis_supported" in evaluation.lower():
         return "- Hypothesis validated through systematic checks\n- Architecture decision supported by evidence\n- Evaluation demonstrates consistent artifact structure"
     return "- Findings documented in evaluation report"
+
 
 def extract_proven_count(judgment: str) -> str:
     """Extract proven claims count from judgment"""
     import re
-    proven_match = re.search(r'\*\*Proven\*\*: (\d+)', judgment)
-    return proven_match.group(1) if proven_match else 'N/A'
+
+    proven_match = re.search(r"\*\*Proven\*\*: (\d+)", judgment)
+    return proven_match.group(1) if proven_match else "N/A"
+
 
 def generate_executive_summary(judgment: str, evaluation: str) -> str:
     """Generate executive summary"""
@@ -506,7 +529,7 @@ def generate_executive_summary(judgment: str, evaluation: str) -> str:
 
 ## Key Findings
 
-{judgment[:300] if judgment else 'Judgment summary...'}
+{judgment[:300] if judgment else "Judgment summary..."}
 
 ## Recommendations
 
@@ -515,18 +538,20 @@ Action items derived from evaluation results.
 ---
 _Generated by omr-synthesis (report mode)_"""
 
+
 def generate_key_findings(evaluation: str) -> str:
     """Generate key findings"""
     return f"""# Key Findings
 
-{evaluation[:500] if evaluation else 'Evaluation findings...'}
+{evaluation[:500] if evaluation else "Evaluation findings..."}
 
 ---
 _Generated by omr-synthesis_"""
 
+
 def generate_recommendations(evaluation: str) -> str:
     """Generate recommendations"""
-    return f"""# Recommendations
+    return """# Recommendations
 
 Based on evaluation results:
 
@@ -536,6 +561,7 @@ Based on evaluation results:
 
 ---
 _Generated by omr-synthesis_"""
+
 
 def generate_title_page(workspace_root: Path) -> str:
     """Generate title page"""
@@ -550,27 +576,30 @@ def generate_title_page(workspace_root: Path) -> str:
 ---
 _Generated by omr-synthesis (manuscript mode)_"""
 
+
 def generate_abstract(judgment: str, evaluation: str) -> str:
     """Generate abstract"""
     return f"""# Abstract
 
-{judgment[:200] if judgment else 'Abstract content...'}
+{judgment[:200] if judgment else "Abstract content..."}
 
 ---
 _Generated by omr-synthesis_"""
 
+
 def generate_discussion(judgment: str, evaluation: str) -> str:
     """Generate discussion"""
-    return f"""# Discussion
+    return """# Discussion
 
 Analysis of results and implications.
 
 ---
 _Generated by omr-synthesis_"""
 
+
 def generate_references(workspace_root: Path) -> str:
     """Generate references"""
-    return f"""# References
+    return """# References
 
 Collected materials indexed in:
 - `docs/index/papers-index.json`
@@ -580,26 +609,35 @@ Collected materials indexed in:
 ---
 _Generated by omr-synthesis_"""
 
+
 def generate_brief_summary(judgment: str, evaluation: str) -> str:
     """Generate brief summary with traceability and evidence boundaries"""
 
     # Extract key information
     import re
 
-    quality_match = re.search(r'\*\*Quality\*\*: (\w+)', judgment)
-    quality = quality_match.group(1) if quality_match else 'Unknown'
+    quality_match = re.search(r"\*\*Quality\*\*: (\w+)", judgment)
+    quality = quality_match.group(1) if quality_match else "Unknown"
 
-    proven_match = re.search(r'\*\*Proven\*\*: (\d+)', judgment)
-    proven_count = proven_match.group(1) if proven_match else 'N/A'
+    proven_match = re.search(r"\*\*Proven\*\*: (\d+)", judgment)
+    proven_count = proven_match.group(1) if proven_match else "N/A"
 
-    conclusion_match = re.search(r'## Main Conclusion\n\n(.+)', judgment)
-    conclusion = conclusion_match.group(1).strip()[:200] if conclusion_match else 'Research completed'
+    conclusion_match = re.search(r"## Main Conclusion\n\n(.+)", judgment)
+    conclusion = (
+        conclusion_match.group(1).strip()[:200]
+        if conclusion_match
+        else "Research completed"
+    )
 
-    supported_match = re.search(r'\*\*Supported\*\*: (\w+)', evaluation)
-    hypothesis_supported = supported_match.group(1) if supported_match else 'Unknown'
+    supported_match = re.search(r"\*\*Supported\*\*: (\w+)", evaluation)
+    hypothesis_supported = supported_match.group(1) if supported_match else "Unknown"
 
     # Determine evidence boundary
-    evidence_boundary = 'proven' if hypothesis_supported == 'True' and quality == 'Strong' else 'suggested'
+    evidence_boundary = (
+        "proven"
+        if hypothesis_supported == "True" and quality == "Strong"
+        else "suggested"
+    )
 
     return f"""# Brief Summary
 
@@ -617,7 +655,7 @@ def generate_brief_summary(judgment: str, evaluation: str) -> str:
 
 ## Results
 
-{evaluation[:200] if evaluation else 'Evaluation completed'}
+{evaluation[:200] if evaluation else "Evaluation completed"}
 
 **Hypothesis Supported**: {hypothesis_supported}
 
@@ -633,16 +671,17 @@ All claims in this summary are traceable to evidence sources.
 ---
 _Generated by omr-synthesis (brief mode)_"""
 
+
 def extract_key_findings(synthesis: Dict, limit: int = 5) -> list:
     """Extract short key findings for the user-facing summary."""
     import re
 
     findings = []
-    for chapter in synthesis.get('chapters', []):
-        content = chapter.get('content', '')
-        for match in re.finditer(r'\*\*Key finding:\*\*\s*(.+)', content):
+    for chapter in synthesis.get("chapters", []):
+        content = chapter.get("content", "")
+        for match in re.finditer(r"\*\*Key finding:\*\*\s*(.+)", content):
             findings.append(match.group(1).strip())
-        for match in re.finditer(r'^## Summary\n\n(.+)', content, re.MULTILINE):
+        for match in re.finditer(r"^## Summary\n\n(.+)", content, re.MULTILINE):
             findings.append(match.group(1).strip()[:180])
         if len(findings) >= limit:
             break
@@ -650,20 +689,24 @@ def extract_key_findings(synthesis: Dict, limit: int = 5) -> list:
     if not findings:
         findings = [
             f"{chapter.get('title', chapter.get('filename', 'section'))} written"
-            for chapter in synthesis.get('chapters', [])[:limit]
+            for chapter in synthesis.get("chapters", [])[:limit]
         ]
     return findings[:limit]
 
 
-def format_user_summary(mode: str,
-                        index_path: Path,
-                        files_written: int,
-                        key_findings: list,
-                        gate_status: str,
-                        wiki_status: str = 'not run',
-                        limitations: str = '') -> str:
+def format_user_summary(
+    mode: str,
+    index_path: Path,
+    files_written: int,
+    key_findings: list,
+    gate_status: str,
+    wiki_status: str = "not run",
+    limitations: str = "",
+) -> str:
     """Build the concise summary that should be shown to the user."""
-    findings_block = "\n".join(f"- {item}" for item in key_findings) or "- (none extracted)"
+    findings_block = (
+        "\n".join(f"- {item}" for item in key_findings) or "- (none extracted)"
+    )
     limitations_line = limitations or "none noted"
     return f"""✓ Synthesis written: docs/{mode}/ ({files_written} files)
 ✓ Report index: {index_path}
@@ -689,7 +732,7 @@ def generate_index(chapters: list, mode: str) -> str:
         "---",
         "",
         "## Contents",
-        ""
+        "",
     ]
 
     for i, chapter in enumerate(chapters, 1):
@@ -701,6 +744,7 @@ def generate_index(chapters: list, mode: str) -> str:
     lines.append("_Generated by omr-synthesis_")
 
     return "\n".join(lines)
+
 
 def check_gate_d(synthesis: Dict) -> Dict:
     """
@@ -718,41 +762,47 @@ def check_gate_d(synthesis: Dict) -> Dict:
         Dict with passed, message, checks
     """
     checks_performed = {
-        'chapters_exist': len(synthesis['chapters']) > 0,
-        'traceability_present': False,
-        'boundaries_stated': False,
-        'no_overclaiming': False
+        "chapters_exist": len(synthesis["chapters"]) > 0,
+        "traceability_present": False,
+        "boundaries_stated": False,
+        "no_overclaiming": False,
     }
 
     # Check all chapters for traceability and boundaries
     all_content = ""
-    for chapter in synthesis['chapters']:
-        all_content += chapter['content']
+    for chapter in synthesis["chapters"]:
+        all_content += chapter["content"]
 
     # Check 1: Traceability markers present
     traceability_markers = [
-        'Evidence map',
-        'Judgment summary',
-        'Evaluation report',
-        'traceable',
-        'Traceability'
+        "Evidence map",
+        "Judgment summary",
+        "Evaluation report",
+        "traceable",
+        "Traceability",
     ]
-    checks_performed['traceability_present'] = any(marker in all_content for marker in traceability_markers)
+    checks_performed["traceability_present"] = any(
+        marker in all_content for marker in traceability_markers
+    )
 
     # Check 2: Evidence boundary labels present
-    boundary_keywords = ['Evidence Boundary', 'proven', 'suggested', 'inferred']
-    checks_performed['boundaries_stated'] = any(kw in all_content for kw in boundary_keywords)
+    boundary_keywords = ["Evidence Boundary", "proven", "suggested", "inferred"]
+    checks_performed["boundaries_stated"] = any(
+        kw in all_content for kw in boundary_keywords
+    )
 
     # Check 3: No over-claiming
     # Look for claims labeled "proven" and verify they reference validation
-    has_proven = 'proven' in all_content.lower()
-    has_validation = 'validation' in all_content.lower() or 'evaluation' in all_content.lower()
+    has_proven = "proven" in all_content.lower()
+    has_validation = (
+        "validation" in all_content.lower() or "evaluation" in all_content.lower()
+    )
 
     # If claiming proven, must reference validation/evaluation
     if has_proven:
-        checks_performed['no_overclaiming'] = has_validation
+        checks_performed["no_overclaiming"] = has_validation
     else:
-        checks_performed['no_overclaiming'] = True  # No proven claims, no over-claiming
+        checks_performed["no_overclaiming"] = True  # No proven claims, no over-claiming
 
     # All checks must pass
     passed = all(checks_performed.values())
@@ -761,39 +811,37 @@ def check_gate_d(synthesis: Dict) -> Dict:
         message = "Gate D passed: Synthesis ready for publication"
     else:
         missing = []
-        if not checks_performed['chapters_exist']:
+        if not checks_performed["chapters_exist"]:
             missing.append("No synthesis content")
-        if not checks_performed['traceability_present']:
+        if not checks_performed["traceability_present"]:
             missing.append("Traceability not stated")
-        if not checks_performed['boundaries_stated']:
+        if not checks_performed["boundaries_stated"]:
             missing.append("Evidence boundaries not stated")
-        if not checks_performed['no_overclaiming']:
+        if not checks_performed["no_overclaiming"]:
             missing.append("Over-claiming detected (proven without validation)")
 
         message = f"Gate D failed: {', '.join(missing)}"
 
-    return {
-        'passed': passed,
-        'message': message,
-        'checks': checks_performed
-    }
+    return {"passed": passed, "message": message, "checks": checks_performed}
+
 
 def update_tree_state(workspace_root: Path):
     """Update skill tree"""
-    tree_state_path = workspace_root / '.omr' / 'tree-state.json'
+    tree_state_path = workspace_root / ".omr" / "tree-state.json"
 
     if not tree_state_path.exists():
         return
 
     state = json.loads(tree_state_path.read_text())
 
-    if 'omr-synthesis' in state['ready']:
-        state['ready'].remove('omr-synthesis')
+    if "omr-synthesis" in state["ready"]:
+        state["ready"].remove("omr-synthesis")
 
-    state['completed'].append('omr-synthesis')
+    state["completed"].append("omr-synthesis")
 
     tree_state_path.parent.mkdir(parents=True, exist_ok=True)
     tree_state_path.write_text(json.dumps(state, indent=2))
+
 
 def main():
     """CLI entry point"""
@@ -810,16 +858,17 @@ def main():
     print(f"Synthesizing findings (mode: {mode or 'auto'})...")
     result = synthesize_findings(workspace, mode)
 
-    if result['status'] == 'success':
-        print(result['user_summary'])
+    if result["status"] == "success":
+        print(result["user_summary"])
         print("📊 Skill tree updated")
 
-    elif result['status'] == 'gate_failed':
-        print(result.get('user_summary') or f"⚠️  GATE D FAILED\n  {result['message']}")
+    elif result["status"] == "gate_failed":
+        print(result.get("user_summary") or f"⚠️  GATE D FAILED\n  {result['message']}")
 
     else:
         print(f"✗ Error: {result['error']}")
         print("Do not present synthesis as complete until report files exist.")
+
 
 if __name__ == "__main__":
     main()

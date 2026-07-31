@@ -11,16 +11,17 @@ from typing import List, Tuple
 
 # Skills to package in dependency order (omr-core first)
 SKILLS_TO_PACKAGE = [
-    'omr-core',           # Foundation infrastructure (must be first)
-    'omr-bootstrap',      # Project initializer
-    'omr-collection',     # Material collection
-    'omr-analyze',        # Evidence analysis + research planning
-    'omr-decision',       # Architecture decisions
-    'omr-evaluation',     # Experiment execution
-    'omr-synthesis',      # Findings synthesis + wiki
-    'omr-idea-note',      # Idea capture
-    'omr-reconcile'       # Reconciliation + archiving
+    "omr-core",  # Foundation infrastructure (must be first)
+    "omr-bootstrap",  # Project initializer
+    "omr-collection",  # Material collection
+    "omr-analyze",  # Evidence analysis + research planning
+    "omr-decision",  # Architecture decisions
+    "omr-evaluation",  # Experiment execution
+    "omr-synthesis",  # Findings synthesis + wiki
+    "omr-idea-note",  # Idea capture
+    "omr-reconcile",  # Reconciliation + archiving
 ]
+
 
 def find_package_script() -> Path:
     """
@@ -34,11 +35,25 @@ def find_package_script() -> Path:
     """
     # Try multiple locations where skill-creator might be installed
     possible_locations = [
-        Path.home() / '.claude' / 'skills' / 'skill-creator' / 'scripts' / 'package_skill.py',
-        Path.home() / '.claude' / 'plugins' / 'marketplaces' / 'claude-plugins-official' /
-            'plugins' / 'skill-creator' / 'skills' / 'skill-creator' / 'scripts' / 'package_skill.py',
-        Path('/usr/local/share/claude/skills/skill-creator/scripts/package_skill.py'),
-        Path('/opt/claude/skills/skill-creator/scripts/package_skill.py')
+        Path.home()
+        / ".claude"
+        / "skills"
+        / "skill-creator"
+        / "scripts"
+        / "package_skill.py",
+        Path.home()
+        / ".claude"
+        / "plugins"
+        / "marketplaces"
+        / "claude-plugins-official"
+        / "plugins"
+        / "skill-creator"
+        / "skills"
+        / "skill-creator"
+        / "scripts"
+        / "package_skill.py",
+        Path("/usr/local/share/claude/skills/skill-creator/scripts/package_skill.py"),
+        Path("/opt/claude/skills/skill-creator/scripts/package_skill.py"),
     ]
 
     for location in possible_locations:
@@ -47,14 +62,13 @@ def find_package_script() -> Path:
 
     raise FileNotFoundError(
         "package_skill.py not found. Install skill-creator skill first.\n"
-        "Tried locations:\n" +
-        "\n".join([f"  - {loc}" for loc in possible_locations])
+        "Tried locations:\n" + "\n".join([f"  - {loc}" for loc in possible_locations])
     )
 
-def package_single_skill(skill_name: str,
-                         skills_dir: Path,
-                         output_dir: Path,
-                         package_script: Path) -> Tuple[bool, str]:
+
+def package_single_skill(
+    skill_name: str, skills_dir: Path, output_dir: Path, package_script: Path
+) -> Tuple[bool, str]:
     """
     Package a single skill as .skill ZIP archive
 
@@ -78,7 +92,7 @@ def package_single_skill(skill_name: str,
     result = subprocess.run(
         [sys.executable, str(package_script), str(skill_path), str(output_dir)],
         capture_output=True,
-        text=True
+        text=True,
     )
 
     if result.returncode == 0:
@@ -88,14 +102,15 @@ def package_single_skill(skill_name: str,
             size_kb = skill_file.stat().st_size / 1024
             return True, f"✓ Created {skill_file.name} ({size_kb:.1f} KB)"
         else:
-            return False, f"Package command succeeded but .skill file not found"
+            return False, "Package command succeeded but .skill file not found"
     else:
         error_msg = result.stderr.strip() if result.stderr else result.stdout.strip()
         return False, f"❌ Failed: {error_msg}"
 
-def package_all_skills(skills_dir: Path,
-                       output_dir: Path,
-                       skills_list: List[str] = None) -> Tuple[List[str], List[str]]:
+
+def package_all_skills(
+    skills_dir: Path, output_dir: Path, skills_list: List[str] = None
+) -> Tuple[List[str], List[str]]:
     """
     Package all OmniResearch skills
 
@@ -122,9 +137,9 @@ def package_all_skills(skills_dir: Path,
     output_dir.mkdir(parents=True, exist_ok=True)
     print(f"✓ Output directory: {output_dir}")
 
-    print(f"\n{'='*60}")
-    print(f"PACKAGING OMNIRESEARCH SKILLS")
-    print(f"{'='*60}")
+    print(f"\n{'=' * 60}")
+    print("PACKAGING OMNIRESEARCH SKILLS")
+    print(f"{'=' * 60}")
     print(f"Skills to package: {len(skills_list)}")
 
     # Package each skill
@@ -132,7 +147,9 @@ def package_all_skills(skills_dir: Path,
     failed = []
 
     for skill_name in skills_list:
-        success, message = package_single_skill(skill_name, skills_dir, output_dir, package_script)
+        success, message = package_single_skill(
+            skill_name, skills_dir, output_dir, package_script
+        )
         print(f"  {message}")
 
         if success:
@@ -141,9 +158,9 @@ def package_all_skills(skills_dir: Path,
             failed.append(skill_name)
 
     # Summary
-    print(f"\n{'='*60}")
-    print(f"PACKAGING SUMMARY")
-    print(f"{'='*60}")
+    print(f"\n{'=' * 60}")
+    print("PACKAGING SUMMARY")
+    print(f"{'=' * 60}")
     print(f"✓ Packaged: {len(packaged)}/{len(skills_list)} skills")
     print(f"❌ Failed: {len(failed)}/{len(skills_list)} skills")
 
@@ -152,7 +169,7 @@ def package_all_skills(skills_dir: Path,
 
     if failed:
         print(f"\nFailed: {', '.join(failed)}")
-        print(f"\n⚠ Some skills failed to package. Check errors above.")
+        print("\n⚠ Some skills failed to package. Check errors above.")
 
     # List generated files
     if packaged:
@@ -164,6 +181,7 @@ def package_all_skills(skills_dir: Path,
                 print(f"  - {skill_file.name} ({size_kb:.1f} KB)")
 
     return packaged, failed
+
 
 def main():
     """CLI entry point"""
@@ -180,11 +198,11 @@ def main():
     output_dir = Path(sys.argv[1])
     skills_list = None
 
-    if '--skills' in sys.argv:
-        skills_arg_index = sys.argv.index('--skills')
+    if "--skills" in sys.argv:
+        skills_arg_index = sys.argv.index("--skills")
         if skills_arg_index + 1 < len(sys.argv):
             skills_arg = sys.argv[skills_arg_index + 1]
-            skills_list = [s.strip() for s in skills_arg.split(',')]
+            skills_list = [s.strip() for s in skills_arg.split(",")]
 
     # Determine skills directory
     skills_dir = Path(__file__).parent / "skills"  # scripts/ -> ../skills/
@@ -198,6 +216,7 @@ def main():
 
     # Exit with appropriate status
     sys.exit(0 if len(failed) == 0 else 1)
+
 
 if __name__ == "__main__":
     main()

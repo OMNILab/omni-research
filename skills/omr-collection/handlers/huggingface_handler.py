@@ -4,20 +4,19 @@ HuggingFace Handler
 Fetches README and model/dataset cards from HuggingFace Hub
 """
 
-import hashlib
-import json
-import requests
 import sys
 from pathlib import Path
 from typing import Dict
-from datetime import datetime
+
+import requests
 
 # Setup imports for package structure
 skill_root = Path(__file__).parent.parent
 if str(skill_root) not in sys.path:
     sys.path.insert(0, str(skill_root))
 
-from .base_handler import BaseHandler
+from .base_handler import BaseHandler  # noqa: E402
+
 
 class HuggingFaceHandler(BaseHandler):
     """
@@ -54,20 +53,20 @@ class HuggingFaceHandler(BaseHandler):
         card_info = self._fetch_card_info(resource_type, resource_name)
 
         # Check for download flags
-        if kwargs.get('download_dataset', False) and resource_type == 'datasets':
+        if kwargs.get("download_dataset", False) and resource_type == "datasets":
             dataset_path = self._download_dataset(resource_name)
-            card_info['dataset_path'] = str(dataset_path)
+            card_info["dataset_path"] = str(dataset_path)
 
-        if kwargs.get('download_model', False) and resource_type == 'models':
+        if kwargs.get("download_model", False) and resource_type == "models":
             model_path = self._download_model(resource_name)
-            card_info['model_path'] = str(model_path)
+            card_info["model_path"] = str(model_path)
 
         return {
             "readme_content": readme_content,
             "card_info": card_info,
             "metadata": card_info,
             "resource_type": resource_type,
-            "resource_name": resource_name
+            "resource_name": resource_name,
         }
 
     def _parse_source(self, source: str) -> tuple[str, str]:
@@ -81,20 +80,20 @@ class HuggingFaceHandler(BaseHandler):
             (resource_type, resource_name) tuple
         """
         # Handle full URL
-        if 'huggingface.co' in source:
-            parts = source.split('huggingface.co/')[-1].split('/')
+        if "huggingface.co" in source:
+            parts = source.split("huggingface.co/")[-1].split("/")
             if len(parts) >= 3:
                 return parts[0], f"{parts[1]}/{parts[2]}"
 
         # Handle "datasets/user/data" or "models/user/model" format
-        if source.startswith('datasets/') or source.startswith('models/'):
-            parts = source.split('/')
+        if source.startswith("datasets/") or source.startswith("models/"):
+            parts = source.split("/")
             if len(parts) >= 3:
                 return parts[0], f"{parts[1]}/{parts[2]}"
 
         # Handle bare "user/data" (assume dataset)
-        if '/' in source:
-            return 'datasets', source
+        if "/" in source:
+            return "datasets", source
 
         raise ValueError(f"Invalid HuggingFace source: {source}")
 
@@ -110,8 +109,10 @@ class HuggingFaceHandler(BaseHandler):
             README markdown content
         """
         # Use HF API to fetch README
-        if resource_type == 'datasets':
-            readme_url = f"https://huggingface.co/datasets/{resource_name}/raw/main/README.md"
+        if resource_type == "datasets":
+            readme_url = (
+                f"https://huggingface.co/datasets/{resource_name}/raw/main/README.md"
+            )
         else:
             readme_url = f"https://huggingface.co/{resource_name}/raw/main/README.md"
 
@@ -136,7 +137,7 @@ class HuggingFaceHandler(BaseHandler):
             Card metadata dict
         """
         # Use HF Hub API (simplified - real would use huggingface_hub library)
-        if resource_type == 'datasets':
+        if resource_type == "datasets":
             api_url = f"https://huggingface.co/api/datasets/{resource_name}"
         else:
             api_url = f"https://huggingface.co/api/models/{resource_name}"
@@ -148,12 +149,12 @@ class HuggingFaceHandler(BaseHandler):
             card_data = response.json()
 
             return {
-                "downloads": card_data.get('downloads', 0),
-                "likes": card_data.get('likes', 0),
-                "tags": card_data.get('tags', []),
-                "task_type": card_data.get('task_categories', ['unknown']),
+                "downloads": card_data.get("downloads", 0),
+                "likes": card_data.get("likes", 0),
+                "tags": card_data.get("tags", []),
+                "task_type": card_data.get("task_categories", ["unknown"]),
                 "card_url": f"https://huggingface.co/{resource_type}/{resource_name}",
-                "resource_type": resource_type
+                "resource_type": resource_type,
             }
 
         except Exception:
@@ -164,7 +165,7 @@ class HuggingFaceHandler(BaseHandler):
                 "tags": [],
                 "task_type": "unknown",
                 "card_url": f"https://huggingface.co/{resource_type}/{resource_name}",
-                "resource_type": resource_type
+                "resource_type": resource_type,
             }
 
     def _download_dataset(self, resource_name: str) -> Path:
@@ -181,7 +182,7 @@ class HuggingFaceHandler(BaseHandler):
         try:
             from huggingface_hub import snapshot_download
 
-            dataset_dir = self.materials_dir / "datasets" / resource_name.split('/')[-1]
+            dataset_dir = self.materials_dir / "datasets" / resource_name.split("/")[-1]
             dataset_dir.mkdir(parents=True, exist_ok=True)
 
             # Download dataset
@@ -189,13 +190,15 @@ class HuggingFaceHandler(BaseHandler):
                 repo_id=resource_name,
                 repo_type="dataset",
                 local_dir=str(dataset_dir),
-                local_dir_use_symlinks=False
+                local_dir_use_symlinks=False,
             )
 
             return dataset_dir
 
         except ImportError:
-            raise RuntimeError("huggingface_hub library required for dataset download. Install: pip install huggingface_hub")
+            raise RuntimeError(
+                "huggingface_hub library required for dataset download. Install: pip install huggingface_hub"
+            )
 
     def _download_model(self, resource_name: str) -> Path:
         """
@@ -210,7 +213,7 @@ class HuggingFaceHandler(BaseHandler):
         try:
             from huggingface_hub import snapshot_download
 
-            model_dir = self.materials_dir / "datasets" / resource_name.split('/')[-1]
+            model_dir = self.materials_dir / "datasets" / resource_name.split("/")[-1]
             model_dir.mkdir(parents=True, exist_ok=True)
 
             # Download model
@@ -218,13 +221,15 @@ class HuggingFaceHandler(BaseHandler):
                 repo_id=resource_name,
                 repo_type="model",
                 local_dir=str(model_dir),
-                local_dir_use_symlinks=False
+                local_dir_use_symlinks=False,
             )
 
             return model_dir
 
         except ImportError:
-            raise RuntimeError("huggingface_hub library required for model download. Install: pip install huggingface_hub")
+            raise RuntimeError(
+                "huggingface_hub library required for model download. Install: pip install huggingface_hub"
+            )
 
     def convert(self, fetched_data: Dict) -> str:
         """
@@ -236,10 +241,10 @@ class HuggingFaceHandler(BaseHandler):
         Returns:
             Markdown content
         """
-        readme = fetched_data['readme_content']
-        card_info = fetched_data['card_info']
-        resource_type = fetched_data['resource_type']
-        resource_name = fetched_data['resource_name']
+        readme = fetched_data["readme_content"]
+        card_info = fetched_data["card_info"]
+        resource_type = fetched_data["resource_type"]
+        resource_name = fetched_data["resource_name"]
 
         # Create header with metadata
         header = self._create_metadata_header(resource_type, resource_name, card_info)
@@ -249,10 +254,9 @@ class HuggingFaceHandler(BaseHandler):
 
         return full_markdown
 
-    def _create_metadata_header(self,
-                                 resource_type: str,
-                                 resource_name: str,
-                                 card_info: Dict) -> str:
+    def _create_metadata_header(
+        self, resource_type: str, resource_name: str, card_info: Dict
+    ) -> str:
         """
         Create metadata header for HuggingFace resource markdown
 
@@ -264,7 +268,7 @@ class HuggingFaceHandler(BaseHandler):
         Returns:
             Header markdown string
         """
-        type_label = "Dataset" if resource_type == 'datasets' else "Model"
+        type_label = "Dataset" if resource_type == "datasets" else "Model"
 
         lines = [
             f"# HuggingFace {type_label}: {resource_name}",
@@ -278,14 +282,14 @@ class HuggingFaceHandler(BaseHandler):
             f"**Tags**: {', '.join(card_info.get('tags', []))}",
             "",
             f"**Task Type**: {', '.join(card_info.get('task_type', ['unknown']))}",
-            ""
+            "",
         ]
 
-        if card_info.get('dataset_path'):
+        if card_info.get("dataset_path"):
             lines.append(f"**Dataset Path**: {card_info['dataset_path']}")
             lines.append("")
 
-        if card_info.get('model_path'):
+        if card_info.get("model_path"):
             lines.append(f"**Model Path**: {card_info['model_path']}")
             lines.append("")
 
@@ -316,12 +320,13 @@ class HuggingFaceHandler(BaseHandler):
         resource_type, resource_name = self._parse_source(source)
 
         # Create filename: hf-dataset-name.md or hf-model-name.md
-        name_part = resource_name.split('/')[-1]
-        type_prefix = "dataset" if resource_type == 'datasets' else "model"
+        name_part = resource_name.split("/")[-1]
+        type_prefix = "dataset" if resource_type == "datasets" else "model"
 
         filename = f"hf-{type_prefix}-{name_part}.md"
 
         return dataset_dir / filename
+
 
 def main():
     """Test HuggingFace handler"""
@@ -341,23 +346,22 @@ def main():
         print(f"Fetching HuggingFace resource {resource}...")
         fetched = handler.fetch(resource)
 
-        print(f"Converting to markdown...")
+        print("Converting to markdown...")
         markdown = handler.convert(fetched)
 
-        print(f"Storing...")
+        print("Storing...")
         result = handler.store(
-            source=resource,
-            markdown_content=markdown,
-            metadata=fetched['card_info']
+            source=resource, markdown_content=markdown, metadata=fetched["card_info"]
         )
 
-        print(f"✓ HuggingFace resource collected")
+        print("✓ HuggingFace resource collected")
         print(f"  File: {result['file_path']}")
         print(f"  ID: {result['artifact_id']}")
         print(f"  Downloads: {fetched['card_info'].get('downloads', 0)}")
 
     except Exception as e:
         print(f"✗ Error: {str(e)}")
+
 
 if __name__ == "__main__":
     main()

@@ -4,7 +4,31 @@
 
 Skills unlock progressively based on artifact prerequisites, similar to game skill trees.
 
-**Example state:**
+**Default display** is Mermaid (renders in Markdown viewers). ASCII remains available via `--ascii`.
+
+**Example state (Mermaid):**
+```mermaid
+flowchart TD
+    classDef completed fill:#d4edda,stroke:#28a745,color:#155724
+    classDef ready fill:#fff3cd,stroke:#ffc107,color:#856404
+    classDef unlocked fill:#d1ecf1,stroke:#17a2b8,color:#0c5460
+    classDef locked fill:#e2e3e5,stroke:#6c757d,color:#383d41
+
+    bootstrap["omr-bootstrap ✓"]:::completed
+    collection["omr-collection ✓"]:::completed
+    analyze["omr-analyze ○"]:::ready
+    decision["omr-decision ● needs Gate A, research-plan.md"]:::locked
+    idea["omr-idea-note ✓"]:::completed
+    reconcile["omr-reconcile ✓"]:::completed
+
+    bootstrap --> collection
+    bootstrap --> idea
+    bootstrap --> reconcile
+    collection --> analyze
+    analyze --> decision
+```
+
+**ASCII fallback** (`--ascii`):
 ```
 omr-bootstrap ✓
     │

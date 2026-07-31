@@ -10,11 +10,11 @@ Empty content directories are not pre-created.
 import json
 import sys
 from pathlib import Path
-from typing import Optional
 
 
-def init_workspace_infrastructure(workspace_path: Path,
-                                   overwrite: bool = False) -> dict:
+def init_workspace_infrastructure(
+    workspace_path: Path, overwrite: bool = False
+) -> dict:
     """
     Initialize OmniResearch infrastructure in workspace
 
@@ -26,10 +26,15 @@ def init_workspace_infrastructure(workspace_path: Path,
         Dict with created paths and metadata
     """
     tree_state = {
-        "unlocked": ["omr-bootstrap", "omr-collection", "omr-idea-note", "omr-reconcile"],
+        "unlocked": [
+            "omr-bootstrap",
+            "omr-collection",
+            "omr-idea-note",
+            "omr-reconcile",
+        ],
         "ready": [],
         "locked": ["omr-analyze", "omr-decision", "omr-evaluation", "omr-synthesis"],
-        "completed": []
+        "completed": [],
     }
 
     tree_state_path = workspace_path / ".omr" / "tree-state.json"
@@ -54,7 +59,7 @@ def init_workspace_infrastructure(workspace_path: Path,
         "contracts": [],
         "schemas": [],
         "patterns": [],
-        "scripts": []
+        "scripts": [],
     }
 
 

@@ -5,9 +5,10 @@ Detects pattern from skill sequence after 3+ invocations
 """
 
 import json
-from pathlib import Path
-from typing import Dict, List, Optional
 from datetime import datetime
+from pathlib import Path
+from typing import Dict, List
+
 
 def detect_pattern(workspace_root: Path) -> Dict:
     """
@@ -19,32 +20,29 @@ def detect_pattern(workspace_root: Path) -> Dict:
     Returns:
         Dict with detected pattern name, confidence, save recommendation
     """
-    tree_state_path = workspace_root / '.omr' / 'tree-state.json'
+    tree_state_path = workspace_root / ".omr" / "tree-state.json"
 
     if not tree_state_path.exists():
-        return {
-            'status': 'no_state',
-            'message': 'No skill tree state found'
-        }
+        return {"status": "no_state", "message": "No skill tree state found"}
 
     state = json.loads(tree_state_path.read_text())
 
-    completed_skills = state.get('completed', [])
+    completed_skills = state.get("completed", [])
 
     # Need at least 3 skills to detect pattern
     if len(completed_skills) < 3:
         return {
-            'status': 'insufficient_data',
-            'message': f'Need 3+ skill invocations (current: {len(completed_skills)})'
+            "status": "insufficient_data",
+            "message": f"Need 3+ skill invocations (current: {len(completed_skills)})",
         }
 
     # Built-in patterns are static omr-core specifications. Workspace-local
     # patterns are user-created state stored under .omr/.
-    built_in_patterns_dir = Path(__file__).parent.parent / 'patterns'
-    custom_patterns_dir = workspace_root / '.omr' / 'patterns'
-    pattern_files = list(built_in_patterns_dir.glob('*.json'))
+    built_in_patterns_dir = Path(__file__).parent.parent / "patterns"
+    custom_patterns_dir = workspace_root / ".omr" / "patterns"
+    pattern_files = list(built_in_patterns_dir.glob("*.json"))
     if custom_patterns_dir.exists():
-        pattern_files.extend(custom_patterns_dir.glob('*.json'))
+        pattern_files.extend(custom_patterns_dir.glob("*.json"))
 
     pattern_matches = []
 
@@ -55,32 +53,35 @@ def detect_pattern(workspace_root: Path) -> Dict:
         match_score = calculate_pattern_match(completed_skills, pattern)
 
         if match_score > 0:
-            pattern_matches.append({
-                'pattern_name': pattern['name'],
-                'match_score': match_score,
-                'pattern_file': str(pattern_file)
-            })
+            pattern_matches.append(
+                {
+                    "pattern_name": pattern["name"],
+                    "match_score": match_score,
+                    "pattern_file": str(pattern_file),
+                }
+            )
 
     # Sort by match score
-    pattern_matches.sort(key=lambda x: x['match_score'], reverse=True)
+    pattern_matches.sort(key=lambda x: x["match_score"], reverse=True)
 
     if not pattern_matches:
         return {
-            'status': 'no_match',
-            'message': 'No known pattern detected from sequence'
+            "status": "no_match",
+            "message": "No known pattern detected from sequence",
         }
 
     best_match = pattern_matches[0]
 
     return {
-        'status': 'detected',
-        'pattern_name': best_match['pattern_name'],
-        'match_score': best_match['match_score'],
-        'confidence': 'high' if best_match['match_score'] >= 0.7 else 'medium',
-        'pattern_file': best_match['pattern_file'],
-        'completed_sequence': completed_skills,
-        'recommendation': f'Pattern emerging: {best_match["pattern_name"]}. Save pattern?'
+        "status": "detected",
+        "pattern_name": best_match["pattern_name"],
+        "match_score": best_match["match_score"],
+        "confidence": "high" if best_match["match_score"] >= 0.7 else "medium",
+        "pattern_file": best_match["pattern_file"],
+        "completed_sequence": completed_skills,
+        "recommendation": f"Pattern emerging: {best_match['pattern_name']}. Save pattern?",
     }
+
 
 def calculate_pattern_match(completed_skills: List[str], pattern: Dict) -> float:
     """
@@ -94,8 +95,8 @@ def calculate_pattern_match(completed_skills: List[str], pattern: Dict) -> float
         Match score (0-1)
     """
     # Check if sequence matches pattern entry point
-    graph = pattern['graph']
-    entry_points = graph['entry_points']
+    graph = pattern["graph"]
+    entry_points = graph["entry_points"]
 
     if not completed_skills:
         return 0.0
@@ -105,7 +106,7 @@ def calculate_pattern_match(completed_skills: List[str], pattern: Dict) -> float
         return 0.0
 
     # Calculate overlap with pattern nodes
-    pattern_nodes = set(graph['nodes'])
+    pattern_nodes = set(graph["nodes"])
 
     completed_set = set(completed_skills)
 
@@ -119,10 +120,10 @@ def calculate_pattern_match(completed_skills: List[str], pattern: Dict) -> float
     sequence_score = 1.0 if len(completed_skills) >= 3 else 0.5
 
     # Combined score
-    match_score = (overlap_score * 0.6 + sequence_score * 0.4)
+    match_score = overlap_score * 0.6 + sequence_score * 0.4
 
     # Loop pattern: boost when sequence shows cyclic / repeated deepening
-    if pattern.get('name') == 'Loop' or graph.get('cycles'):
+    if pattern.get("name") == "Loop" or graph.get("cycles"):
         match_score = max(match_score, _loop_cycle_score(completed_skills, pattern))
 
     return min(match_score, 1.0)
@@ -135,8 +136,8 @@ def _loop_cycle_score(completed_skills: List[str], pattern: Dict) -> float:
     if not completed_skills:
         return 0.0
 
-    graph = pattern.get('graph', {})
-    entry_points = graph.get('entry_points', [])
+    graph = pattern.get("graph", {})
+    entry_points = graph.get("entry_points", [])
     if completed_skills[0] not in entry_points:
         return 0.0
 
@@ -144,26 +145,30 @@ def _loop_cycle_score(completed_skills: List[str], pattern: Dict) -> float:
     for skill in completed_skills:
         counts[skill] = counts.get(skill, 0) + 1
 
-    idea_repeats = counts.get('omr-idea-note', 0)
-    collection_n = counts.get('omr-collection', 0)
-    analyze_n = counts.get('omr-analyze', 0)
+    idea_repeats = counts.get("omr-idea-note", 0)
+    collection_n = counts.get("omr-collection", 0)
+    analyze_n = counts.get("omr-analyze", 0)
 
     # Adjacent collection↔analyze alternation
     alternations = 0
     for i in range(len(completed_skills) - 1):
         pair = (completed_skills[i], completed_skills[i + 1])
         if pair in (
-            ('omr-collection', 'omr-analyze'),
-            ('omr-analyze', 'omr-collection'),
-            ('omr-analyze', 'omr-analyze'),
-            ('omr-idea-note', 'omr-idea-note'),
+            ("omr-collection", "omr-analyze"),
+            ("omr-analyze", "omr-collection"),
+            ("omr-analyze", "omr-analyze"),
+            ("omr-idea-note", "omr-idea-note"),
         ):
             alternations += 1
 
     score = 0.0
     if idea_repeats >= 2:
         score = max(score, 0.55 + min(idea_repeats, 4) * 0.1)
-    if collection_n >= 1 and analyze_n >= 1 and (alternations >= 1 or max(collection_n, analyze_n) >= 2):
+    if (
+        collection_n >= 1
+        and analyze_n >= 1
+        and (alternations >= 1 or max(collection_n, analyze_n) >= 2)
+    ):
         score = max(score, 0.6 + min(alternations, 3) * 0.1)
     if idea_repeats + alternations >= 3:
         score = max(score, 0.85)
@@ -171,7 +176,9 @@ def _loop_cycle_score(completed_skills: List[str], pattern: Dict) -> float:
     return min(score, 1.0)
 
 
-def save_pattern(workspace_root: Path, pattern_name: str, custom_sequence: List[str] = None) -> Dict:
+def save_pattern(
+    workspace_root: Path, pattern_name: str, custom_sequence: List[str] = None
+) -> Dict:
     """
     Save pattern as reusable template
 
@@ -183,53 +190,51 @@ def save_pattern(workspace_root: Path, pattern_name: str, custom_sequence: List[
     Returns:
         Dict with saved pattern path
     """
-    patterns_dir = workspace_root / '.omr' / 'patterns'
+    patterns_dir = workspace_root / ".omr" / "patterns"
     patterns_dir.mkdir(parents=True, exist_ok=True)
 
-    tree_state_path = workspace_root / '.omr' / 'tree-state.json'
+    tree_state_path = workspace_root / ".omr" / "tree-state.json"
 
     if not tree_state_path.exists():
-        return {
-            'status': 'failed',
-            'error': 'No skill tree state to save'
-        }
+        return {"status": "failed", "error": "No skill tree state to save"}
 
     state = json.loads(tree_state_path.read_text())
 
-    completed_skills = custom_sequence or state.get('completed', [])
+    completed_skills = custom_sequence or state.get("completed", [])
 
     # Create pattern definition
     pattern_def = {
-        'name': pattern_name,
-        'description': f'User-defined pattern: {pattern_name}',
-        'graph': {
-            'entry_points': [completed_skills[0]] if completed_skills else [],
-            'nodes': completed_skills,
-            'edges': generate_edges(completed_skills)
+        "name": pattern_name,
+        "description": f"User-defined pattern: {pattern_name}",
+        "graph": {
+            "entry_points": [completed_skills[0]] if completed_skills else [],
+            "nodes": completed_skills,
+            "edges": generate_edges(completed_skills),
         },
-        'skill_gates': {},
-        'contract_overrides': {},
-        'recommendations': {
-            'agency': 'semi-automated',
-            'estimated_time': 'variable',
-            'synthesis_mode': 'brief',
-            'description': 'Custom pattern saved from user workflow'
+        "skill_gates": {},
+        "contract_overrides": {},
+        "recommendations": {
+            "agency": "semi-automated",
+            "estimated_time": "variable",
+            "synthesis_mode": "brief",
+            "description": "Custom pattern saved from user workflow",
         },
-        'saved_at': datetime.now().isoformat(),
-        'user_defined': True
+        "saved_at": datetime.now().isoformat(),
+        "user_defined": True,
     }
 
     # Save pattern
-    pattern_file = patterns_dir / f'{pattern_name.lower().replace(" ", "-")}.json'
+    pattern_file = patterns_dir / f"{pattern_name.lower().replace(' ', '-')}.json"
     pattern_file.parent.mkdir(parents=True, exist_ok=True)
     pattern_file.write_text(json.dumps(pattern_def, indent=2))
 
     return {
-        'status': 'success',
-        'pattern_file': str(pattern_file),
-        'pattern_name': pattern_name,
-        'sequence': completed_skills
+        "status": "success",
+        "pattern_file": str(pattern_file),
+        "pattern_name": pattern_name,
+        "sequence": completed_skills,
     }
+
 
 def generate_edges(skill_sequence: List[str]) -> List[str]:
     """
@@ -244,9 +249,10 @@ def generate_edges(skill_sequence: List[str]) -> List[str]:
     edges = []
 
     for i in range(len(skill_sequence) - 1):
-        edges.append(f"{skill_sequence[i]} → {skill_sequence[i+1]}")
+        edges.append(f"{skill_sequence[i]} → {skill_sequence[i + 1]}")
 
     return edges
+
 
 def main():
     """CLI entry point"""
@@ -260,18 +266,22 @@ def main():
 
     workspace = Path(sys.argv[1])
 
-    save_mode = '--save' in sys.argv
+    save_mode = "--save" in sys.argv
 
     if save_mode:
         # Get pattern name
-        pattern_name_idx = sys.argv.index('--save') + 1
-        pattern_name = sys.argv[pattern_name_idx] if pattern_name_idx < len(sys.argv) else 'custom-pattern'
+        pattern_name_idx = sys.argv.index("--save") + 1
+        pattern_name = (
+            sys.argv[pattern_name_idx]
+            if pattern_name_idx < len(sys.argv)
+            else "custom-pattern"
+        )
 
         print(f"Saving pattern: {pattern_name}...")
         result = save_pattern(workspace, pattern_name)
 
-        if result['status'] == 'success':
-            print(f"✓ Pattern saved")
+        if result["status"] == "success":
+            print("✓ Pattern saved")
             print(f"  File: {result['pattern_file']}")
             print(f"  Name: {result['pattern_name']}")
             print(f"  Sequence: {result['sequence']}")
@@ -284,18 +294,19 @@ def main():
         print("Detecting pattern from skill sequence...")
         result = detect_pattern(workspace)
 
-        if result['status'] == 'detected':
-            print(f"\n✓ Pattern detected")
+        if result["status"] == "detected":
+            print("\n✓ Pattern detected")
             print(f"  Pattern: {result['pattern_name']}")
             print(f"  Confidence: {result['confidence']}")
             print(f"  Match score: {result['match_score']:.2f}")
             print(f"\n  {result['recommendation']}")
 
-        elif result['status'] == 'insufficient_data':
+        elif result["status"] == "insufficient_data":
             print(f"\n  {result['message']}")
 
         else:
             print(f"\n  {result['message']}")
+
 
 if __name__ == "__main__":
     main()

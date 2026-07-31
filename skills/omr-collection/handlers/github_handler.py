@@ -4,20 +4,19 @@ GitHub Handler
 Fetches README and release info from GitHub repositories
 """
 
-import hashlib
-import json
-import requests
 import sys
 from pathlib import Path
 from typing import Dict
-from datetime import datetime
+
+import requests
 
 # Setup imports for package structure
 skill_root = Path(__file__).parent.parent
 if str(skill_root) not in sys.path:
     sys.path.insert(0, str(skill_root))
 
-from .base_handler import BaseHandler
+from .base_handler import BaseHandler  # noqa: E402
+
 
 class GitHubHandler(BaseHandler):
     """
@@ -57,16 +56,16 @@ class GitHubHandler(BaseHandler):
         repo_metadata = self._fetch_repo_metadata(repo)
 
         # Check for full-repo flag
-        if kwargs.get('full_repo', False):
+        if kwargs.get("full_repo", False):
             # Clone full repository (shallow, depth=1)
             repo_path = self._clone_repo(repo)
-            repo_metadata['full_repo_path'] = str(repo_path)
+            repo_metadata["full_repo_path"] = str(repo_path)
 
         return {
             "readme_content": readme_content,
             "release_info": release_info,
             "metadata": repo_metadata,
-            "repo": repo
+            "repo": repo,
         }
 
     def _extract_repo_name(self, source: str) -> str:
@@ -80,13 +79,13 @@ class GitHubHandler(BaseHandler):
             Repo name "user/repo"
         """
         # Handle full URL
-        if 'github.com' in source:
-            parts = source.split('github.com/')[-1].split('/')
+        if "github.com" in source:
+            parts = source.split("github.com/")[-1].split("/")
             if len(parts) >= 2:
                 return f"{parts[0]}/{parts[1]}"
 
         # Handle "user/repo" format
-        if '/' in source and not source.startswith('http'):
+        if "/" in source and not source.startswith("http"):
             return source.strip()
 
         raise ValueError(f"Invalid GitHub source: {source}")
@@ -112,11 +111,12 @@ class GitHubHandler(BaseHandler):
 
             # Decode base64 content
             import base64
-            readme_content = base64.b64decode(readme_data['content']).decode('utf-8')
+
+            readme_content = base64.b64decode(readme_data["content"]).decode("utf-8")
 
             return readme_content
 
-        except Exception as e:
+        except Exception:
             # Fallback: try raw.githubusercontent.com
             try:
                 raw_url = f"https://raw.githubusercontent.com/{repo}/main/README.md"
@@ -145,10 +145,10 @@ class GitHubHandler(BaseHandler):
             if response.status_code == 200:
                 release_data = response.json()
                 return {
-                    "release_tag": release_data.get('tag_name', 'unknown'),
-                    "release_name": release_data.get('name', 'unknown'),
-                    "release_url": release_data.get('html_url', ''),
-                    "release_date": release_data.get('published_at', '')
+                    "release_tag": release_data.get("tag_name", "unknown"),
+                    "release_name": release_data.get("name", "unknown"),
+                    "release_url": release_data.get("html_url", ""),
+                    "release_date": release_data.get("published_at", ""),
                 }
             else:
                 # No releases
@@ -156,7 +156,7 @@ class GitHubHandler(BaseHandler):
                     "release_tag": "none",
                     "release_name": "none",
                     "release_url": "",
-                    "release_date": ""
+                    "release_date": "",
                 }
 
         except Exception:
@@ -164,7 +164,7 @@ class GitHubHandler(BaseHandler):
                 "release_tag": "unknown",
                 "release_name": "unknown",
                 "release_url": "",
-                "release_date": ""
+                "release_date": "",
             }
 
     def _fetch_repo_metadata(self, repo: str) -> Dict:
@@ -186,15 +186,17 @@ class GitHubHandler(BaseHandler):
             repo_data = response.json()
 
             return {
-                "stars": repo_data.get('stargazers_count', 0),
-                "language": repo_data.get('language', 'Unknown'),
-                "license": repo_data.get('license', {}).get('spdx_id', 'Unknown') if repo_data.get('license') else 'Unknown',
-                "description": repo_data.get('description', ''),
-                "last_updated": repo_data.get('updated_at', ''),
-                "repo_url": repo_data.get('html_url', f"https://github.com/{repo}")
+                "stars": repo_data.get("stargazers_count", 0),
+                "language": repo_data.get("language", "Unknown"),
+                "license": repo_data.get("license", {}).get("spdx_id", "Unknown")
+                if repo_data.get("license")
+                else "Unknown",
+                "description": repo_data.get("description", ""),
+                "last_updated": repo_data.get("updated_at", ""),
+                "repo_url": repo_data.get("html_url", f"https://github.com/{repo}"),
             }
 
-        except Exception as e:
+        except Exception:
             # Fallback metadata
             return {
                 "stars": 0,
@@ -202,7 +204,7 @@ class GitHubHandler(BaseHandler):
                 "license": "Unknown",
                 "description": "",
                 "last_updated": "",
-                "repo_url": f"https://github.com/{repo}"
+                "repo_url": f"https://github.com/{repo}",
             }
 
     def _clone_repo(self, repo: str) -> Path:
@@ -217,7 +219,7 @@ class GitHubHandler(BaseHandler):
         """
         import subprocess
 
-        repo_dir = self.materials_dir / "github" / repo.split('/')[-1]
+        repo_dir = self.materials_dir / "github" / repo.split("/")[-1]
         repo_dir.mkdir(parents=True, exist_ok=True)
 
         clone_url = f"https://github.com/{repo}.git"
@@ -225,10 +227,10 @@ class GitHubHandler(BaseHandler):
         try:
             # Shallow clone (depth=1)
             subprocess.run(
-                ['git', 'clone', '--depth=1', clone_url, str(repo_dir)],
+                ["git", "clone", "--depth=1", clone_url, str(repo_dir)],
                 check=True,
                 capture_output=True,
-                timeout=60
+                timeout=60,
             )
 
             return repo_dir
@@ -248,10 +250,10 @@ class GitHubHandler(BaseHandler):
         Returns:
             Markdown content
         """
-        readme = fetched_data['readme_content']
-        release = fetched_data['release_info']
-        metadata = fetched_data['metadata']
-        repo = fetched_data['repo']
+        readme = fetched_data["readme_content"]
+        release = fetched_data["release_info"]
+        metadata = fetched_data["metadata"]
+        repo = fetched_data["repo"]
 
         # Create header with metadata
         header = self._create_metadata_header(repo, metadata, release)
@@ -287,14 +289,14 @@ class GitHubHandler(BaseHandler):
             f"**Last Updated**: {metadata.get('last_updated', 'Unknown')}",
             "",
             f"**Latest Release**: {release.get('release_tag', 'none')}",
-            ""
+            "",
         ]
 
-        if metadata.get('description'):
-            lines.append("**Description**: " + metadata['description'])
+        if metadata.get("description"):
+            lines.append("**Description**: " + metadata["description"])
             lines.append("")
 
-        if release.get('release_url'):
+        if release.get("release_url"):
             lines.append(f"**Release URL**: {release['release_url']}")
             lines.append("")
 
@@ -328,13 +330,16 @@ class GitHubHandler(BaseHandler):
 
         return github_dir / filename
 
+
 def main():
     """Test GitHub handler"""
     import sys
 
     if len(sys.argv) < 2:
         print("Usage: github_handler.py <workspace> <repo>")
-        print("Example: github_handler.py /tmp/test-project anthropics/anthropic-sdk-python")
+        print(
+            "Example: github_handler.py /tmp/test-project anthropics/anthropic-sdk-python"
+        )
         sys.exit(1)
 
     workspace = Path(sys.argv[1])
@@ -346,23 +351,22 @@ def main():
         print(f"Fetching repo {repo}...")
         fetched = handler.fetch(repo)
 
-        print(f"Converting to markdown...")
+        print("Converting to markdown...")
         markdown = handler.convert(fetched)
 
-        print(f"Storing...")
+        print("Storing...")
         result = handler.store(
-            source=repo,
-            markdown_content=markdown,
-            metadata=fetched['metadata']
+            source=repo, markdown_content=markdown, metadata=fetched["metadata"]
         )
 
-        print(f"✓ GitHub repo collected")
+        print("✓ GitHub repo collected")
         print(f"  File: {result['file_path']}")
         print(f"  ID: {result['artifact_id']}")
         print(f"  Stars: {fetched['metadata'].get('stars', 0)}")
 
     except Exception as e:
         print(f"✗ Error: {str(e)}")
+
 
 if __name__ == "__main__":
     main()

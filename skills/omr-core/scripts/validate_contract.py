@@ -7,7 +7,9 @@ Validates skill contracts against the contract schema
 import json
 import sys
 from pathlib import Path
-from jsonschema import validate, ValidationError
+
+from jsonschema import ValidationError, validate
+
 
 def validate_contract(contract_path: Path, schema_path: Path) -> tuple[bool, str]:
     """
@@ -31,8 +33,11 @@ def validate_contract(contract_path: Path, schema_path: Path) -> tuple[bool, str
 
         # Additional validation: check skill name matches filename
         expected_skill = contract_path.stem
-        if contract['skill'] != expected_skill:
-            return False, f"Skill name '{contract['skill']}' doesn't match filename '{expected_skill}'"
+        if contract["skill"] != expected_skill:
+            return (
+                False,
+                f"Skill name '{contract['skill']}' doesn't match filename '{expected_skill}'",
+            )
 
         return True, ""
 
@@ -42,6 +47,7 @@ def validate_contract(contract_path: Path, schema_path: Path) -> tuple[bool, str
         return False, f"JSON parsing error: {e.msg}"
     except Exception as e:
         return False, f"Unexpected error: {str(e)}"
+
 
 def main():
     """Validate all contracts in skills/contracts/"""
@@ -75,10 +81,12 @@ def main():
             # Print contract summary
             with open(contract_path) as f:
                 contract = json.load(f)
-            requires_count = len(contract['requires'])
-            produces_count = len(contract['produces'])
-            gates_count = len(contract['gates'])
-            print(f"  Requires: {requires_count}, Produces: {produces_count}, Gates: {gates_count}")
+            requires_count = len(contract["requires"])
+            produces_count = len(contract["produces"])
+            gates_count = len(contract["gates"])
+            print(
+                f"  Requires: {requires_count}, Produces: {produces_count}, Gates: {gates_count}"
+            )
         else:
             print(f"✗ {contract_path.name}")
             print(f"  Error: {error}")
@@ -89,8 +97,9 @@ def main():
         print(f"✓ All {len(contracts)} contracts valid")
         sys.exit(0)
     else:
-        print(f"✗ Some contracts invalid")
+        print("✗ Some contracts invalid")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

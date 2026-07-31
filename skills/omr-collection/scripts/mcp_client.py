@@ -6,10 +6,9 @@ Provides Chrome MCP server integration for webpage capture and search automation
 
 import asyncio
 import subprocess
-import json
-from pathlib import Path
-from typing import Dict, List, Optional, Any
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List
 
 
 class ChromeMCPClient:
@@ -41,7 +40,7 @@ class ChromeMCPClient:
                 ["npm", "list", "-g", self.server_package],
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
             )
 
             # If package found, returncode is 0
@@ -55,7 +54,7 @@ class ChromeMCPClient:
                 ["npm", "list", self.server_package],
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
             )
 
             self.available = result.returncode == 0
@@ -86,9 +85,7 @@ class ChromeMCPClient:
 
         # Configure server parameters for stdio transport
         server_params = StdioServerParameters(
-            command="npx",
-            args=["-y", self.server_package],
-            env=None
+            command="npx", args=["-y", self.server_package], env=None
         )
 
         async with stdio_client(server_params) as (read, write):
@@ -110,28 +107,35 @@ class ChromeMCPClient:
                     if screenshot_result.content:
                         # Handle different content formats
                         for content_block in screenshot_result.content:
-                            if hasattr(content_block, 'data'):
+                            if hasattr(content_block, "data"):
                                 # Binary data format
                                 screenshot_png = content_block.data
                                 break
-                            elif isinstance(content_block, dict) and 'data' in content_block:
-                                screenshot_png = content_block['data']
+                            elif (
+                                isinstance(content_block, dict)
+                                and "data" in content_block
+                            ):
+                                screenshot_png = content_block["data"]
                                 break
-                except Exception as e:
+                except Exception:
                     # Screenshot failed, continue with markdown only
                     pass
 
                 # Read page content as markdown
-                content_result = await session.call_tool("read_page", {"format": "markdown"})
+                content_result = await session.call_tool(
+                    "read_page", {"format": "markdown"}
+                )
                 markdown = ""
 
                 if content_result.content:
                     for content_block in content_result.content:
-                        if hasattr(content_block, 'text'):
+                        if hasattr(content_block, "text"):
                             markdown = content_block.text
                             break
-                        elif isinstance(content_block, dict) and 'text' in content_block:
-                            markdown = content_block['text']
+                        elif (
+                            isinstance(content_block, dict) and "text" in content_block
+                        ):
+                            markdown = content_block["text"]
                             break
 
                 return {
@@ -139,11 +143,13 @@ class ChromeMCPClient:
                     "markdown": markdown,
                     "metadata": {
                         "captured_at": datetime.now().isoformat(),
-                        "screenshot_available": screenshot_png is not None
-                    }
+                        "screenshot_available": screenshot_png is not None,
+                    },
                 }
 
-    async def search_google_scholar_async(self, query: str, max_results: int = 10) -> List[Dict]:
+    async def search_google_scholar_async(
+        self, query: str, max_results: int = 10
+    ) -> List[Dict]:
         """
         Search Google Scholar via Chrome MCP automation (async)
 
@@ -202,11 +208,9 @@ def check_mcp_sdk_available() -> bool:
     Returns:
         True if mcp package available
     """
-    try:
-        import mcp
-        return True
-    except ImportError:
-        return False
+    import importlib.util
+
+    return importlib.util.find_spec("mcp") is not None
 
 
 def check_chrome_mcp_server_available() -> bool:
@@ -233,7 +237,9 @@ def main():
 
     # Check server
     server_available = check_chrome_mcp_server_available()
-    print(f"Chrome MCP Server: {'✓ Installed' if server_available else '✗ Not installed'}")
+    print(
+        f"Chrome MCP Server: {'✓ Installed' if server_available else '✗ Not installed'}"
+    )
 
     if not sdk_available:
         print("\nTo install MCP SDK:")
@@ -257,21 +263,23 @@ def main():
         try:
             result = client.capture_webpage(url)
 
-            print(f"\n✓ Capture successful")
-            print(f"  Screenshot: {'Available' if result['screenshot_png'] else 'Not available'}")
+            print("\n✓ Capture successful")
+            print(
+                f"  Screenshot: {'Available' if result['screenshot_png'] else 'Not available'}"
+            )
             print(f"  Markdown: {len(result['markdown'])} characters")
 
             # Save to temp file for testing
-            if result['screenshot_png']:
+            if result["screenshot_png"]:
                 test_dir = Path("/tmp/mcp-test")
                 test_dir.mkdir(exist_ok=True)
 
                 screenshot_path = test_dir / "screenshot.png"
-                screenshot_path.write_bytes(result['screenshot_png'])
+                screenshot_path.write_bytes(result["screenshot_png"])
                 print(f"  Saved screenshot: {screenshot_path}")
 
                 markdown_path = test_dir / "content.md"
-                markdown_path.write_text(result['markdown'])
+                markdown_path.write_text(result["markdown"])
                 print(f"  Saved markdown: {markdown_path}")
 
         except Exception as e:

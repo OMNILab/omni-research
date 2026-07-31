@@ -24,7 +24,7 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
     """
     docs_dir = workspace_root / 'docs'
     archive_dir = docs_dir / 'archive'
-    raw_dir = workspace_root / 'raw'
+    materials_dir = workspace_root / 'materials'
 
     # Check existing artifacts
     existing_artifacts = [
@@ -70,10 +70,10 @@ def reconcile_evidence(workspace_root: Path) -> Dict:
     metadata_path = archive_session_dir / 'RECONCILIATION-METADATA.json'
     metadata_path.write_text(json.dumps(archive_metadata, indent=2))
 
-    # Step 2: Check if new materials exist in raw/
+    # Step 2: Check if new materials exist in materials/
     new_materials = False
     for subdir in ['papers', 'web', 'github', 'datasets']:
-        subdir_path = raw_dir / subdir
+        subdir_path = materials_dir / subdir
         if subdir_path.exists():
             # Check if directory has files
             if any(subdir_path.glob('*.md')):

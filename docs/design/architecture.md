@@ -20,8 +20,8 @@ Each research project creates an isolated workspace:
 
 ```
 <workspace>/<project-id>/
-├── raw/                      # Raw material layer
-│   ├── paper/                # Downloaded papers (PDF)
+├── materials/                      # Materials layer
+│   ├── papers/               # Downloaded papers (PDF)
 │   ├── web/                  # Blogs, URLs, screenshots
 │   ├── github/               # Cloned repos
 │   ├── models/               # AI model checkpoints, configs
@@ -68,7 +68,7 @@ Each research project creates an isolated workspace:
 
 ## Directory Purposes
 
-### `raw/` — Raw Material Layer
+### `materials/` — Materials Layer
 - **Purpose**: Store unprocessed materials from various sources
 - **Classification**: Tier-based (paper, web, github, model, dataset)
 - **Format**: PDF, markdown, code, checkpoint files

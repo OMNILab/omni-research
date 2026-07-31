@@ -21,7 +21,7 @@ flowchart TD
     subgraph P2["Phase 2.x — Research Pipeline (linear, gate-controlled)"]
         direction TB
         COL["omr-collection<br/>research-logistics<br/>v1.1.0 · phase 2.1<br/>Passive reception, 4 handlers<br/>paper/web/github/huggingface<br/>arxiv-SDK + chrome-mcp"]
-        ANA["omr-analyze<br/>evidence-analysis + planning<br/>v2.0.0 · phase 2.2<br/>Scans raw/ → evidence-map + brief<br/>+ judgment + plan (all 4 artifacts)<br/>Gate A (internal): coverage/clar/scope"]
+        ANA["omr-analyze<br/>evidence-analysis + planning<br/>v2.0.0 · phase 2.2<br/>Scans materials/ → evidence-map + brief<br/>+ judgment + plan (all 4 artifacts)<br/>Gate A (internal): coverage/clar/scope"]
         DEC["omr-decision<br/>architecture-decisions<br/>v1.0.0 · phase 2.4<br/>≥3 alternatives + rationale<br/>Gate B: alts/risks/refs"]
         EVAL["omr-evaluation<br/>experiment-execution<br/>v1.0.0 · phase 2.5<br/>Hypothesis → metrics → prototype<br/>Gate C: metrics/failure/repro"]
 
@@ -110,7 +110,7 @@ flowchart TD
 
 ### 2. Lifecycle Architecture — Three Phases
 
-- **Phase 1.0 (Foundation)**: `omr-core` provides the contract system, dependency resolver, skill-tree tracker, and pattern definitions. `omr-bootstrap` is the single entry point — it initializes the workspace (`raw/`, `docs/`, `src/`, `wiki/`) and generates `AGENTS.md`, auto-invoking `omr-core` infrastructure.
+- **Phase 1.0 (Foundation)**: `omr-core` provides the contract system, dependency resolver, skill-tree tracker, and pattern definitions. `omr-bootstrap` is the single entry point — it initializes the workspace (`materials/`, `docs/`, `src/`, `wiki/`) and generates `AGENTS.md`, auto-invoking `omr-core` infrastructure.
 - **Phase 2.x (Research Pipeline)**: A strictly linear, gate-controlled chain — collection → analyze → decision → evaluation. `omr-analyze` produces all 4 artifacts (research-brief.md, evidence-map.md, judgment-summary.md, research-plan.md) and runs Gate A as an internal checkpoint (position: after_judgment_before_plan); it unlocks `omr-decision` once Gate A passes. Each stage consumes the prior stage's artifacts and emits a gate review (Gate B in decision, Gate C in evaluation).
 - **Phase 3.x (Documentation & State)**: `omr-synthesis` (Gate D) writes authoritative findings in 4 configurable modes and performs internal wiki generation after Gate D (use `--no-wiki` to skip); `omr-idea-note` is a lightweight, dependency-free capture channel; `omr-reconcile` handles state management, blast-radius analysis, and archiving/rollback (via `--archive`, `--rollback`, `--list`, `--review` modes).
 

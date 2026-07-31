@@ -6,7 +6,7 @@ Creates only the minimal workspace files required at init:
   - AGENTS.md
   - .omr/tree-state.json
 
-Content directories (raw/, docs/, wiki/, src/, ...) are created on demand
+Content directories (materials/, docs/, wiki/, src/, ...) are created on demand
 by the skills that write into them.
 """
 
@@ -142,7 +142,7 @@ def main():
     print(f"  AGENTS.md: {result['agents_md_path']}")
     print(f"  Tree state: {result['tree_state_path']}")
     print()
-    print("Directories such as raw/, docs/, wiki/, and src/ are created on demand")
+    print("Directories such as materials/, docs/, wiki/, and src/ are created on demand")
     print("by skills when they first write content.")
     print()
     print("Next: Start collecting materials with /omr-collection or capture ideas with /omr-idea-note")

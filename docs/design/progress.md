@@ -31,7 +31,7 @@ Each skill has explicit prerequisites (from contracts):
 | Skill | Prerequisites | Unlocks After Completion |
 |-------|---------------|--------------------------|
 | `omr-collection` | workspace | `omr-analyze` |
-| `omr-analyze` | materials in raw/ | `omr-decision` (after Gate A passes) |
+| `omr-analyze` | materials/ | `omr-decision` (after Gate A passes) |
 | `omr-decision` | research-plan.md (Gate A passed) | `omr-evaluation` |
 | `omr-evaluation` | architecture-decision.md | `omr-synthesis` |
 | `omr-synthesis` | evaluation-report OR judgment | wiki (internal, `--no-wiki` to skip) |

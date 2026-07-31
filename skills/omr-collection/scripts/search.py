@@ -337,7 +337,7 @@ class SearchCollector:
 
         # Create search-specific output directory
         query_hash = hashlib.md5(query.encode()).hexdigest()[:8]
-        search_dir = self.workspace_root / 'raw' / 'search' / f'query-{query_hash}'
+        search_dir = self.workspace_root / 'materials' / 'search' / f'query-{query_hash}'
         search_dir.mkdir(parents=True, exist_ok=True)
 
         # Save search metadata

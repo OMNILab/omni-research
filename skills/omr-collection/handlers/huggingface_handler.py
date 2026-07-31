@@ -181,7 +181,7 @@ class HuggingFaceHandler(BaseHandler):
         try:
             from huggingface_hub import snapshot_download
 
-            dataset_dir = self.raw_dir / "datasets" / resource_name.split('/')[-1]
+            dataset_dir = self.materials_dir / "datasets" / resource_name.split('/')[-1]
             dataset_dir.mkdir(parents=True, exist_ok=True)
 
             # Download dataset
@@ -210,7 +210,7 @@ class HuggingFaceHandler(BaseHandler):
         try:
             from huggingface_hub import snapshot_download
 
-            model_dir = self.raw_dir / "datasets" / resource_name.split('/')[-1]
+            model_dir = self.materials_dir / "datasets" / resource_name.split('/')[-1]
             model_dir.mkdir(parents=True, exist_ok=True)
 
             # Download model
@@ -307,9 +307,9 @@ class HuggingFaceHandler(BaseHandler):
             source: Resource identifier
 
         Returns:
-            Path to markdown file in raw/datasets/
+            Path to markdown file in materials/datasets/
         """
-        dataset_dir = self.raw_dir / "datasets"
+        dataset_dir = self.materials_dir / "datasets"
         dataset_dir.mkdir(parents=True, exist_ok=True)
 
         # Parse source

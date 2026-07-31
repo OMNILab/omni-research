@@ -110,7 +110,7 @@ class DependencyResolver:
 
         Args:
             artifact_pattern: Artifact name or pattern
-                            (e.g., 'evidence-map.md', 'raw/*', 'materials in raw/')
+                            (e.g., 'evidence-map.md', 'materials/*', 'materials/')
 
         Returns:
             True if artifact exists
@@ -129,26 +129,40 @@ class DependencyResolver:
                 if potential_path.exists():
                     return True
 
-        elif artifact_pattern.startswith('raw/') or 'raw/' in artifact_pattern:
-            # Check raw/ directory for materials
-            raw_dir = self.workspace_root / 'raw'
+        elif (
+            artifact_pattern.startswith('materials/')
+            or artifact_pattern.startswith('raw/')
+            or artifact_pattern in ('materials/', 'materials/*', 'raw/*')
+            or 'materials in raw/' in artifact_pattern
+        ):
+            # Prefer materials/; fall back to legacy raw/ for older workspaces
+            materials_dir = self.workspace_root / 'materials'
+            if not materials_dir.exists():
+                materials_dir = self.workspace_root / 'raw'
 
-            if artifact_pattern == 'raw/*':
-                # Any materials in raw/
-                return any(raw_dir.iterdir())
+            if not materials_dir.exists():
+                return False
 
-            elif 'materials in raw/' in artifact_pattern:
-                # Check if any subdirectory has content
-                for subdir in ['papers', 'web', 'github', 'datasets', 'search']:
-                    subdir_path = raw_dir / subdir
+            def _has_any_materials(root: Path) -> bool:
+                for subdir in ['papers', 'web', 'github', 'datasets', 'search',
+                               'failed', 'models', 'deep-research']:
+                    subdir_path = root / subdir
                     if subdir_path.exists() and any(subdir_path.iterdir()):
                         return True
+                return any(p.is_file() for p in root.rglob('*'))
 
-            elif artifact_pattern.startswith('raw/'):
-                # Specific raw subdirectory
-                subdir = artifact_pattern.split('/')[1]
-                subdir_path = raw_dir / subdir
+            if artifact_pattern in (
+                'materials/', 'materials/*', 'raw/*', 'materials in raw/'
+            ):
+                return _has_any_materials(materials_dir)
+
+            # Specific subdirectory, e.g. materials/papers
+            parts = artifact_pattern.replace('raw/', 'materials/', 1).split('/')
+            if len(parts) >= 2 and parts[1] and parts[1] != '*':
+                subdir_path = materials_dir / parts[1]
                 return subdir_path.exists() and any(subdir_path.iterdir())
+
+            return _has_any_materials(materials_dir)
 
         elif 'workspace' in artifact_pattern:
             # Workspace itself exists
@@ -230,7 +244,7 @@ class DependencyResolver:
         if required in produced_set:
             return True
 
-        # Pattern match (e.g., 'raw/*' matches 'raw/papers/')
+        # Pattern match (e.g., 'materials/*' matches 'materials/papers/')
         for produced in produced_set:
             if '*' in required:
                 pattern = required.replace('*', '')

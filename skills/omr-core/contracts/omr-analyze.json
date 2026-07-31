@@ -2,7 +2,7 @@
   "skill": "omr-analyze",
   "requires": [
     {
-      "artifact": "materials in raw/",
+      "artifact": "materials/",
       "optional": false,
       "description": "Collected materials (papers, web, github, datasets) in markdown format"
     }

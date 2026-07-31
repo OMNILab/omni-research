@@ -19,7 +19,7 @@
         "properties": {
           "artifact": {
             "type": "string",
-            "description": "Artifact filename or pattern (e.g., 'evidence-map.md', 'materials in raw/')"
+            "description": "Artifact filename or pattern (e.g., 'evidence-map.md', 'materials/')"
           },
           "optional": {
             "type": "boolean",

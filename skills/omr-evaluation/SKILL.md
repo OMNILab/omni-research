@@ -145,7 +145,7 @@ ground_truth_strategy: benchmark-derived
 benchmark:
   name: "Memory Retention Benchmark (MRB)"
   source: "P-001 evaluation dataset"
-  file: "raw/datasets/mrb-test-set.json"
+  file: "materials/datasets/mrb-test-set.json"
   size: 1000 scenarios
 ```
 

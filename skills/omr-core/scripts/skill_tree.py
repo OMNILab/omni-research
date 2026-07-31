@@ -92,7 +92,7 @@ class SkillTree:
         Check if a required artifact pattern matches any produced artifact
 
         Args:
-            required: Required artifact pattern (e.g., 'evidence-map.md', 'materials in raw/')
+            required: Required artifact pattern (e.g., 'evidence-map.md', 'materials/')
             produced_set: Set of produced artifact names
 
         Returns:
@@ -103,7 +103,7 @@ class SkillTree:
         for produced in produced_set:
             if required == produced:
                 return True
-            # Handle patterns like "raw/*" or "materials in raw/"
+            # Handle patterns like "materials/*" or "materials/"
             if '*' in required:
                 pattern = required.replace('*', '')
                 if pattern in produced:

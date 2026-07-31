@@ -345,7 +345,7 @@ Evidence extracted from collected materials provides foundation for background c
 
 ## Context
 
-Research context derived from collected materials in `raw/` directory.
+Research context derived from collected materials in `materials/` directory.
 
 {evidence_summary}
 

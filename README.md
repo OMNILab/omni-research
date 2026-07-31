@@ -55,7 +55,7 @@ This creates only:
 - `AGENTS.md` — project instructions for the agent
 - `.omr/tree-state.json` — skill progress state
 
-Content folders such as `raw/`, `docs/`, `wiki/`, and `src/` are created **on demand** when a skill first writes into them.
+Content folders such as `materials/`, `docs/`, `wiki/`, and `src/` are created **on demand** when a skill first writes into them.
 
 ### 3. Run a research loop
 
@@ -140,7 +140,7 @@ my-project/
 ├── AGENTS.md              # created by bootstrap
 ├── .omr/
 │   └── tree-state.json    # created by bootstrap
-├── raw/                   # on demand — collected materials
+├── materials/                   # on demand — collected materials
 ├── docs/                  # on demand — plans, reports, indexes
 ├── wiki/                  # on demand — living concept pages
 └── src/                   # on demand — prototypes / experiments
@@ -227,7 +227,7 @@ OmniResearch 把 AI 编程助手变成有流程约束的研究搭档：
 - `AGENTS.md` — 给 Agent 的项目说明
 - `.omr/tree-state.json` — 技能进度状态
 
-`raw/`、`docs/`、`wiki/`、`src/` 等目录会在对应技能**首次写入时**按需创建。
+`materials/`、`docs/`、`wiki/`、`src/` 等目录会在对应技能**首次写入时**按需创建。
 
 ### 3. 进入研究循环
 
@@ -310,7 +310,7 @@ my-project/
 ├── AGENTS.md              # bootstrap 创建
 ├── .omr/
 │   └── tree-state.json    # bootstrap 创建
-├── raw/                   # 按需 — 原始材料
+├── materials/                   # 按需 — 原始材料
 ├── docs/                  # 按需 — 计划、报告、索引
 ├── wiki/                  # 按需 — 概念页面
 └── src/                   # 按需 — 原型 / 实验

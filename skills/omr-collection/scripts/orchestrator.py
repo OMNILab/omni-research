@@ -267,13 +267,13 @@ class CollectionOrchestrator:
         for item in collected:
             file_path = item.get('file_path', '')
             if file_path:
-                # Extract artifact pattern (e.g., 'raw/papers/')
-                if 'raw/papers/' in file_path:
-                    produced_artifacts.add('materials in raw/')
-                elif 'raw/web/' in file_path:
-                    produced_artifacts.add('materials in raw/')
-                elif 'raw/github/' in file_path:
-                    produced_artifacts.add('materials in raw/')
+                # Extract artifact pattern (e.g., 'materials/papers/')
+                if 'materials/papers/' in file_path:
+                    produced_artifacts.add('materials/')
+                elif 'materials/web/' in file_path:
+                    produced_artifacts.add('materials/')
+                elif 'materials/github/' in file_path:
+                    produced_artifacts.add('materials/')
 
         # Update downstream skills
         resolver.update_downstream_skills(list(produced_artifacts))

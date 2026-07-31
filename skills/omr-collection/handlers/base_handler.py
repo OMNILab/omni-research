@@ -30,7 +30,7 @@ class BaseHandler(ABC):
             workspace_root: Path to research project root
         """
         self.workspace_root = workspace_root
-        self.raw_dir = workspace_root / "raw"
+        self.materials_dir = workspace_root / "materials"
         self.index_dir = workspace_root / "docs" / "index"
 
     @abstractmethod
@@ -199,7 +199,7 @@ class BaseHandler(ABC):
         Get index file path for source type
 
         Args:
-            source_type: Source type (paper/web/github/dataset; note: directory names are plural: raw/papers/, raw/datasets/)
+            source_type: Source type (paper/web/github/dataset; note: directory names are plural: materials/papers/, materials/datasets/)
 
         Returns:
             Path to index JSON file
@@ -236,7 +236,7 @@ class BaseHandler(ABC):
         """
         # Generate error artifact path
         source_hash = hashlib.md5(source.encode()).hexdigest()[:8]
-        error_path = self.raw_dir / "failed" / f"url-{source_hash}-error.md"
+        error_path = self.materials_dir / "failed" / f"url-{source_hash}-error.md"
         error_path.parent.mkdir(parents=True, exist_ok=True)
 
         # Create error markdown

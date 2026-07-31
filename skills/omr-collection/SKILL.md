@@ -96,7 +96,7 @@ Skill: Found 47 results:
 
 User: Y
 
-Skill: ✓ Collecting 30 materials → raw/search/query-hash/
+Skill: ✓ Collecting 30 materials → materials/search/query-hash/
 ```
 
 **Passive reception preserved**: User approves scope → Skill delivers within scope
@@ -115,10 +115,10 @@ elif quoted_string(input) OR no_url_pattern(input):
 
 | Handler | Source Types | Retrieval Strategy | Output Format |
 |---------|--------------|-------------------|---------------|
-| **Generic Web** | HTTP/HTTPS URLs, unsupported sources | Chrome MCP → snapshot + markdown | `raw/web/url-hash.md` + `.png` |
-| **Paper** | Paper URLs, DOIs, Arxiv IDs | PDF download → markdown parser | `raw/papers/doi-hash.md` |
-| **GitHub** | GitHub URLs | README + release info (API) | `raw/github/repo-name.md` |
-| **HuggingFace** | HF dataset/model URLs | README + card (browser + API) | `raw/datasets/hf-name.md` |
+| **Generic Web** | HTTP/HTTPS URLs, unsupported sources | Chrome MCP → snapshot + markdown | `materials/web/url-hash.md` + `.png` |
+| **Paper** | Paper URLs, DOIs, Arxiv IDs | PDF download → markdown parser | `materials/papers/doi-hash.md` |
+| **GitHub** | GitHub URLs | README + release info (API) | `materials/github/repo-name.md` |
+| **HuggingFace** | HF dataset/model URLs | README + card (browser + API) | `materials/datasets/hf-name.md` |
 
 **Extensibility**: ✗ None
 
@@ -189,7 +189,7 @@ omr-collection/
 
 **Directory Layout**:
 ```
-raw/
+materials/
 ├── paper/           # DOI-based naming (doi-10-1234-abc.md)
 │                   # arxiv-based naming (arxiv-2402-12345.md)
 │                   # Semantic naming (paper-{title-slug}.md) for PDF URLs with title metadata
@@ -201,7 +201,7 @@ raw/
 ├── search/          # Search-specific
 │   └── query-hash-abc123/
 │       ├── query-metadata.json
-│       └── (collected papers in raw/papers/)
+│       └── (collected papers in materials/papers/)
 └── failed/          # Error artifacts (url-hash-error.md)
 
 docs/index/
@@ -238,7 +238,7 @@ docs/index/
   "source_type": "paper/web/github/dataset/search/failed",
   "collected_at": "ISO-8601",
   "collected_by": "omr-collection",
-  "file_path": "raw/papers/artifact-name.md"
+  "file_path": "materials/papers/artifact-name.md"
 }
 ```
 
@@ -268,7 +268,7 @@ docs/index/
    ↓ (still failing)
 3. Try Generic Web fallback (Chrome MCP snapshot)
    ↓ (still failing)
-4. Create error artifact in raw/failed/
+4. Create error artifact in materials/failed/
 5. Continue collecting remaining sources (fail gracefully)
 6. Report errors in console + error artifacts + failed-index.json
 ```
@@ -293,7 +293,7 @@ docs/index/
   - https://broken-link.com/paper.pdf (404)
   - https://timeout-server.com/blog.html (timeout)
 
-See: raw/failed/ for error details
+See: materials/failed/ for error details
 ```
 
 ---
@@ -425,10 +425,10 @@ See DEPENDENCIES.md for comprehensive setup guide.
 
 | Downstream Skill | omr-collection Outputs Used |
 |------------------|----------------------------|
-| **omr-analyze** | `raw/papers/*.md`, `raw/web/*.md`, `docs/index/papers-index.json` |
-| **omr-decision** | `raw/github/*.md`, `raw/datasets/*.md` |
-| **omr-evaluation** | `raw/datasets/*` (if `--download-dataset`) |
-| **omr-synthesis** | All `raw/` artifacts |
+| **omr-analyze** | `materials/papers/*.md`, `materials/web/*.md`, `docs/index/papers-index.json` |
+| **omr-decision** | `materials/github/*.md`, `materials/datasets/*.md` |
+| **omr-evaluation** | `materials/datasets/*` (if `--download-dataset`) |
+| **omr-synthesis** | All `materials/` artifacts |
 
 ---
 

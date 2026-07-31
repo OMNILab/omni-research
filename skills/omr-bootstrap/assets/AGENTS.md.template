@@ -26,7 +26,7 @@ on demand by the skill that first writes into them.
     └── tree-state.json       # Skill tree progress [bootstrap]
 
 # Created on demand when needed:
-# raw/papers|web|github|datasets|search|failed   [omr-collection]
+# materials/papers|web|github|datasets|search|failed   [omr-collection]
 # docs/index/*.json                              [omr-collection / omr-idea-note]
 # docs/ideas/                                    [omr-idea-note]
 # docs/plans/                                    [omr-analyze / omr-decision / omr-evaluation]

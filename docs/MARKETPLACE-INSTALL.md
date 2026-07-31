@@ -38,7 +38,7 @@ Skills must be installed in dependency order:
 ```
 
 **omr-bootstrap** initializes:
-- Project directory structure (raw/, docs/, wiki/, src/)
+- Project directory structure (materials/, docs/, wiki/, src/)
 - AGENTS.md with research context
 - Skill tree state
 - Artifacts index
@@ -252,7 +252,7 @@ omr-bootstrap ✓ (completed)
     │
     ├── omr-collection ○ (ready)
     │       │
-    │       └── omr-analyze ● (locked: needs materials in raw/)
+    │       └── omr-analyze ● (locked: needs materials/)
     │               │
     │               ├── omr-decision ● (locked: needs Gate A passed in omr-analyze)
     │               │       │

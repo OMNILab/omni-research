@@ -277,9 +277,9 @@ class GenericWebHandler(BaseHandler):
             source: URL
 
         Returns:
-            Path to markdown file in raw/web/
+            Path to markdown file in materials/web/
         """
-        web_dir = self.raw_dir / "web"
+        web_dir = self.materials_dir / "web"
         web_dir.mkdir(parents=True, exist_ok=True)
 
         # Generate hash-based filename
@@ -296,9 +296,9 @@ class GenericWebHandler(BaseHandler):
             source: URL
 
         Returns:
-            Path to PNG snapshot file in raw/web/
+            Path to PNG snapshot file in materials/web/
         """
-        web_dir = self.raw_dir / "web"
+        web_dir = self.materials_dir / "web"
         web_dir.mkdir(parents=True, exist_ok=True)
 
         # Generate hash-based filename

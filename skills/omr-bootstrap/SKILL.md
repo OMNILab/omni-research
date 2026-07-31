@@ -42,7 +42,7 @@ Content directories are created on demand by skills when they first write:
 
 | Path | Created by |
 |------|------------|
-| `raw/papers\|web\|github\|datasets\|search\|failed/` | `omr-collection` |
+| `materials/papers\|web\|github\|datasets\|search\|failed/` | `omr-collection` |
 | `docs/index/` | `omr-collection` / `omr-idea-note` |
 | `docs/ideas/` | `omr-idea-note` |
 | `docs/plans/` | `omr-analyze` / `omr-decision` / `omr-evaluation` |
@@ -68,7 +68,7 @@ omr-bootstrap ✓
     │
     ├── omr-collection ○  (ready)
     │       │
-    │       ├── omr-analyze ●  (locked: needs materials in raw/)
+    │       ├── omr-analyze ●  (locked: needs materials/)
     │       │
     │       └── omr-idea-note ✓  (can run anytime)
     │
@@ -92,7 +92,7 @@ After workspace creation, present interactive menu:
 ✓ Workspace created at ./{project-id}/
 ✓ AGENTS.md generated
 ✓ .omr/tree-state.json initialized
-(raw/, docs/, wiki/, src/ will be created on demand)
+(materials/, docs/, wiki/, src/ will be created on demand)
 
 What's your first action?
 
@@ -140,7 +140,7 @@ System: ✓ Creating workspace for "agent memory mechanisms"...
         ✓ Workspace created at ./agent-memory-mechanisms/
         ✓ AGENTS.md generated
         ✓ .omr/tree-state.json initialized
-        (raw/, docs/, wiki/, src/ will be created on demand)
+        (materials/, docs/, wiki/, src/ will be created on demand)
 
         📊 Skill tree:
         omr-bootstrap ✓
@@ -169,7 +169,7 @@ System: ⚠️  Workspace "agent-memory" already exists.
 ## What NOT to Do
 
 - Do NOT prompt for pattern selection at bootstrap (patterns emerge later)
-- Do NOT pre-create empty content directories (`raw/`, `docs/survey/`, `wiki/`, `src/`, etc.)
+- Do NOT pre-create empty content directories (`materials/`, `docs/survey/`, `wiki/`, `src/`, etc.)
 - Do NOT create empty index placeholders; indexes are created when first written
 - Do NOT create any artifacts beyond `AGENTS.md` and `.omr/tree-state.json`
 - Do NOT invoke other skills automatically (wait for user choice)

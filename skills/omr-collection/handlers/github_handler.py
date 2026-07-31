@@ -217,7 +217,7 @@ class GitHubHandler(BaseHandler):
         """
         import subprocess
 
-        repo_dir = self.raw_dir / "github" / repo.split('/')[-1]
+        repo_dir = self.materials_dir / "github" / repo.split('/')[-1]
         repo_dir.mkdir(parents=True, exist_ok=True)
 
         clone_url = f"https://github.com/{repo}.git"
@@ -315,9 +315,9 @@ class GitHubHandler(BaseHandler):
             source: Repo identifier
 
         Returns:
-            Path to markdown file in raw/github/
+            Path to markdown file in materials/github/
         """
-        github_dir = self.raw_dir / "github"
+        github_dir = self.materials_dir / "github"
         github_dir.mkdir(parents=True, exist_ok=True)
 
         # Extract repo name

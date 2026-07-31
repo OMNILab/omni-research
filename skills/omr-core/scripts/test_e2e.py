@@ -38,7 +38,7 @@ def test_evidence_first_workflow():
 
         # Step 2: Collection (mock data for testing)
         print("\n[2] Create mock materials...")
-        raw_paper = workspace / 'raw' / 'paper'
+        raw_paper = workspace / 'materials' / 'paper'
         raw_paper.mkdir(parents=True, exist_ok=True)
         mock_paper = raw_paper / 'mock-paper.md'
         mock_paper.write_text("# Mock Paper\n\nContent about agent memory...\n")

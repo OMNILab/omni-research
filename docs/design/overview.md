@@ -43,12 +43,12 @@ Materials are classified by evidence strength:
 
 | Tier | Type | Role | Storage |
 |------|------|------|---------|
-| 1 | Peer-reviewed papers | Primary research evidence | `raw/papers/` |
-| 2 | Technical blogs | Engineering supplement | `raw/web/` |
-| 3 | Deep-research reports | Leads only, not anchor evidence | `raw/deep-research/` |
-| 4 | GitHub/projects | Implementation reference | `raw/github/` |
-| 5 | AI models | Implementation reference | `raw/models/` |
-| 6 | Benchmarks/datasets | Evaluation reference | `raw/datasets/` |
+| 1 | Peer-reviewed papers | Primary research evidence | `materials/papers/` |
+| 2 | Technical blogs | Engineering supplement | `materials/web/` |
+| 3 | Deep-research reports | Leads only, not anchor evidence | `materials/deep-research/` |
+| 4 | GitHub/projects | Implementation reference | `materials/github/` |
+| 5 | AI models | Implementation reference | `materials/models/` |
+| 6 | Benchmarks/datasets | Evaluation reference | `materials/datasets/` |
 
 **Non-negotiable**: Never claim "paper proves X" when it only suggests.
 

@@ -26,7 +26,7 @@ Transform raw materials into a structured research brief, evidence map, judgment
 /omr-analyze
 ```
 
-**No arguments required** — operates on materials in `raw/` directory
+**No arguments required** — operates on materials in `materials/` directory
 
 **Automatic trigger conditions:**
 - After `omr-collection` completes with ≥1 paper
@@ -40,7 +40,7 @@ This skill has four internal phases executed sequentially:
 ### Phase 1: Scan Raw Materials
 
 **Required prerequisite:**
-- At least 1 material in `raw/` directory
+- At least 1 material in `materials/` directory
 - `docs/index/papers-index.json` must exist
 
 **Scan process:**
@@ -50,12 +50,12 @@ This skill has four internal phases executed sequentially:
 4. Count materials per tier
 
 **If no materials found:**
-- Error: "No materials in `raw/`. Run `/omr-collection` first."
+- Error: "No materials in `materials/`. Run `/omr-collection` first."
 - Do not proceed
 
 ### Phase 2: Extract Findings and Generate Evidence Artifacts
 
-For each paper in `raw/papers/`:
+For each paper in `materials/papers/`:
 1. Read abstract (from index metadata)
 2. If abstract missing, attempt to extract from PDF (using text parsing)
 3. Identify key contributions stated by authors
@@ -661,7 +661,7 @@ None
 
 ## Prerequisites
 
-- Materials in `raw/` directory (required)
+- Materials in `materials/` directory (required)
 - `docs/index/papers-index.json` must exist
 - If empty: Error "Run `/omr-collection` first."
 
@@ -818,7 +818,7 @@ System: ✓ Synthesizing judgment...
 ```
 User: /omr-analyze
 
-System: ⚠️  No materials found in `raw/`
+System: ⚠️  No materials found in `materials/`
         Cannot proceed without evidence sources.
 
         Run `/omr-collection` first to add papers, blogs, or other materials.
@@ -864,7 +864,7 @@ System: ✓ Evidence map generated
 
 - Do NOT claim papers "prove" findings when they only "suggest"
 - Do NOT include speculative findings in evidence map
-- Do NOT proceed without materials in `raw/`
+- Do NOT proceed without materials in `materials/`
 - Do NOT auto-generate research question without user confirmation
 - Do NOT skip gap detection (always analyze limitations)
 - Do NOT claim complete coverage when gaps exist
